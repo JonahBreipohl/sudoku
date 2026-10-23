@@ -61,7 +61,7 @@
         "Returns null for a grid with a conflict and for an unsolvable but conflict-free grid",
         "Each hard puzzle solves in under 20 ms (generous timer assertion)"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2115,6 +2115,29 @@
       "attempts": 0,
       "notes": "",
       "blocked_by": "Q1"
+    },
+    {
+      "id": "M1-02a",
+      "title": "Deflake solver timing test",
+      "milestone": 1,
+      "priority": 1,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M1-02"
+      ],
+      "files": [
+        "src/engine/solver.test.ts"
+      ],
+      "description": "In src/engine/solver.test.ts (hard-puzzle timing test, ~lines 44-56) assert the minimum of about 5 runs per puzzle is under 20 ms instead of a single run, so busy CI runners don't flake. Reported by the M1-02 reviewer.",
+      "acceptance": [
+        "Timing test takes best-of-5 per puzzle and still asserts < 20 ms",
+        "npm run check passes"
+      ],
+      "status": "in_progress",
+      "attempts": 1,
+      "notes": ""
     }
   ]
 }
