@@ -114,7 +114,7 @@
         "place(state, cell, digit) sets the value and removes digit from peers; eliminate(state, cell, digit) removes one candidate; both return new states",
         "Property tests: placing the solution digit never removes a peer's solution digit; candidates of filled cells are 0"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2137,6 +2137,30 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M1-04a",
+      "title": "Strengthen candidate-state tests",
+      "milestone": 1,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M1-04"
+      ],
+      "files": [
+        "src/engine/candidates.test.ts"
+      ],
+      "description": "Reviewer follow-ups: (1) run the place/peer property test over varied grids (e.g. random full grids with random blanks via solve + createRng) instead of only SAMPLE_EASY; (2) add a fast-check property for fromGridAndNotes: result candidates are a subset of fromGrid's, and filled cells stay 0 for any notes.",
+      "acceptance": [
+        "Property test covers multiple generated grids",
+        "fromGridAndNotes subset property exists",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]

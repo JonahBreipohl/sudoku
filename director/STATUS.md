@@ -1,13 +1,13 @@
 # Status
 
-_Last updated: setup, 2026-10-22. The Director rewrites this file every run._
+_Last updated: run 20261023-0903 (cloud)._
 
 ## Progress
 
 | Milestone | Done / total |
 |---|---|
 | M0 Foundation | done at setup |
-| M1 Engine core | 0 / 6 |
+| M1 Engine core | 3 / 7 (M1-01, M1-02, M1-04 done; M1-02a done; M1-04a added) |
 | M2 Logical solver and grader | 0 / 14 |
 | M3 Generator and puzzle bank | 0 / 5 |
 | M4 Game state | 0 / 8 |
@@ -18,43 +18,27 @@ _Last updated: setup, 2026-10-22. The Director rewrites this file every run._
 | M9 Display mode and PWA | 0 / 9 |
 | M10 Stats, daily, polish, deploy | 0 / 9 |
 
+(M1-02a was a deflake follow-up and is also done.)
+
 ## Next ready tasks
 
-Only M1-01 has no unmet dependencies; these follow it.
-
-| Task | Model | Size | Need (2x prior) |
-|---|---|---|---|
-| M1-01 Seeded PRNG | sonnet | S | $1.20 |
-| M1-02 Fast bitmask solver | opus | S | $2.40 |
-| M1-04 Candidate state | sonnet | S | $1.20 |
-| M1-03 Solution counting | opus | S | $2.40 |
-| M1-05 Step type and helpers | sonnet | S | $1.20 |
+1. M1-03 opus S (countSolutions): need about $2.4 (prior) + overhead
+2. M1-04a haiku S: need $0.10
+3. After M1-03: M1 remaining tasks and M2.
 
 ## Blocked
 
-- M10-09 Enable deployment: Q1 (hosting).
+- M10-09 (Q1 hosting).
 
 ## Open questions
 
-Q1 hosting (blocking); Q2 opus M tasks vs run budget; Q3 budgets; Q4 review volume; Q5 daily rotation.
+Q1 (blocks M10-09); Q2-Q5 non-blocking, unanswered.
 
-## Spend
+## Spend (API-equivalent)
 
-API-equivalent usage. This run $0, 7 days $0, all time $0. No calibration samples yet.
+- This run: about $2.80 (incl. Director). 7 days and all time: $2.74 per ledger (tasks + review + overhead).
+- Observed: sonnet S about $0.17-0.19, opus S $1.23, haiku S $0.01; reviews $0.05-0.30. Priors are conservative by about 5x for sonnet.
 
-## Projection (priors only)
+## Projection
 
-| | Tasks | Prior each | Total |
-|---|---|---|---|
-| sonnet S | 43 | $0.60 | $25.80 |
-| sonnet M | 11 | $2.00 | $22.00 |
-| opus S | 19 | $1.20 | $22.80 |
-| opus M | 4 | $4.00 | $16.00 |
-| haiku S | 3 | $0.05 | $0.15 |
-| Task work | 80 | | $86.75 |
-| Director overhead | 80 x $0.50 | | $40.00 |
-| Reviews | ~56 x $1.00 | | ~$56.00 |
-| **Total** | | | **~$183** |
-
-At about $5.50 of usable budget per run, that is about 33 runs; the $40 weekly cap makes it about
-4.5 weeks. Expect this to change once the ledger has samples.
+Too few samples for medians; at observed costs M-sized tasks are likely well under priors. Run budget is $6; roughly 4-6 S tasks per run once priors are replaced by samples (3+ per model/size).
