@@ -88,8 +88,8 @@
         "Property test: for random full grids with random cells blanked, every solution found agrees with the givens",
         "Counting to 2 on the empty grid and on 17-clue puzzles takes under 20 ms each"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2135,7 +2135,7 @@
         "Timing test takes best-of-5 per puzzle and still asserts < 20 ms",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }
