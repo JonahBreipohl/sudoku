@@ -1,28 +1,50 @@
 {
   "trunk": "main",
   "remote": "origin",
-  "run_budget_usd": 15,
-  "weekly_budget_usd": 75,
-  "wrapup_reserve_usd": 1.0,
-  "director_overhead_usd": 1.0,
-  "default_review_usd": 1.0,
+  "run_budget_usd": 7,
+  "weekly_budget_usd": 30,
+  "wrapup_reserve_usd": 0.5,
+  "director_overhead_usd": 1,
+  "default_review_usd": 1,
   "min_finish_probability": 0.8,
-  "max_tasks_per_run": 4,
+  "max_tasks_per_run": 3,
   "max_parallel": 1,
-  "max_run_minutes": 120,
+  "max_run_minutes": 90,
   "review_every_nth_task": 3,
   "allow_fable": false,
-  "model_ladder": ["haiku", "sonnet", "opus", "fable"],
-  "effort_ladder": ["low", "medium", "high", "xhigh"],
+  "model_ladder": [
+    "haiku",
+    "sonnet",
+    "opus",
+    "fable"
+  ],
+  "effort_ladder": [
+    "low",
+    "medium",
+    "high",
+    "xhigh"
+  ],
   "plan_usage_ceilings": {
     "five_hour_pct": 80,
     "seven_day_pct": 85
   },
   "size_priors_usd": {
-    "haiku":  { "S": 0.15, "M": 0.4 },
-    "sonnet": { "S": 1.0,  "M": 2.5 },
-    "opus":   { "S": 1.75, "M": 4.0 },
-    "fable":  { "S": 4.0,  "M": 10.0 }
+    "haiku": {
+      "S": 0.15,
+      "M": 0.4
+    },
+    "sonnet": {
+      "S": 1,
+      "M": 2.5
+    },
+    "opus": {
+      "S": 1.75,
+      "M": 4
+    },
+    "fable": {
+      "S": 4,
+      "M": 10
+    }
   },
   "routing": {
     "feature-dev": "UI, state, tooling and docs work outside src/engine/. Default sonnet; haiku for mechanical S tasks.",

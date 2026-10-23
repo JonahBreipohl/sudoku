@@ -16,6 +16,16 @@ Facts about where the Director runs. Update when something changes; log tooling 
   its own file in `--compare` output and note the path pattern here.
 - `~/.claude/plan-usage.json`: absent, so plan-usage ceilings are not checked.
 
+## Billing and limits
+
+- Claude Code runs on a Pro subscription (no ANTHROPIC_API_KEY, no Bedrock or Vertex). The dollars
+  from usage.mjs are API-equivalent usage, not charges. The budgets in config.json pace usage so a
+  run fits inside one 5-hour window and the week leaves room for the owner's own use.
+- The real limits are the plan's 5-hour and weekly windows. A usage-limit or rate-limit error
+  means stop at once and set the in-flight task to resume (step 6).
+- Not yet known: whether $7 of API-equivalent usage fits in one 5-hour window on this plan.
+  After each run, note here whether a limit was hit and how far into the run.
+
 ## Cloud runs
 
 Not yet run in the cloud. Expect no plan-usage file and possibly different transcript paths;

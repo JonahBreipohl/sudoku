@@ -13,8 +13,10 @@ Answer:
 
 ## Q2: Confirm the budgets in config.json (non-blocking)
 
-Setup chose run_budget_usd 15, weekly_budget_usd 75, max 4 tasks per run, 120 minutes per run,
-fable disabled. At the current priors the whole backlog is roughly $70 (about $35 of task work, $24 of
-Director overhead, $12 of reviews), so about 5-6 runs. Edit config.json to change them; the Director will not.
+Setup proposed run_budget_usd 15 and weekly_budget_usd 75.
 
-Answer:
+Answer: (2026-10-22) Use smaller amounts so each run finishes cleanly within Pro usage limits
+(5-hour and weekly windows). Now run_budget_usd 7, weekly_budget_usd 30, wrapup_reserve_usd 0.5,
+max_tasks_per_run 3, max_run_minutes 90. All M tasks were split into S tasks. Dollar figures are
+API-equivalent usage measured from transcripts, not charges: the account is on a Pro
+subscription with no API key.

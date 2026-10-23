@@ -7,10 +7,10 @@ _Last updated: setup, 2026-10-22. The Director rewrites this file every run._
 | Milestone | Done / total |
 |---|---|
 | 0 Foundation | 0 / 2 |
-| 1 Engine | 0 / 6 |
-| 2 State | 0 / 4 |
-| 3 UI | 0 / 8 |
-| 4 Polish | 0 / 4 |
+| 1 Engine | 0 / 9 |
+| 2 State | 0 / 5 |
+| 3 UI | 0 / 9 |
+| 4 Polish | 0 / 5 |
 
 ## Next ready tasks
 
@@ -26,13 +26,15 @@ _Last updated: setup, 2026-10-22. The Director rewrites this file every run._
 
 ## Open questions
 
-Q1 hosting, Q2 confirm budgets.
+Q1 hosting.
 
 ## Spend
 
-This run $0, 7 days $0, all time $0. No calibration data yet.
+API-equivalent usage, not charges (Pro plan). This run $0, 7 days $0, all time $0.
+Budgets: $7 per run, $30 per week. No calibration data yet.
 
 ## Projection
 
-Priors only (need = 2x prior, plus ~$1 overhead per task, plus review where required):
-roughly $70 to finish at prior cost, about 5-6 runs at $15 per run.
+Priors only: about $32 of task work, $30 of Director overhead and $19 of reviews, so roughly
+$80 to finish. At about $6.50 per run that is 12-13 runs, and the $30 weekly cap stretches it
+to about 3 weeks. Expect this to move once the ledger has real samples.
