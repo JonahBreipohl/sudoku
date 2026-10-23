@@ -1,0 +1,33 @@
+{
+  "trunk": "main",
+  "remote": "origin",
+  "run_budget_usd": 15,
+  "weekly_budget_usd": 75,
+  "wrapup_reserve_usd": 1.0,
+  "director_overhead_usd": 1.0,
+  "default_review_usd": 1.0,
+  "min_finish_probability": 0.8,
+  "max_tasks_per_run": 4,
+  "max_parallel": 1,
+  "max_run_minutes": 120,
+  "review_every_nth_task": 3,
+  "allow_fable": false,
+  "model_ladder": ["haiku", "sonnet", "opus", "fable"],
+  "effort_ladder": ["low", "medium", "high", "xhigh"],
+  "plan_usage_ceilings": {
+    "five_hour_pct": 80,
+    "seven_day_pct": 85
+  },
+  "size_priors_usd": {
+    "haiku":  { "S": 0.15, "M": 0.4 },
+    "sonnet": { "S": 1.0,  "M": 2.5 },
+    "opus":   { "S": 1.75, "M": 4.0 },
+    "fable":  { "S": 4.0,  "M": 10.0 }
+  },
+  "routing": {
+    "feature-dev": "UI, state, tooling and docs work outside src/engine/. Default sonnet; haiku for mechanical S tasks.",
+    "engine-dev": "Anything under src/engine/ (solver, generator, grader, hints). Default opus; sonnet for small, well-specified S tasks.",
+    "reviewer": "Read-only review of a task branch against its acceptance criteria. Runs on sonnet."
+  },
+  "reviewer_model": "sonnet"
+}

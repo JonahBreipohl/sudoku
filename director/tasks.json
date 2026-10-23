@@ -1,0 +1,340 @@
+{
+  "milestones": {
+    "0": "Foundation: tooling and test harness",
+    "1": "Engine: board model, validation, solving, generation, grading, hints",
+    "2": "State: game store, undo/redo, persistence, timer",
+    "3": "UI: playable game in the browser",
+    "4": "Polish: accessibility, end-to-end coverage, docs, deploy"
+  },
+  "tasks": [
+    {
+      "id": "T001",
+      "title": "Playwright e2e harness with a smoke test",
+      "milestone": 0, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": [], "files": ["package.json", "package-lock.json", "playwright.config.ts", "e2e/**", ".gitignore"],
+      "acceptance": [
+        "@playwright/test is a devDependency; `npm run e2e` builds the app, serves it with `vite preview`, and runs Playwright against Chromium only",
+        "e2e/smoke.spec.ts loads the page and asserts the heading 'Sudoku' is visible",
+        "playwright.config.ts uses webServer so no manual server is needed",
+        "`npm run check` does not run e2e tests (vitest must not pick up e2e/)",
+        "CLAUDE.md commands section mentions `npx playwright install chromium` as a one-time setup step"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T002",
+      "title": "ESLint and Prettier wired into npm run check",
+      "milestone": 0, "priority": 2,
+      "agent": "feature-dev", "model": "haiku", "effort": "medium", "size": "S",
+      "deps": [], "files": ["package.json", "package-lock.json", "eslint.config.js", ".prettierrc*", ".prettierignore", "src/**"],
+      "acceptance": [
+        "ESLint flat config with typescript-eslint recommended rules; Prettier config with defaults plus printWidth 110",
+        "`npm run lint` runs eslint and `prettier --check`; `npm run format` writes fixes",
+        "`npm run check` runs typecheck, lint and test, and passes on the current tree",
+        "dist/, node_modules/ and director/ are ignored by both tools"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T010",
+      "title": "Board model: types, parse/serialize, units and peers",
+      "milestone": 1, "priority": 1,
+      "agent": "engine-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": [], "files": ["src/engine/board.ts", "src/engine/board.test.ts", "src/engine/index.ts"],
+      "acceptance": [
+        "Exports a Grid type (81 cells, value 0 = empty, 1-9 digits) and helpers rowOf, colOf, boxOf, cellIndex",
+        "parseGrid accepts 81-char strings using '0' or '.' for blanks, ignores whitespace, and throws a descriptive error otherwise; serializeGrid returns the '.'-blank form",
+        "Precomputed UNITS (27) and PEERS (20 per cell) tables, verified by tests",
+        "Pure functions, no DOM; re-exported from src/engine/index.ts",
+        "Unit tests cover parsing round-trips and invalid input"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T011",
+      "title": "Validator: conflicts and completion",
+      "milestone": 1, "priority": 1,
+      "agent": "engine-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T010"], "files": ["src/engine/validate.ts", "src/engine/validate.test.ts", "src/engine/index.ts"],
+      "acceptance": [
+        "findConflicts(grid) returns the set of cell indices that share a digit with a peer",
+        "isComplete(grid) is true only for a full grid with no conflicts",
+        "isConsistentWith(grid, solution) reports cells whose value differs from the solution",
+        "Unit tests cover empty, partial, conflicting and solved grids"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T012",
+      "title": "Solver: constraint propagation with backtracking and solution counting",
+      "milestone": 1, "priority": 1,
+      "agent": "engine-dev", "model": "opus", "effort": "high", "size": "M",
+      "deps": ["T010"], "files": ["src/engine/solve.ts", "src/engine/solve.test.ts", "src/engine/index.ts"],
+      "acceptance": [
+        "solve(grid) returns a solved Grid or null; it does not mutate its input",
+        "countSolutions(grid, limit = 2) stops early at the limit and is what uniqueness checks use",
+        "Uses candidate bitmasks with naked/hidden single propagation and minimum-remaining-values branching",
+        "Tests include at least 5 known puzzles (easy through 'hardest' class, e.g. Arto Inkala's) with known solutions, an unsolvable grid, and a multi-solution grid",
+        "Solves each of the hard test puzzles in under 50 ms in the vitest run (assert with a generous timer)"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T013",
+      "title": "Technique grader: human-style solver that rates difficulty",
+      "milestone": 1, "priority": 2,
+      "agent": "engine-dev", "model": "opus", "effort": "high", "size": "M",
+      "deps": ["T012"], "files": ["src/engine/techniques.ts", "src/engine/grade.ts", "src/engine/grade.test.ts", "src/engine/index.ts"],
+      "acceptance": [
+        "Implements, as separate step functions, naked single, hidden single, naked pair/triple, hidden pair, pointing pair/box-line reduction, and X-wing",
+        "Each step returns a structured Step {technique, placements or eliminations, cells involved} usable later for hints",
+        "grade(grid) applies the easiest applicable technique repeatedly and returns {difficulty: 'easy'|'medium'|'hard'|'expert', hardestTechnique, steps}; 'expert' when the techniques cannot finish it",
+        "Difficulty mapping is documented in a comment table in grade.ts",
+        "Tests: one puzzle per technique where that technique is required, and grading of at least 4 reference puzzles"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T014",
+      "title": "Generator: unique-solution puzzles at a requested difficulty",
+      "milestone": 1, "priority": 1,
+      "agent": "engine-dev", "model": "opus", "effort": "medium", "size": "M",
+      "deps": ["T012", "T013"], "files": ["src/engine/generate.ts", "src/engine/random.ts", "src/engine/generate.test.ts", "src/engine/index.ts"],
+      "acceptance": [
+        "Seedable PRNG in random.ts; generate({difficulty, seed}) is deterministic for a given seed",
+        "Builds a random full solution, then removes clues (symmetric by default) while countSolutions stays 1",
+        "Retries until grade() matches the requested difficulty, with a bounded attempt count, falling back to the closest grade found",
+        "Returns {puzzle, solution, difficulty, seed}",
+        "Tests: 20 seeded puzzles per difficulty all have exactly one solution and the requested (or documented fallback) grade; median generation time per easy/medium puzzle under 200 ms in Node"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T015",
+      "title": "Hint engine: next logical step for the player's current grid",
+      "milestone": 1, "priority": 2,
+      "agent": "engine-dev", "model": "opus", "effort": "medium", "size": "S",
+      "deps": ["T013", "T011"], "files": ["src/engine/hint.ts", "src/engine/hint.test.ts", "src/engine/index.ts"],
+      "acceptance": [
+        "nextHint(grid, solution, notes?) returns {kind: 'mistake', cells} if any filled cell disagrees with the solution, otherwise the easiest technique Step that applies",
+        "Each hint carries a short plain-English explanation string, e.g. 'Only 7 fits in row 3'",
+        "Returns null on a solved grid",
+        "Tests cover mistake detection and at least three technique hints"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T020",
+      "title": "Game state store: puzzle, entries, notes, selection",
+      "milestone": 2, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "M",
+      "deps": ["T011"], "files": ["src/state/game.ts", "src/state/store.ts", "src/state/game.test.ts"],
+      "acceptance": [
+        "GameState holds puzzle (givens), solution, entries, per-cell notes (bitmask), selected cell, notes mode, difficulty, seed, status ('playing'|'won')",
+        "Pure reducer `apply(state, action)` for actions: select, move (arrow direction, wraps), enter digit, erase, toggle note, toggle notes mode, new game",
+        "Givens cannot be changed; entering a digit clears that digit from peer notes",
+        "Tiny subscribe/getState/dispatch store in store.ts with no dependencies",
+        "status becomes 'won' when entries complete the grid without conflicts",
+        "Unit tests for every action"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T021",
+      "title": "Undo and redo",
+      "milestone": 2, "priority": 2,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T020"], "files": ["src/state/history.ts", "src/state/history.test.ts", "src/state/game.ts"],
+      "acceptance": [
+        "undo/redo actions over board-changing actions only (entries and notes, not selection)",
+        "A new edit after undo clears the redo stack; new game clears history",
+        "History is capped at 500 entries",
+        "Unit tests"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T022",
+      "title": "Persistence: save and resume the current game and settings",
+      "milestone": 2, "priority": 2,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T020"], "files": ["src/state/persist.ts", "src/state/persist.test.ts"],
+      "acceptance": [
+        "Saves game state (not undo history) to localStorage under a versioned key on every change, debounced",
+        "load() validates shape and version and returns null for missing or corrupt data instead of throwing",
+        "All storage access is wrapped in try/catch so private mode or blocked storage never breaks the game",
+        "Unit tests with a fake storage, including corrupt data"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T023",
+      "title": "Timer and per-difficulty stats",
+      "milestone": 2, "priority": 3,
+      "agent": "feature-dev", "model": "haiku", "effort": "medium", "size": "S",
+      "deps": ["T020", "T022"], "files": ["src/state/timer.ts", "src/state/stats.ts", "src/state/stats.test.ts"],
+      "acceptance": [
+        "Elapsed time is tracked in state, pauses when the tab is hidden, and stops on win",
+        "Stats per difficulty: games started, games won, best time, average time; persisted like the game",
+        "Unit tests with an injected clock"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T030",
+      "title": "Grid rendering with cell selection",
+      "milestone": 3, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "M",
+      "deps": ["T020", "T014"], "files": ["src/ui/app.ts", "src/ui/grid.ts", "src/ui/styles.css", "src/main.ts"],
+      "acceptance": [
+        "Renders a 9x9 grid with thick 3x3 box borders, givens styled differently from entries, and notes shown as a 3x3 mini grid",
+        "Clicking or tapping a cell selects it; selected cell, its row/column/box, and cells with the same digit are highlighted",
+        "Starts a generated medium puzzle on first load",
+        "Rendering subscribes to the store and updates only changed cells",
+        "Grid is square and fits a 360px-wide phone and a desktop window without scrolling",
+        "Colors are CSS custom properties on :root"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T031",
+      "title": "Keyboard input",
+      "milestone": 3, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T030", "T021"], "files": ["src/ui/keyboard.ts", "src/ui/app.ts"],
+      "acceptance": [
+        "1-9 enter (or toggle a note in notes mode), Backspace/Delete/0 erase, arrows and WASD move, N toggles notes mode, Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z and Ctrl+Y redo",
+        "Shift+digit toggles a note regardless of mode",
+        "Key handling ignores events while a dialog or input has focus"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T032",
+      "title": "Number pad and controls bar for touch",
+      "milestone": 3, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T030", "T021"], "files": ["src/ui/controls.ts", "src/ui/app.ts", "src/ui/styles.css"],
+      "acceptance": [
+        "On-screen 1-9 pad that shows how many of each digit remain and disables completed digits",
+        "Buttons: erase, notes toggle (shows on/off), undo, redo",
+        "Touch targets at least 44px; layout stacks under the grid on narrow screens and beside it on wide ones"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T033",
+      "title": "Conflict and mistake display",
+      "milestone": 3, "priority": 2,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T030"], "files": ["src/ui/grid.ts", "src/ui/styles.css", "src/state/game.ts"],
+      "acceptance": [
+        "Cells in conflict with a peer are marked (color plus a non-color cue such as an underline)",
+        "Setting 'show mistakes' (default off) additionally marks entries that disagree with the solution; stored with other settings"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T034",
+      "title": "New game dialog with difficulty choice",
+      "milestone": 3, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T030", "T022"], "files": ["src/ui/dialogs.ts", "src/ui/app.ts", "src/ui/styles.css"],
+      "acceptance": [
+        "New Game button opens a native <dialog> with Easy/Medium/Hard/Expert",
+        "Asks for confirmation when a game is in progress",
+        "Puzzle generation runs without freezing the UI for more than 100 ms (use a Web Worker if needed)",
+        "On load, an in-progress saved game resumes instead of starting a new one"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T035",
+      "title": "Win screen with time and stats",
+      "milestone": 3, "priority": 2,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T034", "T023"], "files": ["src/ui/dialogs.ts", "src/ui/app.ts", "src/ui/styles.css"],
+      "acceptance": [
+        "On win: input stops, a dialog shows the time, difficulty and best time, with a New Game button",
+        "A timer is visible in the header during play and can be hidden in settings"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T036",
+      "title": "Hint button",
+      "milestone": 3, "priority": 2,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T015", "T032"], "files": ["src/ui/hint.ts", "src/ui/controls.ts", "src/ui/styles.css"],
+      "acceptance": [
+        "Hint button highlights the cells involved and shows the explanation text; a second press applies the hint",
+        "Hints used are counted and shown on the win screen if T035 is merged, otherwise stored in state"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T037",
+      "title": "Light/dark theme with a toggle",
+      "milestone": 3, "priority": 3,
+      "agent": "feature-dev", "model": "haiku", "effort": "medium", "size": "S",
+      "deps": ["T030"], "files": ["src/ui/styles.css", "src/ui/theme.ts", "src/ui/app.ts"],
+      "acceptance": [
+        "Follows prefers-color-scheme by default; a toggle cycles system/light/dark and is persisted",
+        "All colors come from the :root custom properties; both themes meet WCAG AA contrast for digits"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T040",
+      "title": "Accessibility pass",
+      "milestone": 4, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "high", "size": "M",
+      "deps": ["T031", "T032", "T034"], "files": ["src/ui/**"],
+      "acceptance": [
+        "Grid uses role=grid with rows and gridcells and roving tabindex; each cell has an aria-label like 'Row 3, column 5, 7, given' or 'empty, notes 1 4 9'",
+        "An aria-live region announces entries, conflicts and win",
+        "All controls reachable and operable by keyboard with visible focus; dialogs trap and restore focus",
+        "Respects prefers-reduced-motion"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T041",
+      "title": "End-to-end tests for a full game",
+      "milestone": 4, "priority": 1,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T001", "T035"], "files": ["e2e/**", "src/ui/app.ts"],
+      "acceptance": [
+        "A test hook (e.g. ?seed=123 query parameter) makes the first puzzle deterministic",
+        "e2e: start a game, enter digits by keyboard and number pad, use notes, undo/redo, reload and resume, finish the puzzle and see the win dialog",
+        "e2e runs green on Chromium via `npm run e2e`"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T042",
+      "title": "README with play and development instructions",
+      "milestone": 4, "priority": 3,
+      "agent": "feature-dev", "model": "haiku", "effort": "low", "size": "S",
+      "deps": ["T035"], "files": ["README.md"],
+      "acceptance": [
+        "README covers what the game is, controls, how to run, test and build, and the project layout",
+        "Mentions the director/ automation in one short section pointing to director/README.md"
+      ],
+      "status": "todo", "attempts": 0, "notes": ""
+    },
+    {
+      "id": "T043",
+      "title": "Deploy the built site",
+      "milestone": 4, "priority": 2,
+      "agent": "feature-dev", "model": "sonnet", "effort": "medium", "size": "S",
+      "deps": ["T041"], "files": [".github/workflows/**", "vite.config.ts", "README.md"],
+      "acceptance": [
+        "Depends on the hosting answer in QUESTIONS.md Q1; implement exactly what that answer says",
+        "A CI workflow runs npm ci, npm run check and npm run build on every push to main before deploying"
+      ],
+      "status": "blocked", "blocked_by": "Q1", "attempts": 0, "notes": ""
+    }
+  ]
+}
