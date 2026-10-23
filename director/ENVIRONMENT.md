@@ -54,8 +54,26 @@ plan-usage ceilings are not checked; usage-limit errors still stop a run.
 
 ## Cloud runs
 
-Not yet run in the cloud. Expect no plan-usage file, possibly different transcript paths, and
-that e2e needs `npx playwright install --with-deps chromium`; record what you find.
+**Scheduled runs are cloud-only** (set up 2026-10-23): routine "Browser Sudoku Director (nightly)",
+daily at 09:00 UTC, Director on Sonnet 5.5, in the cloud environment "Sudoku Director"
+(env_01CTLjeThYEV3Axhti5jBPCq). The routine prompt tells the Director to read `Starting Prompt.txt`
+from the repo, so edits to that file take effect on the next run.
+
+What the environment provides (from the docs, not yet verified by a run):
+- Ubuntu 24.04 x86_64; Node 22 on PATH (the project needs 22+); npm, git, gh. GraphQL `gh pr` /
+  `gh issue` don't work through the proxy; plain git push does, including to `main`.
+- Network: Custom = the default package-manager list plus cdn.playwright.dev,
+  playwright.download.prss.microsoft.com, playwright.azureedge.net, archive.ubuntu.com,
+  security.ubuntu.com. A blocked host returns 403 with `x-deny-reason: host_not_allowed`.
+- Setup script (cached when it finishes in about 5 minutes):
+  `npx -y playwright@1.64.1 install --with-deps chromium`. Keep that version in step with
+  `@playwright/test` in package.json; a mismatch shows up as "browser not found" in e2e.
+- No `~/.claude/plan-usage.json` (expected), so plan-usage ceilings aren't checked; usage-limit
+  errors still stop a run.
+
+**First cloud run, record here**: whether `npm run e2e` passes (if not, mark e2e optional and say
+why), where transcripts live and whether `node scripts/usage.mjs --since <run_start>` reports the
+Director and subagents, and how long the run took.
 
 ## Tooling repairs
 
