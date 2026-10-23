@@ -1,68 +1,62 @@
 # Browser Sudoku
 
-A single-page Sudoku game that runs entirely in the browser: generated puzzles with graded
-difficulty, notes, undo/redo, hints, and saved progress. No backend. Product plan: docs/PLAN.md.
+A browser Sudoku app with two modes: **Play** (focused solving with excellent input and honest
+feedback, including mistake analysis) and **Display** (a calm side-monitor view with a clock, a
+rendered or self-solving puzzle, and today's stats). Static site, no backend.
 
-Work is coordinated by an unattended Director (see director/README.md). Most sessions are a
-subagent working one task from director/tasks.json on a branch `task/<id>`.
+- Product spec and milestones: docs/PLAN.md
+- Modules, data flow, event schema, analysis algorithm, technique tiers: docs/ARCHITECTURE.md
+- Automation: an unattended Director dispatches backlog tasks to subagents (director/README.md).
 
-## Stack and commands
+## Commands
 
-Vite + TypeScript (strict) + Vitest. No UI framework: plain DOM modules.
+| Command | What it does |
+|---|---|
+| `npm install` | Install dependencies (Node 22+). |
+| `npx playwright install chromium` | One-time browser install for e2e. |
+| `npm run dev` | Dev server. |
+| `npm run check` | Lint (ESLint), typecheck (tsc), unit tests (Vitest). |
+| `npm run build` | Production build to dist/. |
+| `npm run e2e` | Playwright at 390x844 (touch) and 1440x900, with axe checks. Builds and serves itself. |
+| `npm run gen:bank` | Pre-generate the puzzle bank into public/puzzles/ (from M3). |
+| `node scripts/usage.mjs --since <ISO>` | Usage and cost from transcripts (Director tooling). |
 
-- `npm install` once; `npm run dev` to play locally.
-- `npm run check`: typecheck and unit tests (and lint once T002 lands). Must pass before you report.
-- `npm run build`: production build to dist/. Must pass before you report.
-- `npm run e2e`: Playwright end-to-end tests, once T001 lands.
-- Keep output quiet when running checks; read failures, not passing output.
+Run checks with quiet output and read failures, not passing output.
 
-## Layout
+## Folder map
 
-- `src/engine/`: pure Sudoku logic (board, validation, solver, grader, generator, hints).
-  No DOM, no state, no randomness except through the seedable PRNG. Every export has unit tests.
-- `src/state/`: game state as a pure reducer plus a tiny store; persistence, history, timer.
-  May import engine, never ui.
-- `src/ui/`: DOM rendering and input. May import state and engine.
-- `e2e/`: Playwright specs.
-- `director/`, `scripts/usage.mjs`, `.claude/agents/`: automation. Task agents do not edit these
-  unless the task says so.
+```
+src/engine/      pure TS Sudoku logic. No DOM, React, state or storage; randomness only via the PRNG.
+src/analysis/    pure TS replay analysis (mistakes, solve stats, hints). Created in M7.
+src/state/       event-sourced game store, timer, settings, persistence. Never imports ui.
+src/workers/     engine worker and typed client. Created in M3.
+src/ui/          React app: components/, layouts, Display mode, theme, styles.css (tokens).
+e2e/             Playwright specs; import test/expect from e2e/fixtures.ts.
+scripts/         generate-bank.ts, usage.mjs (+ test, fixtures), statusline-snapshot.sh.
+public/puzzles/  generated puzzle bank.
+director/        Director config, backlog, ledger, logs. Task agents don't edit it.
+.claude/agents/  subagent definitions.
+```
 
 ## Conventions
 
-- Unit tests sit next to the code as `*.test.ts`.
-- Grids are 81-element arrays, index = row * 9 + col, 0 = empty.
-- Prefer small pure functions; no new runtime dependencies without saying why in the report.
-- Colors are CSS custom properties on `:root`; layout must work at 360px width.
-- Match the style of surrounding code. Comments explain why, not what.
+- TypeScript strict with `noUncheckedIndexedAccess`; no `any` without a comment saying why.
+- Unit tests sit beside the code as `*.test.ts(x)`. Engine logic gets fast-check property tests.
+- Grids are 81-element arrays, index = row * 9 + col, 0 = empty; cells read as r1c1..r9c9 in text.
+- Components are function components; state lives in the store, components dispatch events.
+- Colors only via the CSS custom properties in src/ui/styles.css, with light and dark values.
+  Never signal by color alone (add a shape, weight, underline, or text cue).
+- Layout with container queries; never scroll horizontally; touch targets at least 44px.
+- No new runtime dependency without a reason in the task report.
+- Comments explain why, not what. Match the surrounding style.
 
-## Definition of done (for a task)
+## Definition of done
 
-1. Every acceptance criterion in the task is met, and you can point to the code or test for each.
-2. `npm run check` and `npm run build` pass, plus `npm run e2e` when the task touches e2e/ or
-   changes UI behavior after e2e exists.
-3. Work is committed on the task branch `task/<id>` with clear messages. Do not merge, push to
-   main, or rewrite history.
-4. Nothing outside the task's scope: if you find something else worth doing, report it as a
-   follow-up instead of doing it.
-5. You finish with the closing report below.
-
-## Closing report
-
-End your final message with exactly one fenced JSON block:
-
-```json
-{
-  "task_id": "T012",
-  "outcome": "pass | partial | fail",
-  "branch": "task/T012",
-  "commits": ["<sha> <subject>"],
-  "acceptance": [{"criterion": "...", "met": true, "evidence": "file:line or test name"}],
-  "checks": {"check": "pass|fail", "build": "pass|fail", "e2e": "pass|fail|not-run"},
-  "handoff": "for partial: what is done, what remains, where to start. Otherwise empty.",
-  "followups": [{"title": "...", "why": "...", "files": ["..."]}],
-  "notes": "decisions made, risks, new dependencies"
-}
-```
-
-`partial` means you stopped at a clean, committed point with a handoff; `fail` means the approach
-did not work, with the reason in notes.
+1. Every acceptance criterion in the task is met.
+2. New logic has tests (property tests for engine invariants).
+3. `npm run check` and `npm run build` pass; `npm run e2e` passes when the task changes UI behavior.
+4. No console errors.
+5. Works at 390px and 1440px wide, in both light and dark themes.
+6. Everything is reachable and operable by keyboard, with visible focus.
+7. Work is committed on the task branch only; never commit to main, push, or rewrite history.
+8. The agent ends with the JSON report from its agent definition.
