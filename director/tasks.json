@@ -61,8 +61,8 @@
         "Returns null for a grid with a conflict and for an unsolvable but conflict-free grid",
         "Each hard puzzle solves in under 20 ms (generous timer assertion)"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
