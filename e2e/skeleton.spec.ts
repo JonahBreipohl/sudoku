@@ -1,0 +1,75 @@
+import AxeBuilder from "@axe-core/playwright";
+import { expect, test } from "./fixtures";
+
+const cell = (n: number) => `[data-cell="${n}"]`;
+
+test.beforeEach(async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
+});
+
+test("renders 81 cells with givens", async ({ page }) => {
+  await expect(page.locator("[data-cell]")).toHaveCount(81);
+  await expect(page.locator(cell(0))).toHaveText("5");
+  await expect(page.locator(cell(0))).toHaveAttribute("aria-label", "Row 1, column 1, 5, given");
+});
+
+test("selects by click and moves with arrow keys", async ({ page }) => {
+  await page.locator(cell(2)).click();
+  await expect(page.locator(cell(2))).toHaveClass(/cell--selected/);
+  await page.keyboard.press("ArrowDown");
+  await expect(page.locator(cell(11))).toHaveClass(/cell--selected/);
+  await page.keyboard.press("ArrowRight");
+  await expect(page.locator(cell(12))).toHaveClass(/cell--selected/);
+});
+
+test("enters digits from the keyboard and the pad, and erases", async ({ page }) => {
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await page.keyboard.press("Backspace");
+  await expect(page.locator(cell(2))).toHaveText("");
+
+  await page.getByRole("group", { name: "Number pad" }).getByRole("button", { name: /^4\b/ }).click();
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await page.getByRole("button", { name: "Erase" }).click();
+  await expect(page.locator(cell(2))).toHaveText("");
+});
+
+test("does not change givens", async ({ page }) => {
+  await page.locator(cell(0)).click();
+  await page.keyboard.press("9");
+  await expect(page.locator(cell(0))).toHaveText("5");
+});
+
+test("marks conflicts without relying on color", async ({ page }) => {
+  // Cell 2 shares row 1 with the given 5 in cell 0.
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("5");
+  await expect(page.locator(cell(2))).toHaveClass(/cell--conflict/);
+  await expect(page.locator(cell(2))).toHaveAttribute("aria-label", /conflict/);
+});
+
+test("theme toggle cycles and persists", async ({ page }) => {
+  const toggle = page.getByRole("button", { name: /^Theme:/ });
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await page.reload();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+});
+
+test("has no horizontal scroll", async ({ page }) => {
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`has no serious accessibility violations in ${theme} theme`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    const results = await new AxeBuilder({ page }).analyze();
+    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+  });
+}
