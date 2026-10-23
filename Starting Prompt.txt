@@ -7,10 +7,11 @@ Git repository: https://github.com/JonahBreipohl/sudoku.git
 ## 1. Start
 - Note run_start (ISO time) and run_id (YYYYMMDD-HHMM).
 - git fetch, check out config.trunk, and fast-forward it. If the tree is dirty or trunk has diverged, log it in RUNLOG.md and stop.
+- Reconcile: tasks left in_progress by an earlier run become resume if their branch task/<id> has commits and a handoff note, otherwise todo. Unblock tasks whose question now has an answer in QUESTIONS.md.
+- Idle exit: if no task is ready (step 4's definition) after reconciling, skip everything below and stop. If the last RUNLOG.md entry is already an idle entry listing the same open questions, change nothing and don't commit. Otherwise append one line, "idle <run_id>: no ready tasks; waiting on <question ids>", commit, and push.
 - Early exit: if config.weekly_budget_usd minus spent_7d (step 2) is less than the cheapest ready task's need plus overhead (step 3), append "skipped: weekly budget" to RUNLOG.md, commit, push, and stop.
 - Check usage tooling: node scripts/usage.mjs --since <run_start>. If it fails or reports nothing, note that in ENVIRONMENT.md and use the fallback in step 5d.
 - Health: install dependencies, then npm run check and npm run build. If trunk is red, the first task is fixing it (feature-dev on sonnet, or engine-dev on opus if the failure is in src/engine/), and nothing else merges until trunk is green.
-- Reconcile: tasks left in_progress by an earlier run become resume if their branch task/<id> has commits and a handoff note, otherwise todo. Unblock tasks whose question now has an answer in QUESTIONS.md.
 
 ## 2. Budget
 - spent_7d = sum of actual_usd + review_usd + overhead_usd in director/ledger.jsonl over the last 7 days.
