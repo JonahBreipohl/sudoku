@@ -1,1001 +1,2120 @@
 {
   "milestones": {
-    "0": "Foundation: tooling and test harness",
-    "1": "Engine: board model, validation, solving, generation, grading, hints",
-    "2": "State: game store, undo/redo, persistence, timer",
-    "3": "UI: playable game in the browser",
-    "4": "Polish: accessibility, end-to-end coverage, docs, deploy"
+    "0": "Foundation (done at setup)",
+    "1": "Engine core",
+    "2": "Logical solver and grader",
+    "3": "Generator and puzzle bank",
+    "4": "Game state, undo/redo/reset, timer, autosave",
+    "5": "Board and input",
+    "6": "Layouts, theming, accessibility",
+    "7": "Check, Submit, and mistake analysis",
+    "8": "Hints",
+    "9": "Display mode and PWA",
+    "10": "Stats, daily puzzle, polish, deploy"
   },
   "tasks": [
     {
-      "id": "T001",
-      "title": "Playwright e2e harness with a smoke test",
-      "milestone": 0,
+      "id": "M1-01",
+      "title": "Seeded PRNG",
+      "milestone": 1,
       "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
       "deps": [],
       "files": [
-        "package.json",
-        "package-lock.json",
-        "playwright.config.ts",
-        "e2e/**",
-        ".gitignore"
-      ],
-      "acceptance": [
-        "@playwright/test is a devDependency; `npm run e2e` builds the app, serves it with `vite preview`, and runs Playwright against Chromium only",
-        "e2e/smoke.spec.ts loads the page and asserts the heading 'Sudoku' is visible",
-        "playwright.config.ts uses webServer so no manual server is needed",
-        "`npm run check` does not run e2e tests (vitest must not pick up e2e/)",
-        "CLAUDE.md commands section mentions `npx playwright install chromium` as a one-time setup step"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T002",
-      "title": "ESLint and Prettier wired into npm run check",
-      "milestone": 0,
-      "priority": 2,
-      "agent": "feature-dev",
-      "model": "haiku",
-      "effort": "medium",
-      "size": "S",
-      "deps": [],
-      "files": [
-        "package.json",
-        "package-lock.json",
-        "eslint.config.js",
-        ".prettierrc*",
-        ".prettierignore",
-        "src/**"
-      ],
-      "acceptance": [
-        "ESLint flat config with typescript-eslint recommended rules; Prettier config with defaults plus printWidth 110",
-        "`npm run lint` runs eslint and `prettier --check`; `npm run format` writes fixes",
-        "`npm run check` runs typecheck, lint and test, and passes on the current tree",
-        "dist/, node_modules/ and director/ are ignored by both tools"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T010",
-      "title": "Board model: types, parse/serialize, units and peers",
-      "milestone": 1,
-      "priority": 1,
-      "agent": "engine-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [],
-      "files": [
-        "src/engine/board.ts",
-        "src/engine/board.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "Exports a Grid type (81 cells, value 0 = empty, 1-9 digits) and helpers rowOf, colOf, boxOf, cellIndex",
-        "parseGrid accepts 81-char strings using '0' or '.' for blanks, ignores whitespace, and throws a descriptive error otherwise; serializeGrid returns the '.'-blank form",
-        "Precomputed UNITS (27) and PEERS (20 per cell) tables, verified by tests",
-        "Pure functions, no DOM; re-exported from src/engine/index.ts",
-        "Unit tests cover parsing round-trips and invalid input"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T011",
-      "title": "Validator: conflicts and completion",
-      "milestone": 1,
-      "priority": 1,
-      "agent": "engine-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T010"
-      ],
-      "files": [
-        "src/engine/validate.ts",
-        "src/engine/validate.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "findConflicts(grid) returns the set of cell indices that share a digit with a peer",
-        "isComplete(grid) is true only for a full grid with no conflicts",
-        "isConsistentWith(grid, solution) reports cells whose value differs from the solution",
-        "Unit tests cover empty, partial, conflicting and solved grids"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T012",
-      "title": "Solver: constraint propagation with backtracking and solution counting",
-      "milestone": 1,
-      "priority": 1,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "high",
-      "size": "M",
-      "deps": [
-        "T010"
-      ],
-      "files": [
-        "src/engine/solve.ts",
-        "src/engine/solve.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "solve(grid) returns a solved Grid or null; it does not mutate its input",
-        "countSolutions(grid, limit = 2) stops early at the limit and is what uniqueness checks use",
-        "Uses candidate bitmasks with naked/hidden single propagation and minimum-remaining-values branching",
-        "Tests include at least 5 known puzzles (easy through 'hardest' class, e.g. Arto Inkala's) with known solutions, an unsolvable grid, and a multi-solution grid",
-        "Solves each of the hard test puzzles in under 50 ms in the vitest run (assert with a generous timer)"
-      ],
-      "status": "split",
-      "attempts": 0,
-      "notes": "Split into S tasks at setup to fit Pro 5-hour windows.",
-      "split_into": [
-        "T012a",
-        "T012b"
-      ]
-    },
-    {
-      "id": "T012a",
-      "title": "Solver core: candidate bitmasks, single propagation, MRV backtracking",
-      "milestone": 1,
-      "priority": 1,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "high",
-      "size": "S",
-      "deps": [
-        "T010"
-      ],
-      "files": [
-        "src/engine/solve.ts",
-        "src/engine/solve.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "solve(grid) returns a solved Grid or null; it does not mutate its input",
-        "Uses candidate bitmasks with naked/hidden single propagation and minimum-remaining-values branching",
-        "Tests: at least 3 known puzzles (easy to medium) with known solutions and an unsolvable grid"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T012b",
-      "title": "Solver: countSolutions and hard-puzzle tests with timing",
-      "milestone": 1,
-      "priority": 1,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "high",
-      "size": "S",
-      "deps": [
-        "T012a"
-      ],
-      "files": [
-        "src/engine/solve.ts",
-        "src/engine/solve.test.ts"
-      ],
-      "acceptance": [
-        "countSolutions(grid, limit = 2) stops early at the limit and is what uniqueness checks use",
-        "Tests add at least 2 'hardest'-class puzzles (e.g. Arto Inkala's) and a multi-solution grid",
-        "Solves each of the hard test puzzles in under 50 ms in the vitest run (assert with a generous timer)"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T013",
-      "title": "Technique grader: human-style solver that rates difficulty",
-      "milestone": 1,
-      "priority": 2,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "high",
-      "size": "M",
-      "deps": [
-        "T012"
-      ],
-      "files": [
-        "src/engine/techniques.ts",
-        "src/engine/grade.ts",
-        "src/engine/grade.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "Implements, as separate step functions, naked single, hidden single, naked pair/triple, hidden pair, pointing pair/box-line reduction, and X-wing",
-        "Each step returns a structured Step {technique, placements or eliminations, cells involved} usable later for hints",
-        "grade(grid) applies the easiest applicable technique repeatedly and returns {difficulty: 'easy'|'medium'|'hard'|'expert', hardestTechnique, steps}; 'expert' when the techniques cannot finish it",
-        "Difficulty mapping is documented in a comment table in grade.ts",
-        "Tests: one puzzle per technique where that technique is required, and grading of at least 4 reference puzzles"
-      ],
-      "status": "split",
-      "attempts": 0,
-      "notes": "Split into S tasks at setup to fit Pro 5-hour windows.",
-      "split_into": [
-        "T013a",
-        "T013b"
-      ]
-    },
-    {
-      "id": "T013a",
-      "title": "Technique steps: singles, naked pair/triple, hidden pair, pointing and box-line",
-      "milestone": 1,
-      "priority": 2,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "high",
-      "size": "S",
-      "deps": [
-        "T012b"
-      ],
-      "files": [
-        "src/engine/techniques.ts",
-        "src/engine/techniques.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "Implements naked single, hidden single, naked pair/triple, hidden pair, and pointing pair/box-line reduction as separate step functions",
-        "Each step returns a structured Step {technique, placements or eliminations, cells involved} usable later for hints",
-        "Tests: one puzzle or candidate state per technique where that technique is required"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T013b",
-      "title": "X-wing and grade(): difficulty rating from techniques",
-      "milestone": 1,
-      "priority": 2,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "high",
-      "size": "S",
-      "deps": [
-        "T013a"
-      ],
-      "files": [
-        "src/engine/techniques.ts",
-        "src/engine/grade.ts",
-        "src/engine/grade.test.ts",
-        "src/engine/index.ts"
-      ],
-      "acceptance": [
-        "Adds an X-wing step function in the same Step format, with a test that requires it",
-        "grade(grid) applies the easiest applicable technique repeatedly and returns {difficulty: 'easy'|'medium'|'hard'|'expert', hardestTechnique, steps}; 'expert' when the techniques cannot finish it",
-        "Difficulty mapping is documented in a comment table in grade.ts",
-        "Tests: grading of at least 4 reference puzzles"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T014",
-      "title": "Generator: unique-solution puzzles at a requested difficulty",
-      "milestone": 1,
-      "priority": 1,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "medium",
-      "size": "M",
-      "deps": [
-        "T012",
-        "T013"
-      ],
-      "files": [
-        "src/engine/generate.ts",
         "src/engine/random.ts",
-        "src/engine/generate.test.ts",
+        "src/engine/random.test.ts",
         "src/engine/index.ts"
       ],
+      "description": "Add a small seeded PRNG (sfc32 or similar) plus helpers used by the generator and the watch puzzle.",
       "acceptance": [
-        "Seedable PRNG in random.ts; generate({difficulty, seed}) is deterministic for a given seed",
-        "Builds a random full solution, then removes clues (symmetric by default) while countSolutions stays 1",
-        "Retries until grade() matches the requested difficulty, with a bounded attempt count, falling back to the closest grade found",
-        "Returns {puzzle, solution, difficulty, seed}",
-        "Tests: 20 seeded puzzles per difficulty all have exactly one solution and the requested (or documented fallback) grade; median generation time per easy/medium puzzle under 200 ms in Node"
+        "createRng(seed: number | string) returns an object with next() in [0,1), int(n), and shuffle(array) that does not mutate its input",
+        "String seeds hash deterministically (document the hash); the same seed always yields the same sequence",
+        "fast-check tests: int(n) stays in range, shuffle is a permutation; a chi-square-style sanity test on 10k draws"
       ],
-      "status": "split",
+      "status": "todo",
       "attempts": 0,
-      "notes": "Split into S tasks at setup to fit Pro 5-hour windows.",
-      "split_into": [
-        "T014a",
-        "T014b"
-      ]
+      "notes": ""
     },
     {
-      "id": "T014a",
-      "title": "Generator core: seedable PRNG, random full solutions, unique-solution clue removal",
+      "id": "M1-02",
+      "title": "Fast bitmask solver",
       "milestone": 1,
       "priority": 1,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "medium",
       "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
       "deps": [
-        "T012b"
+        "M1-01"
       ],
       "files": [
-        "src/engine/generate.ts",
-        "src/engine/random.ts",
-        "src/engine/generate.test.ts",
+        "src/engine/solver.ts",
+        "src/engine/solver.test.ts",
         "src/engine/index.ts"
       ],
+      "description": "Bitmask backtracking solver with row/column/box used-digit masks and most-constrained-cell-first search, per docs/ARCHITECTURE.md.",
       "acceptance": [
-        "Seedable PRNG in random.ts; generation is deterministic for a given seed",
-        "Builds a random full solution, then removes clues (symmetric by default) while countSolutions stays 1",
-        "generateUnique({seed}) returns {puzzle, solution, seed}; tests: 20 seeded puzzles all have exactly one solution"
+        "solve(grid, rng?) returns a solved grid or null without mutating the input; with an rng it tries candidates in random order",
+        "Solves the sample puzzles and at least two 'hardest' class puzzles (e.g. Arto Inkala 2012) to their known solutions",
+        "Returns null for a grid with a conflict and for an unsolvable but conflict-free grid",
+        "Each hard puzzle solves in under 20 ms (generous timer assertion)"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T014b",
-      "title": "Generator: target a requested difficulty",
+      "id": "M1-03",
+      "title": "Solution counting and uniqueness",
       "milestone": 1,
       "priority": 1,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "medium",
       "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
       "deps": [
-        "T014a",
-        "T013b"
+        "M1-02"
       ],
       "files": [
-        "src/engine/generate.ts",
-        "src/engine/generate.test.ts",
-        "src/engine/index.ts"
+        "src/engine/solver.ts",
+        "src/engine/solver.test.ts"
       ],
+      "description": "countSolutions(grid, limit = 2) for uniqueness checks; the generator calls it thousands of times, so it must be fast.",
       "acceptance": [
-        "generate({difficulty, seed}) is deterministic for a given seed and returns {puzzle, solution, difficulty, seed}",
-        "Retries until grade() matches the requested difficulty, with a bounded attempt count, falling back to the closest grade found",
-        "Tests: 20 seeded puzzles per difficulty all have exactly one solution and the requested (or documented fallback) grade; median generation time per easy/medium puzzle under 200 ms in Node"
+        "countSolutions stops at the limit; hasUniqueSolution(grid) is countSolutions(grid, 2) === 1",
+        "Tests: unique puzzle = 1, a puzzle with a removed clue known to break uniqueness = 2, empty grid hits the limit quickly",
+        "Property test: for random full grids with random cells blanked, every solution found agrees with the givens",
+        "Counting to 2 on the empty grid and on 17-clue puzzles takes under 20 ms each"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T015",
-      "title": "Hint engine: next logical step for the player's current grid",
+      "id": "M1-04",
+      "title": "Candidate state for the human solver",
+      "milestone": 1,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
+      "deps": [
+        "M1-01"
+      ],
+      "files": [
+        "src/engine/candidates.ts",
+        "src/engine/candidates.test.ts",
+        "src/engine/index.ts"
+      ],
+      "description": "An immutable-by-convention CandidateState {values, candidates} built from a grid (and optionally user notes), with place and eliminate operations that keep peers consistent.",
+      "acceptance": [
+        "fromGrid(grid) computes candidates; fromGridAndNotes(grid, notes) intersects with notes for analysis use",
+        "place(state, cell, digit) sets the value and removes digit from peers; eliminate(state, cell, digit) removes one candidate; both return new states",
+        "Property tests: placing the solution digit never removes a peer's solution digit; candidates of filled cells are 0"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M1-05",
+      "title": "Step type and explanation helpers",
       "milestone": 1,
       "priority": 2,
-      "agent": "engine-dev",
-      "model": "opus",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
       "deps": [
-        "T013b",
-        "T011"
+        "M1-04"
       ],
       "files": [
-        "src/engine/hint.ts",
-        "src/engine/hint.test.ts",
+        "src/engine/step.ts",
+        "src/engine/step.test.ts",
         "src/engine/index.ts"
       ],
+      "description": "Define TechniqueId, Level, the technique tier table, the Step interface from docs/ARCHITECTURE.md, applyStep(state, step), and helpers to name cells (r3c5), units (row 3, column 5, box 2) and digit lists for explanations.",
       "acceptance": [
-        "nextHint(grid, solution, notes?) returns {kind: 'mistake', cells} if any filled cell disagrees with the solution, otherwise the easiest technique Step that applies",
-        "Each hint carries a short plain-English explanation string, e.g. 'Only 7 fits in row 3'",
-        "Returns null on a solved grid",
-        "Tests cover mistake detection and at least three technique hints"
+        "TECHNIQUES table lists every technique with id, display name, level and weight exactly as in docs/ARCHITECTURE.md",
+        "applyStep applies placements and eliminations via CandidateState operations",
+        "cellName, unitName and formatDigits are tested, including box naming"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T020",
-      "title": "Game state store: puzzle, entries, notes, selection",
-      "milestone": 2,
-      "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "M",
-      "deps": [
-        "T011"
-      ],
-      "files": [
-        "src/state/game.ts",
-        "src/state/store.ts",
-        "src/state/game.test.ts"
-      ],
-      "acceptance": [
-        "GameState holds puzzle (givens), solution, entries, per-cell notes (bitmask), selected cell, notes mode, difficulty, seed, status ('playing'|'won')",
-        "Pure reducer `apply(state, action)` for actions: select, move (arrow direction, wraps), enter digit, erase, toggle note, toggle notes mode, new game",
-        "Givens cannot be changed; entering a digit clears that digit from peer notes",
-        "Tiny subscribe/getState/dispatch store in store.ts with no dependencies",
-        "status becomes 'won' when entries complete the grid without conflicts",
-        "Unit tests for every action"
-      ],
-      "status": "split",
-      "attempts": 0,
-      "notes": "Split into S tasks at setup to fit Pro 5-hour windows.",
-      "split_into": [
-        "T020a",
-        "T020b"
-      ]
-    },
-    {
-      "id": "T020a",
-      "title": "Game state and reducer: select, move, enter, erase, win",
-      "milestone": 2,
-      "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T011"
-      ],
-      "files": [
-        "src/state/game.ts",
-        "src/state/game.test.ts"
-      ],
-      "acceptance": [
-        "GameState holds puzzle (givens), solution, entries, per-cell notes (bitmask), selected cell, notes mode, difficulty, seed, status ('playing'|'won')",
-        "Pure reducer `apply(state, action)` for: select, move (arrow direction, wraps), enter digit, erase",
-        "Givens cannot be changed",
-        "status becomes 'won' when entries complete the grid without conflicts",
-        "Unit tests for every action"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T020b",
-      "title": "Notes, notes mode, new game action, and the store",
-      "milestone": 2,
-      "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T020a"
-      ],
-      "files": [
-        "src/state/game.ts",
-        "src/state/store.ts",
-        "src/state/game.test.ts"
-      ],
-      "acceptance": [
-        "Adds actions: toggle note, toggle notes mode, new game; entering a digit clears that digit from peer notes",
-        "Tiny subscribe/getState/dispatch store in store.ts with no dependencies",
-        "Unit tests for the new actions and the store"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T021",
-      "title": "Undo and redo",
-      "milestone": 2,
-      "priority": 2,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T020b"
-      ],
-      "files": [
-        "src/state/history.ts",
-        "src/state/history.test.ts",
-        "src/state/game.ts"
-      ],
-      "acceptance": [
-        "undo/redo actions over board-changing actions only (entries and notes, not selection)",
-        "A new edit after undo clears the redo stack; new game clears history",
-        "History is capped at 500 entries",
-        "Unit tests"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T022",
-      "title": "Persistence: save and resume the current game and settings",
-      "milestone": 2,
-      "priority": 2,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T020b"
-      ],
-      "files": [
-        "src/state/persist.ts",
-        "src/state/persist.test.ts"
-      ],
-      "acceptance": [
-        "Saves game state (not undo history) to localStorage under a versioned key on every change, debounced",
-        "load() validates shape and version and returns null for missing or corrupt data instead of throwing",
-        "All storage access is wrapped in try/catch so private mode or blocked storage never breaks the game",
-        "Unit tests with a fake storage, including corrupt data"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T023",
-      "title": "Timer and per-difficulty stats",
-      "milestone": 2,
+      "id": "M1-06",
+      "title": "Puzzle codec: share strings and URLs",
+      "milestone": 1,
       "priority": 3,
-      "agent": "feature-dev",
-      "model": "haiku",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
       "deps": [
-        "T020b",
-        "T022"
+        "M1-03"
+      ],
+      "files": [
+        "src/engine/codec.ts",
+        "src/engine/codec.test.ts",
+        "src/engine/index.ts"
+      ],
+      "description": "Validate and encode puzzles for share/import: 81-char strings and a ?puzzle= URL parameter.",
+      "acceptance": [
+        "parsePuzzleInput(text) accepts 81-char strings, 9 lines, or a URL containing ?puzzle=; returns {ok, grid} or {ok: false, reason}",
+        "Reasons distinguish: wrong length, invalid characters, rule conflict, no solution, multiple solutions",
+        "puzzleUrl(grid, base) round-trips through parsePuzzleInput (property test)"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-01",
+      "title": "Step driver with technique registry",
+      "milestone": 2,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M1-05"
+      ],
+      "files": [
+        "src/engine/human/driver.ts",
+        "src/engine/human/registry.ts",
+        "src/engine/human/driver.test.ts",
+        "src/engine/index.ts"
+      ],
+      "description": "The driver that tries techniques from the cheapest tier up and returns or applies the first step. Techniques register themselves in a registry ordered by tier then weight, so later tasks only add files.",
+      "acceptance": [
+        "nextStep(state, maxLevel) returns the first step from the cheapest applicable technique at or below maxLevel, or null",
+        "solveLogically(state, maxLevel) returns {steps, solved, stuckState}",
+        "A stub technique in tests proves ordering by tier then weight and that maxLevel is respected"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-02",
+      "title": "Naked and hidden singles",
+      "milestone": 2,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-01"
+      ],
+      "files": [
+        "src/engine/human/singles.ts",
+        "src/engine/human/singles.test.ts"
+      ],
+      "description": "Easy-tier techniques: naked single and hidden single (per unit), registered with the driver.",
+      "acceptance": [
+        "Each returns a Step with placements, justifying cells, and a one-line explanation",
+        "solveLogically at Easy fully solves the sample easy puzzle",
+        "Property test over random solved-then-blanked grids: every placement equals the solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-03",
+      "title": "Locked candidates: pointing and claiming",
+      "milestone": 2,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-02"
+      ],
+      "files": [
+        "src/engine/human/locked.ts",
+        "src/engine/human/locked.test.ts"
+      ],
+      "description": "Medium-tier pointing (box to line) and claiming (line to box) eliminations.",
+      "acceptance": [
+        "Tests use hand-built candidate states where each technique is the only step available",
+        "Steps list eliminations, the box and line units, and an explanation like 'In box 4, 7 is only in row 5, so remove 7 from row 5 outside box 4'",
+        "Property test: never eliminates a solution digit on random valid puzzles"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-04",
+      "title": "Naked and hidden pairs",
+      "milestone": 2,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-02"
+      ],
+      "files": [
+        "src/engine/human/subsets.ts",
+        "src/engine/human/subsets.test.ts"
+      ],
+      "description": "Medium-tier naked pair and hidden pair, written as a generic subset finder (size n) that M2-05 extends to triples and quads.",
+      "acceptance": [
+        "findNakedSubset(state, n) and findHiddenSubset(state, n) are generic; pairs registered at Medium",
+        "Tests for each with a state where it is the only step",
+        "Property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-05",
+      "title": "Triples and quads",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-04"
+      ],
+      "files": [
+        "src/engine/human/subsets.ts",
+        "src/engine/human/subsets.test.ts"
+      ],
+      "description": "Register naked/hidden triples and quads at Hard using the generic subset finder.",
+      "acceptance": [
+        "Naked triple, hidden triple, naked quad, hidden quad registered with the weights from docs/ARCHITECTURE.md",
+        "One test state per technique where it is required, including a naked triple whose cells hold only two candidates each",
+        "Property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-06",
+      "title": "X-Wing and Swordfish",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-03"
+      ],
+      "files": [
+        "src/engine/human/fish.ts",
+        "src/engine/human/fish.test.ts"
+      ],
+      "description": "Expert-tier basic fish of size 2 and 3, row- and column-based.",
+      "acceptance": [
+        "Generic fish finder of size n; X-Wing (2) and Swordfish (3) registered",
+        "Tests for row and column orientation of each",
+        "Property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-07",
+      "title": "XY-Wing and XYZ-Wing",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-03"
+      ],
+      "files": [
+        "src/engine/human/wings.ts",
+        "src/engine/human/wings.test.ts"
+      ],
+      "description": "Expert-tier XY-Wing (pivot plus two bivalue pincers) and XYZ-Wing (trivalue pivot).",
+      "acceptance": [
+        "Both registered; steps highlight pivot and pincers and name them in the explanation",
+        "Tests where each is required",
+        "Property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-08",
+      "title": "Simple coloring",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-03"
+      ],
+      "files": [
+        "src/engine/human/coloring.ts",
+        "src/engine/human/coloring.test.ts"
+      ],
+      "description": "Expert-tier simple coloring on conjugate pairs of one digit: color wrap and color trap.",
+      "acceptance": [
+        "Both rules implemented; the step lists the chain cells in two colors (as two cell groups)",
+        "Tests for wrap and trap",
+        "Property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-09",
+      "title": "Chain framework and X-chains",
+      "milestone": 2,
+      "priority": 2,
+      "size": "M",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-08"
+      ],
+      "files": [
+        "src/engine/human/chains.ts",
+        "src/engine/human/chains.test.ts"
+      ],
+      "description": "Master tier. A small alternating-inference chain framework (strong and weak links on candidates) and X-chains (single digit) built on it. Keep it bounded: chain length limit and deterministic search order.",
+      "acceptance": [
+        "Link graph builder for single-digit strong/weak links; X-chain finder returns the shortest chain found",
+        "Step lists chain cells in order; explanation names both ends and the eliminated cells",
+        "Tests for an X-chain of length 6 or more where shorter techniques fail",
+        "Property test: never eliminates a solution digit; finder runs under 50 ms on test states"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-10",
+      "title": "XY-chains",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-09"
+      ],
+      "files": [
+        "src/engine/human/chains.ts",
+        "src/engine/human/chains.test.ts"
+      ],
+      "description": "Master-tier XY-chains through bivalue cells, reusing the chain framework.",
+      "acceptance": [
+        "XY-chain finder registered; returns shortest chain; tests where it is required",
+        "Property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-11",
+      "title": "W-Wing",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-03"
+      ],
+      "files": [
+        "src/engine/human/wwing.ts",
+        "src/engine/human/wwing.test.ts"
+      ],
+      "description": "Master-tier W-Wing: two identical bivalue cells linked by a strong link on one of their digits.",
+      "acceptance": [
+        "Registered; tests where it is required; property test: never eliminates a solution digit"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-12",
+      "title": "Unique rectangles",
+      "milestone": 2,
+      "priority": 2,
+      "size": "M",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-04"
+      ],
+      "files": [
+        "src/engine/human/unique.ts",
+        "src/engine/human/unique.test.ts"
+      ],
+      "description": "Master-tier unique rectangle types 1, 2 and 4. These rely on the puzzle having a unique solution, which every app puzzle does.",
+      "acceptance": [
+        "Types 1, 2 and 4 implemented and registered; each step names the four corners and the deadly pattern digits",
+        "Tests for each type; property test on unique puzzles: never eliminates a solution digit",
+        "A doc comment states that UR is only valid for unique puzzles"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-13",
+      "title": "Grader and step-weighted score",
+      "milestone": 2,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-05",
+        "M2-06",
+        "M2-07",
+        "M2-10",
+        "M2-11",
+        "M2-12"
+      ],
+      "files": [
+        "src/engine/grade.ts",
+        "src/engine/grade.test.ts",
+        "src/engine/index.ts",
+        "docs/ARCHITECTURE.md"
+      ],
+      "description": "grade(puzzle) runs solveLogically at Master and returns the level of the hardest technique used and the summed step weights.",
+      "acceptance": [
+        "grade returns {level, score, hardest, steps} or {level: null} when Master techniques cannot finish it",
+        "A reference set of at least 10 puzzles (2 per level) grades into the expected level",
+        "If weights are tuned, docs/ARCHITECTURE.md's table is updated to match"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-14",
+      "title": "Engine-wide property and performance suite",
+      "milestone": 2,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-13"
+      ],
+      "files": [
+        "src/engine/human/invariants.test.ts",
+        "src/engine/grade.perf.test.ts"
+      ],
+      "description": "One property suite that runs every registered technique over many random unique puzzles, plus a timing budget for grading.",
+      "acceptance": [
+        "For every technique: no step eliminates a solution digit or places a wrong digit, over at least 200 generated or corpus puzzles",
+        "Grading a Master-level puzzle takes under 200 ms in Node (assertion with headroom); the whole suite stays under 20 s"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-01",
+      "title": "Random full grids and symmetric clue removal",
+      "milestone": 3,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M1-03"
+      ],
+      "files": [
+        "src/engine/generate.ts",
+        "src/engine/generate.test.ts",
+        "src/engine/index.ts"
+      ],
+      "description": "Generator stages 1 and 2 from docs/ARCHITECTURE.md: a random full grid from the PRNG and 180-degree symmetric clue removal while the puzzle stays unique.",
+      "acceptance": [
+        "generateUnique(seed) returns {puzzle, solution, seed}; deterministic for a seed",
+        "Tests: 50 seeds all give unique puzzles whose solution matches, with symmetric givens",
+        "Median time under 50 ms per puzzle in Node"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-02",
+      "title": "Generate into a difficulty band",
+      "milestone": 3,
+      "priority": 1,
+      "size": "M",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M3-01",
+        "M2-13"
+      ],
+      "files": [
+        "src/engine/generate.ts",
+        "src/engine/generate.test.ts"
+      ],
+      "description": "generate({level, seed, maxAttempts}) that retries until grade() lands in the requested level, returning level, score and attempts. Includes strategies that make Expert and Master reachable within the attempt budget (e.g. removing extra clues asymmetrically when stuck at a lower level, or seeding removal order).",
+      "acceptance": [
+        "Returns {puzzle, solution, level, score, seed, attempts}; deterministic for a seed",
+        "Tests: Easy, Medium and Hard each reach their level for 10 seeds within the attempt budget",
+        "Expert and Master reach their level for at least 3 seeds each within a documented budget",
+        "Documents measured median generation time per level in a comment"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-03",
+      "title": "Engine Web Worker and typed client",
+      "milestone": 3,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M1-03"
+      ],
+      "files": [
+        "src/workers/engine.worker.ts",
+        "src/workers/client.ts",
+        "src/workers/client.test.ts"
+      ],
+      "description": "A module worker exposing engine calls over a typed request/response protocol, plus a client with promise-based methods, cancellation, and an in-thread fallback for tests and environments without workers.",
+      "acceptance": [
+        "client.solve / countSolutions work through the worker in the browser and in-thread under Vitest",
+        "Requests carry ids; responses match; errors propagate as rejected promises; cancel() rejects pending calls",
+        "Adding a method needs one entry in a shared protocol type (documented in the file header)",
+        "Build emits a separate worker chunk"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-04",
+      "title": "Puzzle bank script and initial bank",
+      "milestone": 3,
+      "priority": 1,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-02"
+      ],
+      "files": [
+        "scripts/generate-bank.ts",
+        "src/engine/bank.ts",
+        "src/engine/bank.test.ts",
+        "public/puzzles/*.json"
+      ],
+      "description": "Implement scripts/generate-bank.ts per the bank format in docs/ARCHITECTURE.md, with a bank schema validator in src/engine/bank.ts, then run it to commit an initial bank: 200 Easy, 200 Medium, 150 Hard, 100 Expert, 50 Master (fewer Expert/Master is acceptable if generation exceeds the time box; record counts in the report).",
+      "acceptance": [
+        "npm run gen:bank -- --level hard --count 50 --seed 1 writes public/puzzles/hard.json sorted by score; --all does every level",
+        "Deterministic for a seed; prints progress and timing; resumable by appending to an existing file without duplicates",
+        "validateBank(json) checks schema, uniqueness of every puzzle, and level labels; tested",
+        "public/puzzles/<level>.json exists for all five levels, passes validateBank, totals under 400 KB; seed and counts in the report"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-06",
+      "title": "Runtime bank loader and top-up",
+      "milestone": 3,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-03",
+        "M3-04"
+      ],
+      "files": [
+        "src/engine/bank.ts",
+        "src/state/puzzles.ts",
+        "src/state/puzzles.test.ts",
+        "src/workers/engine.worker.ts",
+        "src/workers/client.ts"
+      ],
+      "description": "Load the bank for a level lazily, hand out the next unplayed puzzle in score order, and top up through the worker's generate() when a level runs out.",
+      "acceptance": [
+        "nextPuzzle(level) returns an unplayed bank puzzle; played ids are tracked through an injected store",
+        "When the bank is exhausted, the worker generates one; tests cover both paths with a fake fetch and fake worker",
+        "Fetch failures fall back to generation without throwing"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-01",
+      "title": "Event and game record types",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M1-04"
+      ],
+      "files": [
+        "src/state/events.ts",
+        "src/state/events.test.ts"
+      ],
+      "description": "TypeScript types and runtime validators for GameRecord, board events and meta events exactly as in docs/ARCHITECTURE.md.",
+      "acceptance": [
+        "Types match the architecture doc; isGameRecord(json) validates shape and version",
+        "Tests for valid and invalid records"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-02",
+      "title": "Board reducer",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-01"
+      ],
+      "files": [
+        "src/state/reducer.ts",
+        "src/state/reducer.test.ts"
+      ],
+      "description": "Pure reducer that derives {board, notes, conflicts} by replaying a path of board events: place (removes digit from peers' notes), erase, note, auto-notes, reset, hint-reveal.",
+      "acceptance": [
+        "Givens can never change; reset clears non-givens and notes",
+        "Snapshot every 64 nodes so replaying 2,000 events takes under 5 ms",
+        "Property test: replaying the same path twice gives identical state"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-03",
+      "title": "Event tree, cursor, undo, redo, rewind",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-02"
+      ],
+      "files": [
+        "src/state/tree.ts",
+        "src/state/tree.test.ts"
+      ],
+      "description": "Append-only node tree with a cursor: append, undo (to parent), redo (to most recent child), rewind(nodeId), and path(record).",
+      "acceptance": [
+        "Undo then redo returns to the same state; a new move after undo creates a branch and keeps the old nodes",
+        "Reset is a node, so undoing a reset restores the previous board",
+        "Property tests over random action sequences: undo is the inverse of append; nodes are never removed"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-04",
+      "title": "Game store and React binding",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-03"
+      ],
+      "files": [
+        "src/state/store.ts",
+        "src/state/store.test.ts",
+        "src/state/skeleton.ts",
+        "src/state/skeleton.test.ts",
+        "src/ui/App.tsx",
+        "src/ui/useGame.ts"
+      ],
+      "description": "GameStore with dispatch, subscribe, getSnapshot; useGame() via useSyncExternalStore. Replace the walking-skeleton reducer in App and delete src/state/skeleton.ts and its test.",
+      "acceptance": [
+        "App uses the store; selection lives in UI state, board state in the store",
+        "Existing e2e specs still pass",
+        "Store tests cover dispatch of each board event and subscriber notification"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-05",
+      "title": "Timer from the meta log",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-04"
       ],
       "files": [
         "src/state/timer.ts",
-        "src/state/stats.ts",
-        "src/state/stats.test.ts"
+        "src/state/timer.test.ts",
+        "src/ui/useVisibility.ts"
       ],
+      "description": "Derive active time from start/pause/resume/hidden/visible/submit with an injected clock, and record hidden/visible events from the Page Visibility API.",
       "acceptance": [
-        "Elapsed time is tracked in state, pauses when the tab is hidden, and stops on win",
-        "Stats per difficulty: games started, games won, best time, average time; persisted like the game",
-        "Unit tests with an injected clock"
+        "activeMs(record, now) is pure and tested for every transition, including repeated pauses",
+        "Board events record elapsed; a test clock can be injected (see Testing hooks in docs/ARCHITECTURE.md)",
+        "Hiding the tab stops the timer; returning resumes it"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T030",
-      "title": "Grid rendering with cell selection",
-      "milestone": 3,
+      "id": "M4-06",
+      "title": "Persistence adapter and autosave",
+      "milestone": 4,
       "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "M",
-      "deps": [
-        "T020",
-        "T014"
-      ],
-      "files": [
-        "src/ui/app.ts",
-        "src/ui/grid.ts",
-        "src/ui/styles.css",
-        "src/main.ts"
-      ],
-      "acceptance": [
-        "Renders a 9x9 grid with thick 3x3 box borders, givens styled differently from entries, and notes shown as a 3x3 mini grid",
-        "Clicking or tapping a cell selects it; selected cell, its row/column/box, and cells with the same digit are highlighted",
-        "Starts a generated medium puzzle on first load",
-        "Rendering subscribes to the store and updates only changed cells",
-        "Grid is square and fits a 360px-wide phone and a desktop window without scrolling",
-        "Colors are CSS custom properties on :root"
-      ],
-      "status": "split",
-      "attempts": 0,
-      "notes": "Split into S tasks at setup to fit Pro 5-hour windows.",
-      "split_into": [
-        "T030a",
-        "T030b"
-      ]
-    },
-    {
-      "id": "T030a",
-      "title": "Grid rendering and cell selection",
-      "milestone": 3,
-      "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
       "deps": [
-        "T020b",
-        "T014b"
+        "M4-04"
       ],
       "files": [
-        "src/ui/app.ts",
-        "src/ui/grid.ts",
-        "src/ui/styles.css",
-        "src/main.ts"
+        "src/state/persistence.ts",
+        "src/state/persistence.test.ts",
+        "src/state/store.ts"
       ],
+      "description": "PersistenceAdapter interface with a localStorage implementation; the store saves after every event and resumes on reload.",
       "acceptance": [
-        "Renders a 9x9 grid with thick 3x3 box borders and givens styled differently from entries",
-        "Clicking or tapping a cell selects it",
-        "Starts a generated medium puzzle on first load",
-        "Grid is square and fits a 360px-wide phone and a desktop window without scrolling",
-        "Colors are CSS custom properties on :root"
+        "Current game, archive of completed games (capped at 500) and settings stored under versioned keys",
+        "Corrupt or wrong-version data is moved aside and the app starts cleanly; storage exceptions never break play",
+        "Tests with an in-memory fake; e2e: enter digits, reload, board and timer resume"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T030b",
-      "title": "Grid highlights, notes display, and incremental rendering",
-      "milestone": 3,
-      "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
+      "id": "M4-07",
+      "title": "Settings model",
+      "milestone": 4,
+      "priority": 2,
       "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
       "deps": [
-        "T030a"
+        "M4-06"
       ],
       "files": [
-        "src/ui/grid.ts",
+        "src/state/settings.ts",
+        "src/state/settings.test.ts",
+        "src/ui/theme.ts"
+      ],
+      "description": "Typed settings with defaults and persistence: theme, entry mode, auto-candidates, check highlighting, wall clock, left-handed, idle minutes, show timer. Move the theme preference into it.",
+      "acceptance": [
+        "useSettings() hook reads and updates settings; unknown keys from storage are dropped, missing ones defaulted",
+        "Theme still applies before first paint (no flash)",
+        "Tests for defaults and migration"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-08",
+      "title": "New game and reset at the state level",
+      "milestone": 4,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-06",
+        "M3-06"
+      ],
+      "files": [
+        "src/state/newGame.ts",
+        "src/state/newGame.test.ts",
+        "src/state/store.ts"
+      ],
+      "description": "newGame(level, source) gets a puzzle from the bank loader and starts a record (archiving the previous one); reset dispatches the reset event.",
+      "acceptance": [
+        "Starting a new game archives the current record with status and active time",
+        "Tests with a fake puzzle source for bank, generated and import sources"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M5-01",
+      "title": "Board renders store state with notes",
+      "milestone": 5,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-04"
+      ],
+      "files": [
+        "src/ui/components/Board.tsx",
+        "src/ui/components/Cell.tsx",
         "src/ui/styles.css"
       ],
+      "description": "Board and Cell components render values, givens and notes (3x3 mini grid) from the store, memoized so only changed cells re-render.",
       "acceptance": [
-        "Notes are shown as a 3x3 mini grid in empty cells",
-        "The selected cell, its row/column/box, and cells with the same digit are highlighted",
-        "Rendering subscribes to the store and updates only changed cells"
+        "Notes render as a 3x3 mini grid; given, entered and noted cells are visually distinct without relying on color",
+        "Cell aria-labels include notes ('empty, notes 1 4 9')",
+        "Re-render count test or React profiler check for a single placement"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T031",
-      "title": "Keyboard input",
-      "milestone": 3,
+      "id": "M5-02",
+      "title": "Highlighting",
+      "milestone": 5,
       "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
       "deps": [
-        "T030b",
-        "T021"
+        "M5-01"
+      ],
+      "files": [
+        "src/ui/components/Cell.tsx",
+        "src/ui/styles.css",
+        "src/ui/highlight.ts",
+        "src/ui/highlight.test.ts"
+      ],
+      "description": "Pure highlight computation: selected cell, its row/column/box, every cell with the same digit (and notes containing it), and conflicts, each with a non-color cue.",
+      "acceptance": [
+        "highlightsFor(state, selection) is pure and unit-tested",
+        "Each highlight kind has a distinct non-color cue documented in styles.css",
+        "Works in both themes at 390px and 1440px"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M5-03",
+      "title": "Pad in cell-first mode",
+      "milestone": 5,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M5-01"
+      ],
+      "files": [
+        "src/ui/components/Pad.tsx",
+        "src/ui/styles.css"
+      ],
+      "description": "The pad dispatches store events in cell-first mode, shows remaining count per digit, and dims and marks finished digits.",
+      "acceptance": [
+        "Remaining counts update on place, erase, undo and redo",
+        "Finished digits are dimmed and struck through, still focusable, and announced as complete",
+        "Touch targets at least 44px"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M5-04",
+      "title": "Digit-first entry mode",
+      "milestone": 5,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M5-03"
+      ],
+      "files": [
+        "src/ui/components/Pad.tsx",
+        "src/ui/inputMode.ts",
+        "src/ui/inputMode.test.ts",
+        "src/ui/App.tsx"
+      ],
+      "description": "Lock a digit, then tap cells to place it (tap again to erase). Mode toggle in the UI and in settings; the locked digit is highlighted on the board.",
+      "acceptance": [
+        "Input mode logic is a pure reducer with tests",
+        "Placing via digit-first records input: 'digit-first' on the event",
+        "Keyboard: digits lock in digit-first mode; Escape unlocks"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M5-05",
+      "title": "Notes input and auto-candidates",
+      "milestone": 5,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M5-03",
+        "M4-07"
+      ],
+      "files": [
+        "src/ui/components/Pad.tsx",
+        "src/ui/components/Controls.tsx",
+        "src/ui/keyboard.ts",
+        "src/ui/keyboard.test.ts"
+      ],
+      "description": "Notes mode via a button and the N key, plus holding Shift for momentary notes, in both entry modes. Optional auto-candidates fill notes via the auto-notes event, logged as an assist.",
+      "acceptance": [
+        "Notes toggle button shows its state with text and an icon",
+        "Shift+digit toggles a note regardless of mode; holding Shift switches the pad to notes while held",
+        "Placing a digit removes it from peers' notes (reducer) and the UI reflects it immediately",
+        "Auto-candidates setting and button log an assist; undo removes the auto-filled notes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M5-06",
+      "title": "Complete keyboard map and shortcuts dialog",
+      "milestone": 5,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M5-05"
       ],
       "files": [
         "src/ui/keyboard.ts",
-        "src/ui/app.ts"
+        "src/ui/keyboard.test.ts",
+        "src/ui/components/ShortcutsDialog.tsx"
       ],
+      "description": "All keys from the spec: arrows/WASD/hjkl, 1-9, 0/Backspace/Delete, Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z, Ctrl+Y, H, P, ?, N. The ? key opens a shortcuts dialog listing them.",
       "acceptance": [
-        "1-9 enter (or toggle a note in notes mode), Backspace/Delete/0 erase, arrows and WASD move, N toggles notes mode, Ctrl/Cmd+Z undo, Ctrl/Cmd+Shift+Z and Ctrl+Y redo",
-        "Shift+digit toggles a note regardless of mode",
-        "Key handling ignores events while a dialog or input has focus"
+        "actionForKey is table-driven and tested for every binding on both Ctrl and Cmd",
+        "Keys are ignored while a dialog or text input has focus (except Escape)",
+        "The shortcuts dialog is a native dialog with focus trap and Escape to close"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T032",
-      "title": "Number pad and controls bar for touch",
-      "milestone": 3,
+      "id": "M5-07",
+      "title": "Undo, redo, reset and new game controls",
+      "milestone": 5,
       "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
       "deps": [
-        "T030b",
-        "T021"
+        "M5-03",
+        "M4-08"
       ],
       "files": [
-        "src/ui/controls.ts",
-        "src/ui/app.ts",
+        "src/ui/components/Controls.tsx",
+        "src/ui/components/NewGameDialog.tsx",
+        "src/ui/components/ConfirmDialog.tsx"
+      ],
+      "description": "Buttons for undo, redo, reset (with confirm) and new game (dialog asking for a difficulty).",
+      "acceptance": [
+        "Undo/redo buttons disable when unavailable",
+        "Reset asks to confirm and is undoable",
+        "New game dialog lists the five levels and can be cancelled"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M5-08",
+      "title": "Pause",
+      "milestone": 5,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-05",
+        "M5-01"
+      ],
+      "files": [
+        "src/ui/components/PauseOverlay.tsx",
+        "src/ui/App.tsx",
         "src/ui/styles.css"
       ],
+      "description": "Pause via P and a button: the timer stops and the grid is hidden behind an overlay with a Resume button.",
       "acceptance": [
-        "On-screen 1-9 pad that shows how many of each digit remain and disables completed digits",
-        "Buttons: erase, notes toggle (shows on/off), undo, redo",
-        "Touch targets at least 44px; layout stacks under the grid on narrow screens and beside it on wide ones"
+        "While paused, board content is not in the DOM or accessibility tree",
+        "Resume via button, P, or Enter; focus returns to the board",
+        "Pause and resume are logged meta events"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T033",
-      "title": "Conflict and mistake display",
-      "milestone": 3,
-      "priority": 2,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T030b"
-      ],
-      "files": [
-        "src/ui/grid.ts",
-        "src/ui/styles.css",
-        "src/state/game.ts"
-      ],
-      "acceptance": [
-        "Cells in conflict with a peer are marked (color plus a non-color cue such as an underline)",
-        "Setting 'show mistakes' (default off) additionally marks entries that disagree with the solution; stored with other settings"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T034",
-      "title": "New game dialog with difficulty choice",
-      "milestone": 3,
+      "id": "M5-10",
+      "title": "E2E: input, notes, undo, pause, resume",
+      "milestone": 5,
       "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T030b",
-        "T022"
-      ],
-      "files": [
-        "src/ui/dialogs.ts",
-        "src/ui/app.ts",
-        "src/ui/styles.css"
-      ],
-      "acceptance": [
-        "New Game button opens a native <dialog> with Easy/Medium/Hard/Expert",
-        "Asks for confirmation when a game is in progress",
-        "Puzzle generation runs without freezing the UI for more than 100 ms (use a Web Worker if needed)",
-        "On load, an in-progress saved game resumes instead of starting a new one"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T035",
-      "title": "Win screen with time and stats",
-      "milestone": 3,
-      "priority": 2,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T034",
-        "T023"
-      ],
-      "files": [
-        "src/ui/dialogs.ts",
-        "src/ui/app.ts",
-        "src/ui/styles.css"
-      ],
-      "acceptance": [
-        "On win: input stops, a dialog shows the time, difficulty and best time, with a New Game button",
-        "A timer is visible in the header during play and can be hidden in settings"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T036",
-      "title": "Hint button",
-      "milestone": 3,
-      "priority": 2,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T015",
-        "T032"
-      ],
-      "files": [
-        "src/ui/hint.ts",
-        "src/ui/controls.ts",
-        "src/ui/styles.css"
-      ],
-      "acceptance": [
-        "Hint button highlights the cells involved and shows the explanation text; a second press applies the hint",
-        "Hints used are counted and shown on the win screen if T035 is merged, otherwise stored in state"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T037",
-      "title": "Light/dark theme with a toggle",
-      "milestone": 3,
-      "priority": 3,
-      "agent": "feature-dev",
-      "model": "haiku",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T030b"
-      ],
-      "files": [
-        "src/ui/styles.css",
-        "src/ui/theme.ts",
-        "src/ui/app.ts"
-      ],
-      "acceptance": [
-        "Follows prefers-color-scheme by default; a toggle cycles system/light/dark and is persisted",
-        "All colors come from the :root custom properties; both themes meet WCAG AA contrast for digits"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T040",
-      "title": "Accessibility pass",
-      "milestone": 4,
-      "priority": 1,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "high",
       "size": "M",
-      "deps": [
-        "T031",
-        "T032",
-        "T034"
-      ],
-      "files": [
-        "src/ui/**"
-      ],
-      "acceptance": [
-        "Grid uses role=grid with rows and gridcells and roving tabindex; each cell has an aria-label like 'Row 3, column 5, 7, given' or 'empty, notes 1 4 9'",
-        "An aria-live region announces entries, conflicts and win",
-        "All controls reachable and operable by keyboard with visible focus; dialogs trap and restore focus",
-        "Respects prefers-reduced-motion"
-      ],
-      "status": "split",
-      "attempts": 0,
-      "notes": "Split into S tasks at setup to fit Pro 5-hour windows.",
-      "split_into": [
-        "T040a",
-        "T040b"
-      ]
-    },
-    {
-      "id": "T040a",
-      "title": "Accessibility: ARIA grid, cell labels, live announcements",
-      "milestone": 4,
-      "priority": 1,
-      "agent": "feature-dev",
       "model": "sonnet",
-      "effort": "high",
-      "size": "S",
+      "agent": "qa-e2e",
       "deps": [
-        "T031",
-        "T032",
-        "T034"
+        "M5-06",
+        "M5-07",
+        "M5-08",
+        "M4-06"
       ],
       "files": [
-        "src/ui/grid.ts",
-        "src/ui/app.ts",
-        "src/ui/a11y.ts"
+        "e2e/input.spec.ts",
+        "e2e/state.spec.ts"
       ],
+      "description": "End-to-end coverage for milestones M4-M5 on phone and desktop projects.",
       "acceptance": [
-        "Grid uses role=grid with rows and gridcells and roving tabindex; each cell has an aria-label like 'Row 3, column 5, 7, given' or 'empty, notes 1 4 9'",
-        "An aria-live region announces entries, conflicts and win"
+        "Cell-first and digit-first entry, notes by button/N/Shift, peer-note removal",
+        "Undo/redo by keyboard and buttons, reset with confirm and undo",
+        "Pause hides the grid; reload resumes board, notes and timer",
+        "No console errors; axe clean in both themes"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T040b",
-      "title": "Accessibility: focus management and reduced motion",
-      "milestone": 4,
+      "id": "M6-01",
+      "title": "Phone layouts with container queries",
+      "milestone": 6,
       "priority": 1,
-      "agent": "feature-dev",
+      "size": "M",
       "model": "sonnet",
-      "effort": "high",
-      "size": "S",
+      "agent": "feature-dev",
       "deps": [
-        "T040a"
+        "M5-07"
       ],
       "files": [
-        "src/ui/**"
+        "src/ui/App.tsx",
+        "src/ui/layouts/*",
+        "src/ui/styles.css"
       ],
+      "description": "Phone portrait (grid on top, pad in the thumb zone at the bottom) and phone landscape (grid plus side pad), driven by container queries on the app root.",
       "acceptance": [
-        "All controls reachable and operable by keyboard with visible focus; dialogs trap and restore focus",
-        "Respects prefers-reduced-motion"
+        "390x844 portrait: grid fills width, pad and controls sit within the bottom third",
+        "844x390 landscape: grid and pad side by side, no scrolling",
+        "Never scrolls horizontally from 320px up"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T041",
-      "title": "End-to-end tests for a full game",
-      "milestone": 4,
+      "id": "M6-02",
+      "title": "Tablet and desktop layouts with side panel",
+      "milestone": 6,
       "priority": 1,
-      "agent": "feature-dev",
+      "size": "M",
       "model": "sonnet",
-      "effort": "medium",
-      "size": "S",
-      "deps": [
-        "T001",
-        "T035"
-      ],
-      "files": [
-        "e2e/**",
-        "src/ui/app.ts"
-      ],
-      "acceptance": [
-        "A test hook (e.g. ?seed=123 query parameter) makes the first puzzle deterministic",
-        "e2e: start a game, enter digits by keyboard and number pad, use notes, undo/redo, reload and resume, finish the puzzle and see the win dialog",
-        "e2e runs green on Chromium via `npm run e2e`"
-      ],
-      "status": "todo",
-      "attempts": 0,
-      "notes": ""
-    },
-    {
-      "id": "T042",
-      "title": "README with play and development instructions",
-      "milestone": 4,
-      "priority": 3,
       "agent": "feature-dev",
-      "model": "haiku",
-      "effort": "low",
-      "size": "S",
       "deps": [
-        "T035"
+        "M6-01"
       ],
       "files": [
-        "README.md"
+        "src/ui/layouts/*",
+        "src/ui/components/SidePanel.tsx",
+        "src/ui/components/MoveHistory.tsx",
+        "src/ui/styles.css"
       ],
+      "description": "Tablet and desktop layouts: grid plus a side panel with timer, wall clock slot, controls, and a move history list (readable descriptions like 'r3c5 = 7').",
       "acceptance": [
-        "README covers what the game is, controls, how to run, test and build, and the project layout",
-        "Mentions the director/ automation in one short section pointing to director/README.md"
+        "820x1180 and 1440x900 layouts fit without scrolling",
+        "Move history lists path events newest first and marks undone branches as not current",
+        "Side panel is keyboard reachable in a logical tab order"
       ],
       "status": "todo",
       "attempts": 0,
       "notes": ""
     },
     {
-      "id": "T043",
-      "title": "Deploy the built site",
-      "milestone": 4,
+      "id": "M6-03",
+      "title": "Wall clock",
+      "milestone": 6,
       "priority": 2,
-      "agent": "feature-dev",
-      "model": "sonnet",
-      "effort": "medium",
       "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
       "deps": [
-        "T041"
+        "M6-02"
       ],
       "files": [
-        ".github/workflows/**",
+        "src/ui/components/WallClock.tsx",
+        "src/ui/useSecondTick.ts",
+        "src/ui/useSecondTick.test.ts"
+      ],
+      "description": "A wall clock that ticks once per second via a timeout aligned to the next second (no intervals or animation loops), shown where there is room and hidden on narrow phones.",
+      "acceptance": [
+        "useSecondTick aligns to second boundaries (tested with fake timers)",
+        "Respects the wall clock setting; hidden below the phone breakpoint",
+        "Uses the locale's time format"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M6-04",
+      "title": "Theme settings and contrast audit",
+      "milestone": 6,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-07",
+        "M5-02"
+      ],
+      "files": [
+        "src/ui/styles.css",
+        "src/ui/components/SettingsDialog.tsx"
+      ],
+      "description": "Theme choice (Light, Dark, System) in a settings dialog, plus a token audit so every text/background pair meets WCAG AA in both themes.",
+      "acceptance": [
+        "Settings dialog exposes all M4-07 settings",
+        "A unit test computes contrast for the token pairs used for text and asserts at least 4.5:1 (3:1 for large digits)",
+        "System follows OS changes live"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M6-05",
+      "title": "Left-handed layout",
+      "milestone": 6,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M6-02"
+      ],
+      "files": [
+        "src/ui/layouts/*",
+        "src/ui/styles.css"
+      ],
+      "description": "A setting that mirrors the side pad and side panel for left-handed use in landscape and desktop layouts.",
+      "acceptance": [
+        "Mirrored layouts at 844x390 and 1440x900",
+        "No change in portrait layouts",
+        "Persisted with settings"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M6-06",
+      "title": "Accessibility pass",
+      "milestone": 6,
+      "priority": 1,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M6-02",
+        "M5-06"
+      ],
+      "files": [
+        "src/ui/**"
+      ],
+      "description": "Keyboard-only play, screen-reader labels, live announcements, dialog focus management, visible focus everywhere, and reduced motion.",
+      "acceptance": [
+        "Grid uses roving tabindex; every cell's label says position, value or notes, given, and conflict",
+        "A polite live region announces placements, conflicts, check results and completion",
+        "All dialogs trap and restore focus; prefers-reduced-motion disables transitions",
+        "axe: zero serious or critical violations on every screen in both themes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M6-07",
+      "title": "E2E: layouts and accessibility",
+      "milestone": 6,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "qa-e2e",
+      "deps": [
+        "M6-01",
+        "M6-02",
+        "M6-06"
+      ],
+      "files": [
+        "e2e/layout.spec.ts",
+        "playwright.config.ts"
+      ],
+      "description": "Layout specs at 390x844, 844x390, 820x1180 and 1440x900 in both themes.",
+      "acceptance": [
+        "No horizontal scroll at every size; key regions visible",
+        "axe clean in both themes at every size",
+        "Keyboard-only flow: select, place, note, undo, open and close dialogs"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-01",
+      "title": "Check",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M5-07",
+        "M4-07"
+      ],
+      "files": [
+        "src/ui/components/CheckButton.tsx",
+        "src/state/store.ts",
+        "src/ui/styles.css"
+      ],
+      "description": "Non-final check: 'on track?' with an error count, optional highlighting of wrong cells (setting), logged as an assist.",
+      "acceptance": [
+        "Check reports 'On track' or 'N errors' without revealing digits",
+        "Highlighting wrong cells only when the setting is on, with a non-color cue",
+        "Logged as a check meta event"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-02",
+      "title": "Submit and auto-submit",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-01"
+      ],
+      "files": [
+        "src/ui/components/SubmitDialog.tsx",
+        "src/state/store.ts"
+      ],
+      "description": "Final submit with a result screen placeholder for analysis; auto-submit when the grid is full and correct.",
+      "acceptance": [
+        "Submitting marks the record submitted and stops the timer",
+        "A full and correct grid submits automatically once",
+        "Submitting an incorrect grid shows the error count and offers analysis (wired in M7-07)"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-03",
+      "title": "Analysis replay and root mistake",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M4-03",
+        "M2-02"
+      ],
+      "files": [
+        "src/analysis/replay.ts",
+        "src/analysis/mistakes.ts",
+        "src/analysis/mistakes.test.ts",
+        "eslint.config.js"
+      ],
+      "description": "Create src/analysis/ (with an ESLint rule: no ui or react imports). Replay a record's path keeping states, and find all mistakes and the root mistake as defined in docs/ARCHITECTURE.md.",
+      "acceptance": [
+        "findMistakes(record) returns mistakes in order with event ids; root is the first",
+        "Covers wrong placements and note edits that remove the true digit; correct moves and erasures are not mistakes",
+        "Tests with hand-built records; property test: a record built only from solution placements has no mistakes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-04",
+      "title": "Mistake diagnosis",
+      "milestone": 7,
+      "priority": 1,
+      "size": "M",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M7-03",
+        "M2-13"
+      ],
+      "files": [
+        "src/analysis/diagnose.ts",
+        "src/analysis/diagnose.test.ts"
+      ],
+      "description": "Classify a mistake in the order from docs/ARCHITECTURE.md: consequence of an earlier mistake, rule conflict already visible, likely typo, guess, ruled out by a deduction (technique and cells).",
+      "acceptance": [
+        "One test per diagnosis built from a real puzzle",
+        "Typo uses event timing and pad/keyboard adjacency from the event's input and key",
+        "Deduction names the technique, cells and explanation of the eliminating step and how many steps preceded it",
+        "Runs under 100 ms for a 300-event record"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-05",
+      "title": "Alternative step and cascade",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M7-04"
+      ],
+      "files": [
+        "src/analysis/cascade.ts",
+        "src/analysis/report.ts",
+        "src/analysis/report.test.ts"
+      ],
+      "description": "For the root mistake, the simplest step available just before it, and the cascade of later dependent moves. Assemble the full MistakeReport type.",
+      "acceptance": [
+        "report.alternative is nextStep at the state before the root",
+        "Cascade follows the rules in docs/ARCHITECTURE.md and is tested on a record with a 3-move cascade",
+        "MistakeReport is serializable (crosses the worker boundary)"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-06",
+      "title": "Correct-solve analysis",
+      "milestone": 7,
+      "priority": 2,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M7-03",
+        "M4-05",
+        "M2-13"
+      ],
+      "files": [
+        "src/analysis/solve.ts",
+        "src/analysis/solve.test.ts"
+      ],
+      "description": "For a correct solve: time breakdown, three longest stalls with the step available at each, hardest technique used, and assists used.",
+      "acceptance": [
+        "Each part tested on a scripted record with a fake clock",
+        "Hardest technique uses the per-placement method from docs/ARCHITECTURE.md"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-07",
+      "title": "Analysis in the worker",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-05",
+        "M7-06",
+        "M3-03"
+      ],
+      "files": [
+        "src/workers/engine.worker.ts",
+        "src/workers/client.ts",
+        "src/ui/useAnalysis.ts"
+      ],
+      "description": "Expose analyze(record) through the worker and a useAnalysis hook with loading and error states.",
+      "acceptance": [
+        "Analysis never blocks the main thread; results are cached per record version",
+        "Errors show a friendly message and are logged once"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-08",
+      "title": "Analysis report UI",
+      "milestone": 7,
+      "priority": 1,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-07",
+        "M7-02"
+      ],
+      "files": [
+        "src/ui/components/AnalysisPanel.tsx",
+        "src/ui/components/Board.tsx",
+        "src/ui/styles.css"
+      ],
+      "description": "Show the report: root mistake highlighted on the board with its justification cells, the diagnosis in plain words, what was available instead, and the cascade; or the solve analysis on a correct solve.",
+      "acceptance": [
+        "Root and justification cells highlighted with non-color cues",
+        "Every diagnosis type renders readable copy",
+        "Works in all layouts and both themes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-09",
+      "title": "Timeline stepper",
+      "milestone": 7,
+      "priority": 2,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-08"
+      ],
+      "files": [
+        "src/ui/components/Timeline.tsx",
+        "src/ui/components/Board.tsx"
+      ],
+      "description": "Step through the path event by event (buttons, slider, arrow keys) with a read-only board preview at each step; jump to the root mistake.",
+      "acceptance": [
+        "Preview never mutates the game",
+        "Keyboard operable with labels like 'Move 37 of 112: r4c2 = 6'",
+        "Jump-to-mistake and back-to-now buttons"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-10",
+      "title": "Rewind and keep playing",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-09"
+      ],
+      "files": [
+        "src/ui/components/AnalysisPanel.tsx",
+        "src/state/store.ts"
+      ],
+      "description": "Rewind to just before the root mistake (or any timeline step) and continue playing on a new branch with history preserved.",
+      "acceptance": [
+        "Rewind moves the cursor and logs a rewind meta event; status returns to playing",
+        "Old nodes remain; move history shows the branch point",
+        "e2e-ready test ids for the rewind button"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-11",
+      "title": "E2E: check, submit and mistake analysis",
+      "milestone": 7,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "qa-e2e",
+      "deps": [
+        "M7-10"
+      ],
+      "files": [
+        "e2e/analysis.spec.ts"
+      ],
+      "description": "Scripted games via ?puzzle= and the test clock: a typo, a guess, and a deduction mistake; and a correct solve.",
+      "acceptance": [
+        "Each scripted mistake shows the expected diagnosis",
+        "Rewind then finishing correctly auto-submits",
+        "Correct solve shows stalls and hardest technique"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M8-01",
+      "title": "Tiered hint engine",
+      "milestone": 8,
+      "priority": 1,
+      "size": "S",
+      "model": "opus",
+      "effort": "high",
+      "agent": "engine-dev",
+      "deps": [
+        "M7-05"
+      ],
+      "files": [
+        "src/analysis/hints.ts",
+        "src/analysis/hints.test.ts"
+      ],
+      "description": "hint(record, tier) from nextStep at the current state: nudge (unit or cell), technique name, reveal (full step). If the board has a mistake, the nudge points to it first.",
+      "acceptance": [
+        "Never contradicts the solution (property test over random partial correct boards)",
+        "Mistakes take priority over deductions",
+        "Each tier's text is short and specific"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M8-02",
+      "title": "Hint UI",
+      "milestone": 8,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M8-01",
+        "M7-07"
+      ],
+      "files": [
+        "src/ui/components/HintButton.tsx",
+        "src/ui/components/Board.tsx",
+        "src/workers/client.ts"
+      ],
+      "description": "H key and a hint button that escalate nudge, technique, reveal; overlays on the board; reveal can be applied; every tier logged as an assist.",
+      "acceptance": [
+        "Escalation resets after the board changes",
+        "Applying a reveal dispatches hint-reveal",
+        "Announced via the live region",
+        "e2e/hints.spec.ts: three presses escalate, reveal applies the right digit, a planted mistake is hinted first"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-01",
+      "title": "Display mode shell and big clock",
+      "milestone": 9,
+      "priority": 1,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M6-03",
+        "M3-06"
+      ],
+      "files": [
+        "src/ui/display/DisplayMode.tsx",
+        "src/ui/display/display.css",
+        "src/ui/App.tsx"
+      ],
+      "description": "A Display mode view (toggle in the app and ?mode=display) with a large clock and date, for landscape and portrait monitors.",
+      "acceptance": [
+        "Landscape and portrait layouts via container queries",
+        "Clock ticks once per second with useSecondTick; no animation loops",
+        "Exit back to Play by button or Escape"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-02",
+      "title": "Display: render the current game",
+      "milestone": 9,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-01"
+      ],
+      "files": [
+        "src/ui/display/DisplayBoard.tsx",
+        "src/ui/display/display.css"
+      ],
+      "description": "A beautifully rendered read-only board of the current game in Display mode, with notes subdued.",
+      "acceptance": [
+        "Scales cleanly from 1280x720 to 3840x2160 and portrait 1080x1920",
+        "Live updates when the game changes in another tab are not required"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-03",
+      "title": "Watch puzzle",
+      "milestone": 9,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-02",
+        "M2-13"
+      ],
+      "files": [
+        "src/ui/display/WatchPuzzle.tsx",
+        "src/workers/client.ts"
+      ],
+      "description": "A slow self-solving puzzle from the bank: one step every few seconds via nextStep in the worker, with the technique name and explanation as a caption; starts a new puzzle when solved.",
+      "acceptance": [
+        "Step interval configurable (default 6 s); deterministic with ?seed=",
+        "Uses timeouts, not animation loops; the caption fades without JS animation"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-04",
+      "title": "Display: today's stats",
+      "milestone": 9,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-01",
+        "M4-06"
+      ],
+      "files": [
+        "src/ui/display/TodayStats.tsx",
+        "src/state/today.ts",
+        "src/state/today.test.ts"
+      ],
+      "description": "Today's stats from the archive: puzzles solved today, total time, best time, and current streak.",
+      "acceptance": [
+        "todayStats(archive, now) is pure and tested across midnight",
+        "Shown in both display orientations"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-05",
+      "title": "Burn-in drift, night dimming, low CPU",
+      "milestone": 9,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-02"
+      ],
+      "files": [
+        "src/ui/display/useDrift.ts",
+        "src/ui/display/display.css"
+      ],
+      "description": "Slow drift (a few pixels every few minutes with a long CSS transition), dimming between 22:00 and 07:00, and a CPU budget check.",
+      "acceptance": [
+        "Drift and dimming tested with a fake clock",
+        "A Playwright trace or performance check shows no animation frames between ticks",
+        "Reduced motion disables drift transitions (position still changes)"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-06",
+      "title": "Fullscreen and keep screen awake",
+      "milestone": 9,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-01"
+      ],
+      "files": [
+        "src/ui/display/DisplayControls.tsx",
+        "src/ui/display/wakeLock.ts"
+      ],
+      "description": "Fullscreen toggle and a Screen Wake Lock toggle with graceful fallback and re-acquire on visibility change.",
+      "acceptance": [
+        "Buttons hidden when the API is unavailable",
+        "Wake lock re-acquired after the tab becomes visible again",
+        "Unit tests with a mocked API"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-07",
+      "title": "Idle switches to Display mode",
+      "milestone": 9,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-01",
+        "M5-08"
+      ],
+      "files": [
+        "src/ui/useIdle.ts",
+        "src/ui/useIdle.test.ts",
+        "src/ui/App.tsx"
+      ],
+      "description": "After N minutes without input (setting, default 10, off allowed), pause the game and switch to Display mode.",
+      "acceptance": [
+        "useIdle tested with fake timers",
+        "Returning to Play keeps the game paused until resumed"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-08",
+      "title": "PWA: offline and installable",
+      "milestone": 9,
+      "priority": 2,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-04",
+        "M6-02"
+      ],
+      "files": [
         "vite.config.ts",
+        "public/manifest.webmanifest",
+        "public/icons/*",
+        "src/sw.ts",
+        "package.json"
+      ],
+      "description": "Web app manifest, icons, and a service worker that precaches the app shell and the puzzle bank so the app works offline and installs as a window.",
+      "acceptance": [
+        "Lighthouse-style checks: manifest valid, installable, offline reload works (Playwright offline test)",
+        "Update flow: a new version activates on next load without breaking a game in progress",
+        "If a new dependency (e.g. vite-plugin-pwa) is added, the report says why"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-09",
+      "title": "E2E: Display mode and offline",
+      "milestone": 9,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "qa-e2e",
+      "deps": [
+        "M9-03",
+        "M9-05",
+        "M9-08"
+      ],
+      "files": [
+        "e2e/display.spec.ts",
+        "e2e/offline.spec.ts"
+      ],
+      "description": "Display mode at landscape and portrait monitor sizes and offline behavior.",
+      "acceptance": [
+        "Display mode renders clock, board or watch puzzle, and stats; axe clean in both themes",
+        "Offline reload serves the app and a bank puzzle"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-01",
+      "title": "Stats per difficulty",
+      "milestone": 10,
+      "priority": 1,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-02",
+        "M4-06"
+      ],
+      "files": [
+        "src/state/stats.ts",
+        "src/state/stats.test.ts",
+        "src/ui/components/StatsDialog.tsx"
+      ],
+      "description": "Stats per level from the archive: solved, best and average time, streak, and mistake rate; a stats dialog.",
+      "acceptance": [
+        "Pure stats functions tested with fixture archives, including streaks across days",
+        "Mistake rate counts games with any mistake",
+        "Dialog works in all layouts"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-02",
+      "title": "Daily puzzle",
+      "milestone": 10,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-06",
+        "M10-01"
+      ],
+      "files": [
+        "src/state/daily.ts",
+        "src/state/daily.test.ts",
+        "src/ui/components/NewGameDialog.tsx"
+      ],
+      "description": "Daily puzzle from the bank by local date seed with the weekday level rotation in docs/ARCHITECTURE.md; a daily badge and daily streak.",
+      "acceptance": [
+        "Same date gives the same puzzle; tested across time zones via injected dates",
+        "Daily games count separately in stats"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-03",
+      "title": "Share and import",
+      "milestone": 10,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M1-06",
+        "M4-08"
+      ],
+      "files": [
+        "src/ui/components/ShareDialog.tsx",
+        "src/ui/components/ImportDialog.tsx",
+        "src/ui/App.tsx"
+      ],
+      "description": "Share the current puzzle as an 81-char string or URL (copy to clipboard) and import one from text or ?puzzle=.",
+      "acceptance": [
+        "Import shows the codec's specific error for invalid input",
+        "Imported puzzles are graded in the worker before starting",
+        "Copy works with a fallback when the clipboard API is denied"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-04",
+      "title": "Completion animation",
+      "milestone": 10,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-02"
+      ],
+      "files": [
+        "src/ui/components/Completion.tsx",
+        "src/ui/styles.css"
+      ],
+      "description": "A subtle completion animation (CSS only) when a puzzle is solved; none with reduced motion.",
+      "acceptance": [
+        "Under 1.5 s, no layout shift",
+        "Skipped entirely with prefers-reduced-motion"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-05",
+      "title": "Copy pass",
+      "milestone": 10,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M7-08",
+        "M8-02"
+      ],
+      "files": [
+        "src/ui/strings.ts"
+      ],
+      "description": "Collect user-facing strings into src/ui/strings.ts and edit them for clarity and consistency (sentence case, short, no jargon beyond technique names).",
+      "acceptance": [
+        "All component strings come from strings.ts",
+        "No behavior changes; check and e2e pass"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-06",
+      "title": "README",
+      "milestone": 10,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M10-03"
+      ],
+      "files": [
         "README.md"
       ],
+      "description": "README covering what the app is, how to play (both modes, shortcuts), how to develop, test and build, and a short pointer to director/README.md.",
       "acceptance": [
-        "Depends on the hosting answer in QUESTIONS.md Q1; implement exactly what that answer says",
-        "A CI workflow runs npm ci, npm run check and npm run build on every push to main before deploying"
+        "Commands match package.json",
+        "Under 150 lines"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-07",
+      "title": "Performance and bundle audit",
+      "milestone": 10,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-08"
+      ],
+      "files": [
+        "vite.config.ts",
+        "src/ui/App.tsx"
+      ],
+      "description": "Lazy-load Display mode and analysis UI, confirm the worker is a separate chunk, and set a size budget.",
+      "acceptance": [
+        "Initial JS under 120 KB gzip (report actual)",
+        "Time to interactive on the 390x844 project under 2 s in Playwright (local preview)"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-08",
+      "title": "Full regression and accessibility sweep",
+      "milestone": 10,
+      "priority": 1,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "qa-e2e",
+      "deps": [
+        "M10-02",
+        "M10-03",
+        "M9-09",
+        "M8-02"
+      ],
+      "files": [
+        "e2e/*"
+      ],
+      "description": "Run and stabilize the whole e2e suite, fill coverage gaps against the must-have list in docs/PLAN.md, and fix flakiness.",
+      "acceptance": [
+        "Every must-have item maps to at least one e2e spec (listed in the report)",
+        "Suite passes 3 consecutive runs locally",
+        "axe clean on every screen in both themes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-09",
+      "title": "Enable deployment",
+      "milestone": 10,
+      "priority": 2,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M10-08"
+      ],
+      "files": [
+        ".github/workflows/deploy-pages.yml",
+        "README.md"
+      ],
+      "description": "Enable deployment exactly as answered in director/QUESTIONS.md Q1.",
+      "acceptance": [
+        "Workflow enabled per the answer; README links the live URL",
+        "CI still runs check and build before deploy"
       ],
       "status": "blocked",
-      "blocked_by": "Q1",
       "attempts": 0,
-      "notes": ""
+      "notes": "",
+      "blocked_by": "Q1"
     }
   ]
 }

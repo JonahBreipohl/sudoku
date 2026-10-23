@@ -2,14 +2,12 @@
 
 ## setup 2026-10-22
 
-Project scaffolded by hand (not a Director run): Vite + TypeScript + Vitest app shell,
-scripts/usage.mjs, director/ files, agent definitions, 24 tasks across milestones 0-4.
-Trunk `main` is green (check + build). No tasks dispatched; no ledger rows.
-Next up: T001 (Playwright harness), T010 (board model), T002 (lint).
+Founding session (not a Director run). Rebuilt the first vanilla scaffold to the founding spec:
+React + Vite + strict TypeScript walking skeleton (board with a hardcoded puzzle, click/tap and
+arrow selection, keyboard and pad entry, conflicts, theme toggle; engine parse/validate with
+fast-check tests), docs/PLAN.md and docs/ARCHITECTURE.md, 80-task backlog for M1-M10, five
+subagents, director files, usage tooling with fixture tests, statusline snapshot script, project
+permissions, CI and a disabled Pages workflow. Clean install, check, build and e2e green.
+No tasks dispatched; ledger empty.
 
-## setup amendment 2026-10-22
-
-Budgets resized for the Pro plan (QUESTIONS.md Q2): $7 per run, $30 per week, 3 tasks and
-90 minutes per run. Split the six M tasks (T012, T013, T014, T020, T030, T040) into a/b S tasks
-so the most expensive task (opus S: need $3.50 + $1 overhead + $1 review) fits in one run.
-The backlog is now 30 live tasks, all size S.
+Next up: M1-01 seeded PRNG, then M1-02 fast solver and M1-04 candidate state.

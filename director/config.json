@@ -1,55 +1,35 @@
 {
   "trunk": "main",
-  "remote": "origin",
-  "run_budget_usd": 7,
-  "weekly_budget_usd": 30,
+  "run_budget_usd": 6,
+  "weekly_budget_usd": 40,
   "wrapup_reserve_usd": 0.5,
-  "director_overhead_usd": 1,
-  "default_review_usd": 1,
+  "director_overhead_usd": 0.5,
   "min_finish_probability": 0.8,
-  "max_tasks_per_run": 3,
+  "max_tasks_per_run": 6,
   "max_parallel": 1,
-  "max_run_minutes": 90,
-  "review_every_nth_task": 3,
-  "allow_fable": false,
-  "model_ladder": [
-    "haiku",
-    "sonnet",
-    "opus",
-    "fable"
-  ],
-  "effort_ladder": [
-    "low",
-    "medium",
-    "high",
-    "xhigh"
-  ],
+  "max_run_minutes": 150,
   "plan_usage_ceilings": {
     "five_hour_pct": 80,
     "seven_day_pct": 85
   },
+  "allow_fable": false,
   "size_priors_usd": {
+    "haiku": { "S": 0.05, "M": 0.15 },
+    "sonnet": { "S": 0.6, "M": 2.0 },
+    "opus": { "S": 1.2, "M": 4.0 },
+    "fable": { "S": 3.0, "M": 10.0 }
+  },
+  "prices_per_mtok": {
+    "fable": { "in": 10, "out": 50, "cache_write_5m": 12.5, "cache_write_1h": 20, "cache_read": 0.25 },
+    "opus": { "in": 4, "out": 20, "cache_write_5m": 5, "cache_write_1h": 8, "cache_read": 0.2 },
+    "sonnet": { "in": 2, "out": 10, "cache_write_5m": 2.5, "cache_write_1h": 4, "cache_read": 0.1 },
     "haiku": {
-      "S": 0.15,
-      "M": 0.4
-    },
-    "sonnet": {
-      "S": 1,
-      "M": 2.5
-    },
-    "opus": {
-      "S": 1.75,
-      "M": 4
-    },
-    "fable": {
-      "S": 4,
-      "M": 10
+      "in": 0.1,
+      "out": 0.5,
+      "cache_write_5m": 0.125,
+      "cache_write_1h": 0.2,
+      "cache_read": 0.01,
+      "over_100k": { "in": 0.5, "out": 2.5, "cache_write_5m": 0.625, "cache_write_1h": 1, "cache_read": 0.05 }
     }
-  },
-  "routing": {
-    "feature-dev": "UI, state, tooling and docs work outside src/engine/. Default sonnet; haiku for mechanical S tasks.",
-    "engine-dev": "Anything under src/engine/ (solver, generator, grader, hints). Default opus; sonnet for small, well-specified S tasks.",
-    "reviewer": "Read-only review of a task branch against its acceptance criteria. Runs on sonnet."
-  },
-  "reviewer_model": "sonnet"
+  }
 }
