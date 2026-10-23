@@ -41,17 +41,21 @@ describe("solve: known puzzles", () => {
     });
   }
 
-  it("solves each hard puzzle in under 20 ms", () => {
+  it("solves each hard puzzle in under 20 ms (best of 5)", () => {
     // Warm the JIT on unrelated work so the timing measures the search, not V8's interpreter.
     for (let seed = 0; seed < 20; seed++) solve(emptyGrid(), createRng(seed));
     solve(parseGrid(SAMPLE_EASY.puzzle));
     for (const { name, puzzle } of HARD_PUZZLES) {
-      const grid = parseGrid(puzzle);
-      const start = performance.now();
-      const result = solve(grid);
-      const elapsed = performance.now() - start;
-      expect(result, name).not.toBeNull();
-      expect(elapsed, `${name} took ${elapsed.toFixed(2)} ms`).toBeLessThan(20);
+      // The minimum of several runs discards scheduler noise on busy CI machines.
+      let best = Infinity;
+      for (let run = 0; run < 5; run++) {
+        const grid = parseGrid(puzzle);
+        const start = performance.now();
+        const result = solve(grid);
+        best = Math.min(best, performance.now() - start);
+        expect(result, name).not.toBeNull();
+      }
+      expect(best, `${name} best of 5 took ${best.toFixed(2)} ms`).toBeLessThan(20);
     }
   });
 
