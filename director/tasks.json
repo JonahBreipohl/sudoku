@@ -33,7 +33,7 @@
         "String seeds hash deterministically (document the hash); the same seed always yields the same sequence",
         "fast-check tests: int(n) stays in range, shuffle is a permutation; a chi-square-style sanity test on 10k draws"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
