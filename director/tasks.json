@@ -88,8 +88,8 @@
         "Property test: for random full grids with random cells blanked, every solution found agrees with the givens",
         "Counting to 2 on the empty grid and on 17-clue puzzles takes under 20 ms each"
       ],
-      "status": "in_progress",
-      "attempts": 1,
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     },
     {
@@ -114,8 +114,8 @@
         "place(state, cell, digit) sets the value and removes digit from peers; eliminate(state, cell, digit) removes one candidate; both return new states",
         "Property tests: placing the solution digit never removes a peer's solution digit; candidates of filled cells are 0"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
