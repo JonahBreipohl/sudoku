@@ -298,8 +298,8 @@
         "One test state per technique where it is required, including a naked triple whose cells hold only two candidates each",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
