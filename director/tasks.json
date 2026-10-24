@@ -272,8 +272,8 @@
         "Tests for each with a state where it is the only step",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
