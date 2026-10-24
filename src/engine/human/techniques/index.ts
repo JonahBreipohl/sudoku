@@ -2,3 +2,4 @@
 // Add one line per technique, e.g. `import "./singles";`. Order is irrelevant; the
 // registry sorts by tier then weight.
 import "../singles";
+import "../locked";
