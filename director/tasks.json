@@ -140,8 +140,8 @@
         "applyStep applies placements and eliminations via CandidateState operations",
         "cellName, unitName and formatDigits are tested, including box naming"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
