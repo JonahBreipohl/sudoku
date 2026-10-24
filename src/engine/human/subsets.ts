@@ -117,6 +117,15 @@ export function findHiddenSubset(state: CandidateState, n: number): Step | null 
 
 export const findNakedPair = (state: CandidateState): Step | null => findNakedSubset(state, 2);
 export const findHiddenPair = (state: CandidateState): Step | null => findHiddenSubset(state, 2);
+export const findNakedTriple = (state: CandidateState): Step | null => findNakedSubset(state, 3);
+export const findHiddenTriple = (state: CandidateState): Step | null => findHiddenSubset(state, 3);
+export const findNakedQuad = (state: CandidateState): Step | null => findNakedSubset(state, 4);
+export const findHiddenQuad = (state: CandidateState): Step | null => findHiddenSubset(state, 4);
 
+// Level and weight come from TECHNIQUES in step.ts (Medium for pairs, Hard for triples and quads).
 registerTechnique("naked-pair", findNakedPair);
 registerTechnique("hidden-pair", findHiddenPair);
+registerTechnique("naked-triple", findNakedTriple);
+registerTechnique("hidden-triple", findHiddenTriple);
+registerTechnique("naked-quad", findNakedQuad);
+registerTechnique("hidden-quad", findHiddenQuad);
