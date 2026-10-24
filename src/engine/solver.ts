@@ -214,3 +214,44 @@ export function solve(grid: Grid, rng?: Rng): CellValue[] | null {
   });
   return solution;
 }
+
+function checkLimit(limit: number): void {
+  if (!Number.isInteger(limit) || limit < 1) throw new RangeError(`Expected a positive integer limit, got ${limit}`);
+}
+
+/**
+ * Counts the solutions of `grid`, stopping as soon as `limit` are found, so the result is
+ * min(true count, limit). The default of 2 is all a uniqueness check needs, and the generator
+ * runs one per clue-removal attempt, so this path allocates nothing per solution. Conflicting
+ * givens count as 0. The input is never mutated.
+ */
+export function countSolutions(grid: Grid, limit = 2): number {
+  checkLimit(limit);
+  const state = initState(grid);
+  if (!state) return 0;
+  let count = 0;
+  search(state, 0, undefined, () => ++count >= limit);
+  return count;
+}
+
+/** True when `grid` has exactly one solution. */
+export function hasUniqueSolution(grid: Grid): boolean {
+  return countSolutions(grid, 2) === 1;
+}
+
+/**
+ * Returns up to `limit` distinct solutions of `grid`, in the solver's fixed search order. Used
+ * where the solutions themselves matter (tests, explaining why a puzzle is not unique);
+ * uniqueness checks should call countSolutions, which skips the copies.
+ */
+export function findSolutions(grid: Grid, limit = 2): CellValue[][] {
+  checkLimit(limit);
+  const state = initState(grid);
+  if (!state) return [];
+  const solutions: CellValue[][] = [];
+  search(state, 0, undefined, () => {
+    solutions.push(Array.from(state.values, (v) => v as Digit));
+    return solutions.length >= limit;
+  });
+  return solutions;
+}
