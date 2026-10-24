@@ -166,7 +166,7 @@
         "Reasons distinguish: wrong length, invalid characters, rule conflict, no solution, multiple solutions",
         "puzzleUrl(grid, base) round-trips through parsePuzzleInput (property test)"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -194,8 +194,8 @@
         "solveLogically(state, maxLevel) returns {steps, solved, stuckState}",
         "A stub technique in tests proves ordering by tier then weight and that maxLevel is respected"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
