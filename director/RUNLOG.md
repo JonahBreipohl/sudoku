@@ -34,3 +34,15 @@ Next up: M1-03, M1-04a, then M2.
 - M2-02 opus S: need 1.20 (prior), actual 0.40 (+0.04 review).
 Spend this run about $2.93 of $6. M1 complete. e2e not run (no UI changes). Nothing escalated.
 Next up: M2-03 and the remaining M2 techniques; M3-01, M3-03, M4-01 are also ready.
+
+## run 20261024-0332 (cloud)
+
+~20 minutes. Trunk green at start (130 tests). Six tasks, all passed first attempt (max tasks reached):
+- M2-03 opus S: need 1.0, actual 0.63 (+0.17 review).
+- M2-04 opus S: need 1.0, actual 0.78 (+0.17 review).
+- M2-05 opus S: need 1.0, actual 0.51 (+0.17 review). Reviewer minor -> new M2-05a.
+- M3-03 sonnet S: need 0.3, actual 0.21 (not reviewed; web worker, no state/engine). e2e run: 18 passed.
+- M2-05a haiku S: actual 0.01 (+0.12 review).
+- M2-06 opus S: need 1.0, actual 0.74 (+0.13 review).
+Spend this run about $4.5 of $6. Nothing escalated. Ledger overhead figures are approximate (interleaved Director turns).
+Next up: M2-07, M2-08, M2-11, M3-01, M4-01.
