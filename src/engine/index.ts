@@ -4,3 +4,4 @@ export * from "./random";
 export * from "./solver";
 export * from "./candidates";
 export * from "./step";
+export * from "./codec";
