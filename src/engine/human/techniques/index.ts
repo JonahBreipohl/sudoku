@@ -7,3 +7,4 @@ import "../subsets";
 import "../fish";
 import "../wings";
 import "../coloring";
+import "../wwing";
