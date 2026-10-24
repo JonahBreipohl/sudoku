@@ -194,7 +194,7 @@
         "solveLogically(state, maxLevel) returns {steps, solved, stuckState}",
         "A stub technique in tests proves ordering by tier then weight and that maxLevel is respected"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -220,8 +220,8 @@
         "solveLogically at Easy fully solves the sample easy puzzle",
         "Property test over random solved-then-blanked grids: every placement equals the solution digit"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
