@@ -195,10 +195,10 @@ describe("findFish", () => {
 
 describe("registration", () => {
   it("registers X-Wing and Swordfish at Expert with their weights", () => {
-    const expert = defaultRegistry.list("expert").filter((t) => t.level === "expert");
-    expect(expert.map((t) => [t.id, t.weight])).toEqual([
-      ["x-wing", 30],
-      ["swordfish", 45],
+    const fish = defaultRegistry.list("expert").filter((t) => t.id === "x-wing" || t.id === "swordfish");
+    expect(fish.map((t) => [t.level, t.id, t.weight])).toEqual([
+      ["expert", "x-wing", 30],
+      ["expert", "swordfish", 45],
     ]);
     expect(defaultRegistry.list("hard").some((t) => t.level === "expert")).toBe(false);
   });

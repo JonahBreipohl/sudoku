@@ -5,3 +5,4 @@ import "../singles";
 import "../locked";
 import "../subsets";
 import "../fish";
+import "../wings";
