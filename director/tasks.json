@@ -376,8 +376,8 @@
         "Tests for wrap and trap",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
