@@ -6,3 +6,4 @@ import "../locked";
 import "../subsets";
 import "../fish";
 import "../wings";
+import "../coloring";

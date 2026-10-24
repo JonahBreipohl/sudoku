@@ -72,6 +72,11 @@ export interface Step {
   digits: Digit[];
   /** Unit indices (0-8 rows, 9-17 columns, 18-26 boxes) involved, when relevant. */
   units?: number[];
+  /**
+   * Disjoint cell groups the UI shows in distinct styles, when the step has more than one role
+   * for its cells (simple coloring: the two colors of the chain, in that order).
+   */
+  groups?: number[][];
   /** One line, e.g. "Only r3c5 in row 3 can hold 7". */
   explanation: string;
 }
