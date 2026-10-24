@@ -562,8 +562,8 @@
         "Tests: 50 seeds all give unique puzzles whose solution matches, with symmetric givens",
         "Median time under 50 ms per puzzle in Node"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
