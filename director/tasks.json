@@ -166,8 +166,8 @@
         "Reasons distinguish: wrong length, invalid characters, rule conflict, no solution, multiple solutions",
         "puzzleUrl(grid, base) round-trips through parsePuzzleInput (property test)"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2159,7 +2159,7 @@
         "fromGridAndNotes subset property exists",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }
