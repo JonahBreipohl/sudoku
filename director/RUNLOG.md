@@ -46,3 +46,13 @@ Next up: M2-03 and the remaining M2 techniques; M3-01, M3-03, M4-01 are also rea
 - M2-06 opus S: need 1.0, actual 0.74 (+0.13 review).
 Spend this run about $4.5 of $6. Nothing escalated. Ledger overhead figures are approximate (interleaved Director turns).
 Next up: M2-07, M2-08, M2-11, M3-01, M4-01.
+
+## run 20261024-0915 (cloud)
+
+~25 minutes. Trunk green at start (172 tests). Four tasks, all passed first attempt and reviewed:
+- M2-07 opus S: need 1.0, actual 0.90 (+0.15 review).
+- M2-08 opus S: need 1.0, actual 0.79 (+0.15 review). Added optional Step.groups.
+- M2-11 opus S: need 1.0, actual 0.51 (+0.13 review).
+- M3-01 opus S: need 1.0, actual 0.38 (+0.12 review).
+Spend this run about $3.8 of $6 (Director ~0.6). Stopped with ~1.7 left to keep a safe wrap-up margin. Config budget still $6 (you asked for $10; see QUESTIONS.md).
+Next up: M4-01, M2-12/M2-09 (M, to split), M3-02 after M2-13.
