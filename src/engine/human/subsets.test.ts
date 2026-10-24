@@ -10,7 +10,16 @@ import { nextStep } from "./driver";
 import { findClaiming, findPointing } from "./locked";
 import { defaultRegistry } from "./registry";
 import { findHiddenSingle, findNakedSingle } from "./singles";
-import { findHiddenPair, findHiddenSubset, findNakedPair, findNakedSubset } from "./subsets";
+import {
+  findHiddenPair,
+  findHiddenQuad,
+  findHiddenSubset,
+  findHiddenTriple,
+  findNakedPair,
+  findNakedQuad,
+  findNakedSubset,
+  findNakedTriple,
+} from "./subsets";
 import "./techniques";
 
 const ROW = (r: number) => r - 1;
@@ -214,7 +223,101 @@ describe("findHiddenSubset", () => {
   });
 });
 
+/** States where the technique is required: nothing at Medium applies, and the Hard driver picks it. */
+const NAKED_TRIPLE_PAIRS = () =>
+  // Column 5: {3,5}, {5,8}, {3,8}; no cell holds all three digits.
+  restrict([
+    [13, [3, 5]],
+    [31, [5, 8]],
+    [76, [3, 8]],
+  ]);
+const HIDDEN_TRIPLE = () =>
+  // In box 5, 4, 6 and 7 fit only r4c4, r5c5 and r6c6 (no two share a row or column).
+  remove(
+    UNITS[BOX(5)]!.filter((c) => ![30, 40, 50].includes(c)),
+    [4, 6, 7],
+  );
+const NAKED_QUAD = () =>
+  // Row 1: {1,2}, {2,3}, {3,4}, {1,4} in c1, c4, c7 and c9, one or two per box.
+  restrict([
+    [0, [1, 2]],
+    [3, [2, 3]],
+    [6, [3, 4]],
+    [8, [1, 4]],
+  ]);
+const HIDDEN_QUAD = () =>
+  // In row 1, 1-4 fit only c1, c4, c7 and c9.
+  remove([1, 2, 4, 5, 7], [1, 2, 3, 4]);
+
+describe("triples and quads", () => {
+  it("needs a naked triple whose cells hold only two candidates each", () => {
+    const state = NAKED_TRIPLE_PAIRS();
+    expect(nextStep(state, "medium")).toBeNull();
+    const step = nextStep(state, "hard")!;
+    expect(step).toEqual(findNakedTriple(state));
+    expect(step.technique).toBe("naked-triple");
+    expectNakedWellFormed(state, step, 3);
+    expect(step.digits).toEqual([3, 5, 8]);
+    expect(step.eliminations).toHaveLength(6 * 3);
+  });
+
+  it("needs a hidden triple", () => {
+    const state = HIDDEN_TRIPLE();
+    expect(nextStep(state, "medium")).toBeNull();
+    const step = nextStep(state, "hard")!;
+    expect(step).toEqual(findHiddenTriple(state));
+    expect(step.technique).toBe("hidden-triple");
+    expectHiddenWellFormed(state, step, 3);
+    expect(step.cells).toEqual([30, 40, 50]);
+    expect(step.digits).toEqual([4, 6, 7]);
+    expect(step.explanation).toBe("In box 5, 4, 6 and 7 fit only in r4c4, r5c5 and r6c6, so remove other candidates from those cells");
+  });
+
+  it("needs a naked quad", () => {
+    const state = NAKED_QUAD();
+    expect(nextStep(state, "medium")).toBeNull();
+    expect(findNakedTriple(state)).toBeNull();
+    expect(findHiddenTriple(state)).toBeNull();
+    const step = nextStep(state, "hard")!;
+    expect(step).toEqual(findNakedQuad(state));
+    expect(step.technique).toBe("naked-quad");
+    expectNakedWellFormed(state, step, 4);
+    expect(step.units).toEqual([ROW(1)]);
+    expect(step.cells).toEqual([0, 3, 6, 8]);
+    expect(step.digits).toEqual([1, 2, 3, 4]);
+    expect(step.eliminations).toEqual([1, 2, 4, 5, 7].flatMap((cell) => [1, 2, 3, 4].map((digit) => ({ cell, digit }))));
+    expect(step.explanation).toBe("r1c1, r1c4, r1c7 and r1c9 can only hold 1, 2, 3 and 4, so remove 1, 2, 3 and 4 from the rest of row 1");
+  });
+
+  it("needs a hidden quad", () => {
+    const state = HIDDEN_QUAD();
+    expect(nextStep(state, "medium")).toBeNull();
+    expect(findNakedTriple(state)).toBeNull();
+    expect(findHiddenTriple(state)).toBeNull();
+    expect(findNakedQuad(state)).toBeNull();
+    const step = nextStep(state, "hard")!;
+    expect(step).toEqual(findHiddenQuad(state));
+    expect(step.technique).toBe("hidden-quad");
+    expectHiddenWellFormed(state, step, 4);
+    expect(step.units).toEqual([ROW(1)]);
+    expect(step.cells).toEqual([0, 3, 6, 8]);
+    expect(step.digits).toEqual([1, 2, 3, 4]);
+    expect(step.eliminations).toEqual([0, 3, 6, 8].flatMap((cell) => [5, 6, 7, 8, 9].map((digit) => ({ cell, digit }))));
+  });
+});
+
 describe("registration", () => {
+  it("registers triples and quads at Hard, ordered by weight", () => {
+    const hard = defaultRegistry.list("hard");
+    expect(hard.slice(6).map((t) => [t.id, t.level, t.weight])).toEqual([
+      ["naked-triple", "hard", 12],
+      ["hidden-triple", "hard", 16],
+      ["naked-quad", "hard", 20],
+      ["hidden-quad", "hard", 25],
+    ]);
+    expect(defaultRegistry.list("medium").some((t) => t.level === "hard")).toBe(false);
+  });
+
   it("registers naked and hidden pairs at Medium after locked candidates", () => {
     expect(defaultRegistry.list("medium").map((t) => t.id)).toEqual([
       "naked-single",
@@ -248,8 +351,9 @@ function blanked(seed: number, holes: number): { puzzle: CellValue[]; solution: 
 }
 
 describe("properties", () => {
-  it("never eliminates a solution digit, at any state along a Medium solve", () => {
+  it("never eliminates a solution digit, at any state along a Hard solve", () => {
     const fired = { naked: 0, hidden: 0 };
+    const firedBySize = { 2: 0, 3: 0, 4: 0 };
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 1_000_000 }), fc.integer({ min: 40, max: 64 }), (seed, holes) => {
         const { puzzle, solution } = blanked(seed, holes);
@@ -260,18 +364,21 @@ describe("properties", () => {
             const naked = findNakedSubset(state, n);
             if (naked) {
               fired.naked++;
+              firedBySize[n as 2 | 3 | 4]++;
               expectNakedWellFormed(state, naked, n);
               for (const { cell, digit } of naked.eliminations) expect(digit).not.toBe(solution[cell]);
             }
             const hidden = findHiddenSubset(state, n);
             if (hidden) {
               fired.hidden++;
+              firedBySize[n as 2 | 3 | 4]++;
               expectHiddenWellFormed(state, hidden, n);
               for (const { cell, digit } of hidden.eliminations) expect(digit).not.toBe(solution[cell]);
             }
           }
-          const step = nextStep(state, "medium");
+          const step = nextStep(state, "hard");
           if (!step) break;
+          for (const { cell, digit } of step.eliminations) expect(digit).not.toBe(solution[cell]);
           state = applyStep(state, step);
         }
       }),
@@ -280,5 +387,7 @@ describe("properties", () => {
     // Guards against a vacuous pass if the generator stopped producing subsets.
     expect(fired.naked).toBeGreaterThan(0);
     expect(fired.hidden).toBeGreaterThan(0);
+    expect(firedBySize[3]).toBeGreaterThan(0);
+    expect(firedBySize[4]).toBeGreaterThan(0);
   });
 });
