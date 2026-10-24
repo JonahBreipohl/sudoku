@@ -20,7 +20,7 @@ reserve). By the Director's rules it will split each into S tasks when it reache
 rather keep them whole, raise `run_budget_usd` to at least $10. Once real ledger samples exist the
 estimate may drop and they may fit anyway.
 
-Answer:
+Answer:increase to 10 dollars, goal is to max out 5 hour usage but to avoid running out of usage mid work
 
 ## Q3: Budgets: $6 per run, $40 per week (non-blocking)
 
@@ -30,7 +30,7 @@ a Pro plan's weekly window allows; the plan-usage ceilings stop the Director at 
 window either way, if the status-line signal is enabled (director/README.md). Change
 `weekly_budget_usd` if you want it lower.
 
-Answer:
+Answer: please clarify what input is needed from me, dont understand question
 
 ## Q4: Review volume (non-blocking)
 
@@ -39,11 +39,11 @@ which is 43 of 80 tasks, plus every third other task: about 56 reviews, roughly 
 projected total. If you want to cut that, one option is to review opus tasks and engine changes
 only, and state changes every third task.
 
-Answer:
+Answer: yes
 
 ## Q5: Daily puzzle level rotation (non-blocking, default chosen)
 
 Default: Mon Easy, Tue Medium, Wed Medium, Thu Hard, Fri Hard, Sat Expert, Sun Master
 (docs/ARCHITECTURE.md). Say if you want a different rotation or a fixed level.
 
-Answer:
+Answer: i like that idea, go for it. see if ot is possible to ahe an auto generate or at least a way to keep playin
