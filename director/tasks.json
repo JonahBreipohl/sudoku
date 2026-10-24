@@ -324,8 +324,8 @@
         "Tests for row and column orientation of each",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2182,7 +2182,7 @@
         "Guard asserts per-technique coverage, or documents why a technique cannot be reached",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }
