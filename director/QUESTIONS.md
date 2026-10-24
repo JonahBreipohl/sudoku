@@ -10,7 +10,7 @@ manual trigger only). Options: enable GitHub Pages for this repo (the repo must 
 the site will be public at `https://jonahbreipohl.github.io/sudoku/`), use another host, or don't
 deploy.
 
-Answer:
+Answer:will switch to local environent later and connect to one of my existing websites
 
 ## Q2: Four opus M tasks can't fit a $6 run at the priors (non-blocking)
 
