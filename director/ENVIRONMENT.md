@@ -71,7 +71,9 @@ What the environment provides (from the docs, not yet verified by a run):
 - No `~/.claude/plan-usage.json` (expected), so plan-usage ceilings aren't checked; usage-limit
   errors still stop a run.
 
-**First cloud run, record here**: whether `npm run e2e` passes (if not, mark e2e optional and say
+**First cloud run results (2026-10-24)**: usage.mjs works in the cloud; transcripts are under `~/.claude/projects/-home-user-sudoku/<session>/` with subagents in `subagents/`, and it reports the Director and each subagent. `npm ci`, check and build work; e2e not exercised yet (no UI task). Run took ~15 minutes for six S tasks.
+
+Original note:  whether `npm run e2e` passes (if not, mark e2e optional and say
 why), where transcripts live and whether `node scripts/usage.mjs --since <run_start>` reports the
 Director and subagents, and how long the run took.
 

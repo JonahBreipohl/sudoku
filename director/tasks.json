@@ -220,7 +220,7 @@
         "solveLogically at Easy fully solves the sample easy puzzle",
         "Property test over random solved-then-blanked grids: every placement equals the solution digit"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

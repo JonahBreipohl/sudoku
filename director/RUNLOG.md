@@ -22,3 +22,15 @@ Next up: M1-01 seeded PRNG, then M1-02 fast solver and M1-04 candidate state.
 Not started: M1-03 (opus S): 2 x 1.2 prior + overhead + review exceeded the remaining budget (~$2.7).
 Spend this run about $2.80 of $6. usage.mjs worked in the cloud and reported subagents separately. e2e not run (no UI changes); not yet verified in cloud.
 Next up: M1-03, M1-04a, then M2.
+
+## run 20261024-0054 (cloud)
+
+~15 minutes. Trunk green at start (63 tests). Six tasks, all passed and reviewed (max tasks reached):
+- M1-03 opus S: need 2.40, actual 0.61 (+0.05 review).
+- M1-05 sonnet S: need 1.20, actual 0.22 (+0.05 review).
+- M1-04a haiku S: need 0.10, actual 0.01 (+0.04 review).
+- M1-06 sonnet S: need 1.20, actual 0.11 (+0.03 review). Reviewer minor: round-trip property accepts multiple-solutions.
+- M2-01 opus S: need 2.40, actual 0.69 (+0.04 review).
+- M2-02 opus S: need 1.20 (prior), actual 0.40 (+0.04 review).
+Spend this run about $2.93 of $6. M1 complete. e2e not run (no UI changes). Nothing escalated.
+Next up: M2-03 and the remaining M2 techniques; M3-01, M3-03, M4-01 are also ready.
