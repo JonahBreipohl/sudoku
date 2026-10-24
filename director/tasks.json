@@ -350,7 +350,7 @@
         "Tests where each is required",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
