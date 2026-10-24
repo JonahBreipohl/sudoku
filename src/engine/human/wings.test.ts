@@ -123,7 +123,8 @@ describe("XY-Wing", () => {
     expect(full.steps.some((s) => s.technique === "xy-wing")).toBe(true);
     expect(full.steps.map((s) => s.technique).filter((t) => !t.endsWith("single") && t !== "xy-wing")).toEqual([]);
     expect(full.steps.reduce(applyStep, state).values.join("")).toBe(XY_PUZZLE.solution);
-    expect(solveLogically(state, "expert", registryWithout("xy-wing")).solved).toBe(false);
+    // Simple coloring can stand in for the wing on this puzzle, so leave it out too.
+    expect(solveLogically(state, "expert", registryWithout("xy-wing", "simple-coloring")).solved).toBe(false);
   });
 
   it("skips wings with nothing to eliminate and pincers with the same pair", () => {
@@ -220,6 +221,7 @@ describe("registration", () => {
       ["x-wing", 30],
       ["xy-wing", 40],
       ["swordfish", 45],
+      ["simple-coloring", 45],
       ["xyz-wing", 50],
     ]);
     expect(defaultRegistry.list("hard").some((t) => t.id === "xy-wing" || t.id === "xyz-wing")).toBe(false);

@@ -74,6 +74,7 @@ interface Step {
   cells: number[];                 // cells that justify the step (highlight these)
   digits: Digit[];                 // digits involved
   units?: number[];                // unit indices involved, when relevant
+  groups?: number[][];             // disjoint cell groups shown in distinct styles (coloring's two colors)
   explanation: string;             // one line, e.g. "Only r3c5 in row 3 can hold 7"
 }
 ```
