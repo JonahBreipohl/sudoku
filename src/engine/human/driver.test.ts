@@ -118,7 +118,8 @@ describe("registry", () => {
     const a = createRegistry();
     a.register("w-wing", never);
     expect(createRegistry().has("w-wing")).toBe(false);
-    expect(defaultRegistry.list().map((t) => t.id)).not.toContain("w-wing");
+    // The default registry may hold the real W-Wing finder, but never the stub.
+    expect(defaultRegistry.list().find((t) => t.id === "w-wing")?.find).not.toBe(never);
   });
 
   it("property: list is sorted by tier, weight, table order and respects maxLevel", () => {
