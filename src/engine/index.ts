@@ -5,5 +5,6 @@ export * from "./solver";
 export * from "./candidates";
 export * from "./step";
 export * from "./codec";
+export * from "./generate";
 export * from "./human/registry";
 export * from "./human/driver";
