@@ -617,8 +617,8 @@
         "Adding a method needs one entry in a shared protocol type (documented in the file header)",
         "Build emits a separate worker chunk"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
