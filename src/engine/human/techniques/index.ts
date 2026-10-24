@@ -3,3 +3,4 @@
 // registry sorts by tier then weight.
 import "../singles";
 import "../locked";
+import "../subsets";
