@@ -352,8 +352,10 @@ function blanked(seed: number, holes: number): { puzzle: CellValue[]; solution: 
 
 describe("properties", () => {
   it("never eliminates a solution digit, at any state along a Hard solve", () => {
-    const fired = { naked: 0, hidden: 0 };
-    const firedBySize = { 2: 0, 3: 0, 4: 0 };
+    const fired = {
+      naked: { 2: 0, 3: 0, 4: 0 },
+      hidden: { 2: 0, 3: 0, 4: 0 },
+    };
     fc.assert(
       fc.property(fc.integer({ min: 0, max: 1_000_000 }), fc.integer({ min: 40, max: 64 }), (seed, holes) => {
         const { puzzle, solution } = blanked(seed, holes);
@@ -363,15 +365,13 @@ describe("properties", () => {
           for (const n of [2, 3, 4]) {
             const naked = findNakedSubset(state, n);
             if (naked) {
-              fired.naked++;
-              firedBySize[n as 2 | 3 | 4]++;
+              fired.naked[n as 2 | 3 | 4]++;
               expectNakedWellFormed(state, naked, n);
               for (const { cell, digit } of naked.eliminations) expect(digit).not.toBe(solution[cell]);
             }
             const hidden = findHiddenSubset(state, n);
             if (hidden) {
-              fired.hidden++;
-              firedBySize[n as 2 | 3 | 4]++;
+              fired.hidden[n as 2 | 3 | 4]++;
               expectHiddenWellFormed(state, hidden, n);
               for (const { cell, digit } of hidden.eliminations) expect(digit).not.toBe(solution[cell]);
             }
@@ -385,9 +385,10 @@ describe("properties", () => {
       { numRuns: 40 },
     );
     // Guards against a vacuous pass if the generator stopped producing subsets.
-    expect(fired.naked).toBeGreaterThan(0);
-    expect(fired.hidden).toBeGreaterThan(0);
-    expect(firedBySize[3]).toBeGreaterThan(0);
-    expect(firedBySize[4]).toBeGreaterThan(0);
+    // Coverage is per technique and size, so a naked-only or hidden-only run cannot pass.
+    expect(fired.naked[3]).toBeGreaterThan(0);
+    expect(fired.naked[4]).toBeGreaterThan(0);
+    expect(fired.hidden[3]).toBeGreaterThan(0);
+    expect(fired.hidden[4]).toBeGreaterThan(0);
   });
 });
