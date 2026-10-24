@@ -246,8 +246,8 @@
         "Steps list eliminations, the box and line units, and an explanation like 'In box 4, 7 is only in row 5, so remove 7 from row 5 outside box 4'",
         "Property test: never eliminates a solution digit on random valid puzzles"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
