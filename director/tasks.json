@@ -298,7 +298,7 @@
         "One test state per technique where it is required, including a naked triple whose cells hold only two candidates each",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2161,6 +2161,29 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M2-05a",
+      "title": "Per-technique non-vacuity guard in subset property test",
+      "milestone": 2,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M2-05"
+      ],
+      "files": [
+        "src/engine/human/subsets.test.ts"
+      ],
+      "description": "Reviewer minor: the property test guard counts naked and hidden hits together per size. Count fired per (naked|hidden, size 3|4) separately and assert each is > 0, or relax if the generator cannot reach them (then note it).",
+      "acceptance": [
+        "Guard asserts per-technique coverage, or documents why a technique cannot be reached",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
