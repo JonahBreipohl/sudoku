@@ -2351,7 +2351,7 @@
         "Perf puzzles are fixed strings and still grade Master",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }
