@@ -1433,8 +1433,8 @@
         "Covers wrong placements and note edits that remove the true digit; correct moves and erasures are not mistakes",
         "Tests with hand-built records; property test: a record built only from solution placements has no mistakes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
