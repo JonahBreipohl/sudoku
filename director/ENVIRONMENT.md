@@ -80,3 +80,4 @@ Director and subagents, and how long the run took.
 ## Tooling repairs
 
 (none yet)
+- 2026-10-25: cloud clones are shallow, which made local main look unrelated to origin/main. Added scripts/retry-unshallow.sh (runs a command; on failure in a shallow repo runs `git fetch --unshallow` and retries once) and scripts/sync-trunk.sh, run by a SessionStart hook in .claude/settings.json.

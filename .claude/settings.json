@@ -33,5 +33,17 @@
       "PowerShell(git push * --force*)",
       "PowerShell(git push * -f*)"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/sync-trunk.sh"
+          }
+        ]
+      }
+    ]
   }
 }

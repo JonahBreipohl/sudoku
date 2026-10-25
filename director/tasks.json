@@ -2476,7 +2476,7 @@
         "Abandoning a game is confirmed or archived",
         "check, build, e2e pass"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2500,6 +2500,32 @@
         "CLAUDE.md lists test:slow and the sweep script",
         "CI runs test:slow",
         "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-06c",
+      "title": "New game: focus after swap and input during pending",
+      "milestone": 3,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-06b"
+      ],
+      "files": [
+        "src/ui/App.tsx",
+        "src/ui/components/NewGame.tsx",
+        "e2e/skeleton.spec.ts"
+      ],
+      "description": "Reviewer minors from M3-06b: (1) after a new puzzle swaps in, Game remounts (key=record.id) and focus falls to body; move focus to the board or New game button and cover it in e2e. (2) The swap discards moves made while Generating is shown for an untouched game; re-check hasProgress at swap time, or block input while pending.",
+      "acceptance": [
+        "Focus lands on a sensible element after the swap (e2e)",
+        "Moves made during pending are not silently lost",
+        "check, build, e2e pass"
       ],
       "status": "todo",
       "attempts": 0,

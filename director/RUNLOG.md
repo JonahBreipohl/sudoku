@@ -142,3 +142,13 @@ Next up: M3-06a, M5-04, M6-04, M7-04, M7-06.
 Spend about $0.5 of $10. Stopped early, cautious.
 Next up: M3-02a, M3-04a, M4-08, M5-04, M5-06.
 diverged 20261025: container's local main (be0b8b2, 24 commits) shares no history with origin/main (2be7be4, 72 commits); cannot fast-forward, stopped without changes. Needs a fresh clone of origin/main.
+
+## run 20261025-1627 (cloud)
+
+~25 minutes. Root cause of the repeated "unrelated histories" stops: the container's clone is shallow, so origin/main's shallow boundary commit looks like a second root, while the container's stale local main (be0b8b2) is on the real history. `git fetch --unshallow` fixed it; main then fast-forwarded cleanly (earlier runs reset main and kept backups, nothing was lost). Trunk green (403 tests). Three tasks passed first attempt:
+- M3-02a sonnet S: need 1.2, actual 0.61 (+0.27 review). Slow Hard test split into `npm run test:slow`; Hard attempt budget raised to 1000 after a 200-seed sweep; follow-up -> M3-02b.
+- M3-04a sonnet S: need 1.2, actual 0.32 (+0.21 review). Bank resume numbering and pinned `generated` date.
+- M3-06b sonnet S: need 1.2, actual 0.54 (+0.29 review). Pending-state e2e and abandon confirm dialog; check 414 tests, build, e2e 44 passed; follow-up -> M3-06c.
+Spend about $3.3 of $10; stopped because the 7-day total is near the $40 weekly cap.
+Added scripts/retry-unshallow.sh and scripts/sync-trunk.sh with a SessionStart hook in .claude/settings.json (owner request): on failure in a shallow repo, unshallow and retry once.
+Next up: M3-02b, M3-06c, M4-08, M5-06, M5-04.
