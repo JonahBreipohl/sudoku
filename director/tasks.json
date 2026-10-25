@@ -697,8 +697,8 @@
         "When the bank is exhausted, the worker generates one; tests cover both paths with a fake fetch and fake worker",
         "Fetch failures fall back to generation without throwing"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
