@@ -82,3 +82,12 @@ Spend this run about $4.1 of $10. Stopped at the 6-task cap.
 Next up: M4-06, M5-01, M7-03, M2-12 (opus M, fits the budget now).
 diverged 20261025: container's local main (tip be0b8b2, 24 commits ahead) shares no history with origin/main (4cc5bda, force-updated); cannot fast-forward, stopped without dispatching. Local commits preserved in branch backup-local-main-20261025 (container-only, not pushed).
 diverged 20261025-run2: this container's local main (be0b8b2) shares no history with origin/main (2e4459e); cannot fast-forward, stopped without dispatching. Local commits kept in a container-only backup branch.
+
+## run 20261025-0708 (cloud)
+
+~35 minutes. Local main had unrelated history to origin/main again (stale clone); on the owner's instruction I reset local main to origin/main (old tip kept as local branch stale-main-20261025-b, not pushed). Trunk green at start (297 tests). Three tasks, all passed first attempt:
+- M2-12 opus M: need 8.0, actual 1.35 (+0.05 review). Unique rectangles 1/2/4; chains/W-Wing tests now exclude UR where grids are non-unique.
+- M4-06 sonnet S: need 1.2, actual 0.29 (+0.05 review). Persistence adapter and autosave; e2e 20 passed.
+- M5-01 sonnet S: need 1.2, actual 0.27 (not reviewed). Memoized Cell/Board with notes; e2e 24 passed.
+Notes: another container's run pushed a "diverged" RUNLOG line in the meantime; merged it into main. The UR property test flaked at the 5s default under parallel load, so I gave it a 30s timeout (director repair, test-only). Stopped after three tasks with budget left (about $7 unused), chosen to keep the run short.
+Next up: M2-13, M4-07, M5-02, M5-03, M7-03.

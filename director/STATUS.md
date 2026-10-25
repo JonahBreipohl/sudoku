@@ -1,6 +1,6 @@
 # Status
 
-_Last updated: run 20261025-0306 (cloud)._
+_Last updated: run 20261025-0708 (cloud)._
 
 ## Progress
 
@@ -8,10 +8,10 @@ _Last updated: run 20261025-0306 (cloud)._
 |---|---|
 | M0 Foundation | done at setup |
 | M1 Engine core | 8 / 8 |
-| M2 Logical solver and grader | 13 / 16 |
+| M2 Logical solver and grader | 14 / 16 |
 | M3 Generator and puzzle bank | 2 / 5 |
-| M4 Game state | 8 / 11 |
-| M5 Board and input | 0 / 9 |
+| M4 Game state | 9 / 11 |
+| M5 Board and input | 1 / 9 |
 | M6 Layouts, theming, accessibility | 0 / 7 |
 | M7 Check, Submit, mistake analysis | 0 / 11 |
 | M8 Hints | 0 / 2 |
@@ -20,11 +20,11 @@ _Last updated: run 20261025-0306 (cloud)._
 
 ## Next ready tasks
 
-1. M4-06 sonnet S (~$0.5): persistence
-2. M5-01 sonnet S (~$0.5): board and cell components
-3. M7-03 opus S (~$1.0): replay and mistakes
-4. M2-12 opus M (~$8 at priors; one opus M sample so far, 1.09): unique rectangles
-5. Further M2 (M2-11 follow-ons, M2-13) and M3-02 as deps clear
+1. M2-13 opus S (~$1.2): grader and step-weighted score (note: UR at weight 50 now runs first among Master techniques)
+2. M4-07 sonnet S (~$0.5): settings model
+3. M5-02 sonnet S (~$0.5): highlighting
+4. M5-03 sonnet S (~$0.5): pad in cell-first mode
+5. M7-03 opus S (~$1.0): analysis replay and root mistake
 
 ## Blocked
 
@@ -42,3 +42,6 @@ _Last updated: run 20261025-0306 (cloud)._
 ## Projection
 
 55 tasks remain: 33 sonnet S, 11 sonnet M (no samples; prior $2.0), 6 opus S, 3 opus M, 3 haiku S, plus blocked M10-09. At medians this is about $35-40 of task cost plus overhead and reviews, about $50 total, i.e. about 5-6 runs at $10. The 6-task cap per run is the tighter limit: about 9-10 runs.
+
+
+Run 20261025-0708: spend about $2.5 of $10; all-time ledger about $21.7 (7 days about the same, under the $40 weekly cap).

@@ -907,7 +907,7 @@
         "Cell aria-labels include notes ('empty, notes 1 4 9')",
         "Re-render count test or React profiler check for a single placement"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
