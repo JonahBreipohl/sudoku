@@ -2426,7 +2426,7 @@
         "Resume after a skipped duplicate equals uninterrupted run (tested)",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2476,8 +2476,8 @@
         "Abandoning a game is confirmed or archived",
         "check, build, e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
