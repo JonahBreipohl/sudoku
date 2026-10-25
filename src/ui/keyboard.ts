@@ -11,7 +11,8 @@ export type KeyAction =
   | { type: "redo" }
   | { type: "hint" }
   | { type: "pause" }
-  | { type: "help" };
+  | { type: "help" }
+  | { type: "escape" };
 
 const MOVES: Record<string, Direction> = {
   ArrowUp: "up",
@@ -51,6 +52,7 @@ const BINDINGS: Binding[] = [
   { keys: [], exactKeys: ["H"], action: { type: "hint" } },
   { keys: ["p"], action: { type: "pause" } },
   { keys: ["?"], action: { type: "help" } },
+  { keys: ["escape"], action: { type: "escape" } },
   { keys: ["n"], action: { type: "toggle-notes" } },
   { keys: ["0", "backspace", "delete"], action: { type: "erase" } },
   ...(Object.entries(MOVES).map(([key, direction]) => ({
@@ -96,6 +98,8 @@ export const SHORTCUT_GROUPS: { title: string; items: { keys: string[]; label: s
       { keys: ["Shift+1-9"], label: "Toggle a note" },
       { keys: ["0", "Backspace", "Delete"], label: "Erase the cell" },
       { keys: ["N"], label: "Toggle notes mode" },
+      { keys: ["1-9"], label: "In digit-first mode, lock that digit; tap cells to place it" },
+      { keys: ["Esc"], label: "Unlock the digit in digit-first mode" },
     ],
   },
   {

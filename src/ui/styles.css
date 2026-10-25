@@ -314,6 +314,16 @@ button {
   font-weight: 700;
 }
 
+/* Locked digit: heavy border and an underline, not only a fill. */
+.pad-key--locked {
+  border: 3px solid var(--line-strong);
+  background: var(--same);
+}
+.pad-key--locked .pad-digit {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
 .pad--notes .pad-key {
   border-style: dashed;
 }

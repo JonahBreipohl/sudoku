@@ -8,6 +8,8 @@ interface ControlsProps {
   onToggleAuto: () => void;
   onPause: () => void;
   paused: boolean;
+  digitFirst: boolean;
+  onToggleEntry: () => void;
 }
 
 export function Controls({
@@ -19,6 +21,8 @@ export function Controls({
   onToggleAuto,
   onPause,
   paused,
+  digitFirst,
+  onToggleEntry,
 }: ControlsProps) {
   const active = notesMode || shiftHeld;
   if (paused) return null;
@@ -36,6 +40,9 @@ export function Controls({
       >
         <span aria-hidden="true">{active ? "✎" : "○"}</span> Notes: {active ? "On" : "Off"}
         {shiftHeld && !notesMode ? " (Shift)" : ""}
+      </button>
+      <button type="button" className={digitFirst ? "ctl ctl--on" : "ctl"} aria-pressed={digitFirst} onClick={onToggleEntry}>
+        <span aria-hidden="true">{digitFirst ? "◉" : "○"}</span> Digit-first: {digitFirst ? "On" : "Off"}
       </button>
       <button type="button" className="ctl" onClick={onAutoNotes}>
         Fill notes

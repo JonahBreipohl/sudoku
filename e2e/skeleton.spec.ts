@@ -410,3 +410,23 @@ for (const theme of ["light", "dark"] as const) {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 }
+
+test("digit-first mode locks a digit, places by tapping and erases on a second tap", async ({ page }) => {
+  await page.getByRole("button", { name: /Digit-first/ }).click();
+  await page.keyboard.press("4");
+  const pad = page.getByRole("group", { name: "Number pad" });
+  await expect(pad.getByRole("button", { name: /^4\b/ })).toHaveAttribute("aria-pressed", "true");
+  await page.locator(cell(2)).click();
+  await expect(page.locator(cell(2))).toHaveText("4");
+  const events = await page.evaluate(() => {
+    const w = window as unknown as { __sudoku?: { store: { getSnapshot(): { record: { nodes: { input?: string }[] } } } } };
+    return w.__sudoku?.store.getSnapshot().record.nodes.map((n) => n.input);
+  });
+  if (events) expect(events).toContain("digit-first");
+  await page.locator(cell(2)).click();
+  await expect(page.locator(cell(2))).toHaveText("");
+  await page.keyboard.press("Escape");
+  await expect(pad.getByRole("button", { name: /^4\b/ })).not.toHaveAttribute("aria-pressed", "true");
+  await page.locator(cell(2)).click();
+  await expect(page.locator(cell(2))).toHaveText("");
+});
