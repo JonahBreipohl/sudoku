@@ -168,3 +168,11 @@ Next up: M4-08, M5-04, M6-04, M7-03a, M7-06.
 - M4-08 sonnet S: need 0.6, actual ~0.25 (not reviewed per Q4). newGame/resetGame; abandoned records archived with activeMs; check 426 tests, build, e2e 52 passed. Follow-up: should abandoned games count in stats?
 Spend about $0.5 of $10; stopped because the 7-day total (~$37) is near the $40 weekly cap.
 Next up: M5-04, M6-04, M7-03a, M7-04, M7-06.
+
+## run 20261025-1924 (cloud)
+
+~12 minutes. Shallow-clone divergence again; unshallow + ff worked. Trunk green (426 tests). Two tasks passed first attempt (not reviewed per Q4):
+- M5-04 sonnet S: need 0.6, actual ~0.3. Digit-first entry mode with pure reducer; check 431 tests, build, e2e 54 passed. Follow-up: no settings screen yet (M6-04); no shortcut for the mode toggle.
+- M5-07 sonnet S: need 0.6, actual ~0.25. Undo/redo/reset controls and new-game difficulty dialog; e2e 60 passed.
+Spend about $0.85 of $10; stopped because the 7-day total (~$37.7) is near the $40 weekly cap.
+Next up: M6-04, M7-03a, M7-04, M7-06, M10-03.

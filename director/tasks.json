@@ -1113,7 +1113,7 @@
         "Reset asks to confirm and is undoable",
         "New game dialog lists the five levels and can be cancelled"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

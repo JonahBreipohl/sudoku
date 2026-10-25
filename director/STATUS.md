@@ -8,3 +8,5 @@ Open questions: Q6 (non-blocking, hint key).
 Spend this run: about $0.5 of $10 (transcripts). 7-day: about $37 of $40 (ledger sum, includes earlier estimates); weekly cap is the limiting factor.
 Median cost per task (transcripts, sonnet S): about $0.3 agent + $0.12 overhead (+ ~$0.25 review when reviewed).
 Projection: ~41 tasks remaining at ~$0.5-1 each is $20-40; about 1 week at the $40 weekly cap.
+
+_Update run 20261025-1924: M5-04 and M5-07 done (58/97 done). Next ready: M6-04, M7-03a, M7-04 (opus M), M7-06, M10-03. 7-day spend about $37.7 of $40._
