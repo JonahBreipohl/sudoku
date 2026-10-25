@@ -1,5 +1,10 @@
 import type { Digit } from "../engine";
-import type { Direction, SkeletonAction } from "../state/skeleton";
+import type { Direction } from "./selection";
+
+export type KeyAction =
+  | { type: "move"; direction: Direction }
+  | { type: "place"; digit: Digit }
+  | { type: "erase" };
 
 const MOVES: Record<string, Direction> = {
   ArrowUp: "up",
@@ -17,7 +22,7 @@ const MOVES: Record<string, Direction> = {
 };
 
 /** Maps a key press to a game action, or null when the key is not a game key. */
-export function actionForKey(e: Pick<KeyboardEvent, "key" | "ctrlKey" | "metaKey" | "altKey">): SkeletonAction | null {
+export function actionForKey(e: Pick<KeyboardEvent, "key" | "ctrlKey" | "metaKey" | "altKey">): KeyAction | null {
   if (e.ctrlKey || e.metaKey || e.altKey) return null;
   const direction = MOVES[e.key] ?? MOVES[e.key.toLowerCase()];
   if (direction) return { type: "move", direction };
