@@ -16,5 +16,5 @@
     "skipLibCheck": true,
     "noEmit": true
   },
-  "include": ["src", "scripts/**/*.ts", "e2e", "vite.config.ts", "playwright.config.ts"]
+  "include": ["src", "scripts/**/*.ts", "e2e", "vite.config.ts", "vitest.slow.config.ts", "playwright.config.ts"]
 }
