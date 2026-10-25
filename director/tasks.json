@@ -478,8 +478,8 @@
         "Tests for each type; property test on unique puzzles: never eliminates a solution digit",
         "A doc comment states that UR is only valid for unique puzzles"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
