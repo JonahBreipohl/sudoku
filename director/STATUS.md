@@ -1,6 +1,6 @@
 # Status
 
-_Last updated: run 20261025-0708 (cloud)._
+_Last updated: run 20261025-0823 (cloud)._
 
 ## Progress
 
@@ -8,9 +8,9 @@ _Last updated: run 20261025-0708 (cloud)._
 |---|---|
 | M0 Foundation | done at setup |
 | M1 Engine core | 8 / 8 |
-| M2 Logical solver and grader | 14 / 16 |
+| M2 Logical solver and grader | 15 / 17 |
 | M3 Generator and puzzle bank | 2 / 5 |
-| M4 Game state | 9 / 11 |
+| M4 Game state | 10 / 12 |
 | M5 Board and input | 1 / 9 |
 | M6 Layouts, theming, accessibility | 0 / 7 |
 | M7 Check, Submit, mistake analysis | 0 / 11 |
@@ -20,11 +20,11 @@ _Last updated: run 20261025-0708 (cloud)._
 
 ## Next ready tasks
 
-1. M2-13 opus S (~$1.2): grader and step-weighted score (note: UR at weight 50 now runs first among Master techniques)
-2. M4-07 sonnet S (~$0.5): settings model
-3. M5-02 sonnet S (~$0.5): highlighting
-4. M5-03 sonnet S (~$0.5): pad in cell-first mode
-5. M7-03 opus S (~$1.0): analysis replay and root mistake
+1. M2-14 opus S (~$1.2)
+2. M5-02 sonnet S (~$0.5): highlighting
+3. M5-03 sonnet S (~$0.5): pad in cell-first mode
+4. M7-03 opus S (~$1.0): analysis replay and root mistake
+5. M4-08 / M3-02 when deps allow; chores M2-13a, M4-07a (haiku)
 
 ## Blocked
 
@@ -36,7 +36,7 @@ _Last updated: run 20261025-0708 (cloud)._
 
 ## Spend (API-equivalent)
 
-- This run: about $4.1 of $10 budget (Director about $0.6). Ledger total about $19.5; 7 days about $19.5 of $40.
+- This run (20261025-0823): about $1.6 of $10. Ledger total about $19.5; 7 days about $19.5 of $40.
 - Median actual: sonnet S $0.20 (12), opus S $0.69 (13), opus M $1.09 (1), haiku S $0.01 (5).
 
 ## Projection

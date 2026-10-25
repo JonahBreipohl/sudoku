@@ -91,3 +91,10 @@ diverged 20261025-run2: this container's local main (be0b8b2) shares no history 
 - M5-01 sonnet S: need 1.2, actual 0.27 (not reviewed). Memoized Cell/Board with notes; e2e 24 passed.
 Notes: another container's run pushed a "diverged" RUNLOG line in the meantime; merged it into main. The UR property test flaked at the 5s default under parallel load, so I gave it a 30s timeout (director repair, test-only). Stopped after three tasks with budget left (about $7 unused), chosen to keep the run short.
 Next up: M2-13, M4-07, M5-02, M5-03, M7-03.
+
+## run 20261025-0823 (cloud)
+
+~15 minutes. Local main was again unrelated to the force-updated origin/main; reset to origin/main (no local work lost that was not already superseded). Trunk green (339 tests). Two tasks passed first attempt:
+- M2-13 opus S: need 2.4, actual 0.73 (+0.19 review). Grader; reviewer minor -> M2-13a.
+- M4-07 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Settings model; e2e 24 passed. Follow-up -> M4-07a.
+Spend about $1.6 of $10. Stopped early, cautious. Next up: M2-14, M5-02, M5-03, M7-03.

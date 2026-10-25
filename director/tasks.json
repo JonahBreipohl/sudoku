@@ -878,8 +878,30 @@
         "Theme still applies before first paint (no flash)",
         "Tests for defaults and migration"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M4-07a",
+      "title": "Document settings store in ARCHITECTURE.md",
+      "milestone": 4,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M4-07"
+      ],
+      "files": [
+        "docs/ARCHITECTURE.md"
+      ],
+      "description": "Add a short note on the settings store (src/state/settings.ts), useSettings hook (src/ui/useSettings.ts) and the settings key shape.",
+      "acceptance": [
+        "ARCHITECTURE.md describes settings store, hook and key shape"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     },
     {
