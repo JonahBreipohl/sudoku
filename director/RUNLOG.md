@@ -161,3 +161,10 @@ Next up: M3-02b, M3-06c, M4-08, M5-06, M5-04.
 - M5-06 sonnet S: need 0.6, actual ~0.2. Table-driven keymap and shortcuts dialog; check 420 tests, build, e2e 52 passed. Q6 asked about the hint key.
 Spend about $0.8 of $10; stopped to keep the 7-day total under $40.
 Next up: M4-08, M5-04, M6-04, M7-03a, M7-06.
+
+## run 20261025-1823 (cloud)
+
+~8 minutes. Shallow-clone divergence again; unshallow + ff worked. Trunk green. One task passed first attempt:
+- M4-08 sonnet S: need 0.6, actual ~0.25 (not reviewed per Q4). newGame/resetGame; abandoned records archived with activeMs; check 426 tests, build, e2e 52 passed. Follow-up: should abandoned games count in stats?
+Spend about $0.5 of $10; stopped because the 7-day total (~$37) is near the $40 weekly cap.
+Next up: M5-04, M6-04, M7-03a, M7-04, M7-06.

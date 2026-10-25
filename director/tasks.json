@@ -926,9 +926,9 @@
         "Starting a new game archives the current record with status and active time",
         "Tests with a fake puzzle source for bank, generated and import sources"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-up: decide whether abandoned records count in stats (M4+/stats)."
     },
     {
       "id": "M5-01",
