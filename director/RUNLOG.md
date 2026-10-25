@@ -125,3 +125,4 @@ Next up: M3-03/M3-04, M5-04, M5-05, M7-04.
 - M5-05 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Notes mode and auto-candidates; subagent report was just "pending", so verified directly: check 396 tests, build, e2e 32 passed.
 Spend about $1.7 of $10. Stopped early, cautious.
 Next up: M5-04, M5-08, M6-04, M7-04, M7-06.
+halted 20261025: local trunk diverged from origin/main (unrelated histories, local main 24 ahead / 74 behind); no merge or reset attempted, no tasks run. Needs owner to reset the checkout.
