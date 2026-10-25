@@ -83,6 +83,9 @@ export interface Replayer {
 /**
  * Replays paths for one puzzle. Remembers the state at every 64th node (ids 63, 127, ...)
  * so a later replay starts at the nearest snapshot on its path instead of the root.
+ *
+ * A Replayer belongs to one game. Snapshots are keyed by node id and are only valid for the
+ * tree they were taken from, so a new game, even of the same puzzle, needs a new Replayer.
  */
 export function createReplayer(puzzle: string): Replayer {
   const givens = parseGrid(puzzle);
