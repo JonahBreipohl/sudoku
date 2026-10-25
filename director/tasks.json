@@ -558,8 +558,8 @@
         "For every technique: no step eliminates a solution digit or places a wrong digit, over at least 200 generated or corpus puzzles",
         "Grading a Master-level puzzle takes under 200 ms in Node (assertion with headroom); the whole suite stays under 20 s"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -900,7 +900,7 @@
       "acceptance": [
         "ARCHITECTURE.md describes settings store, hook and key shape"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
