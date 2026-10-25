@@ -748,7 +748,7 @@
         "Reset is a node, so undoing a reset restores the previous board",
         "Property tests over random action sequences: undo is the inverse of append; nodes are never removed"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -777,8 +777,8 @@
         "Existing e2e specs still pass",
         "Store tests cover dispatch of each board event and subscriber notification"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
