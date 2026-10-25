@@ -723,7 +723,7 @@
         "Snapshot every 64 nodes so replaying 2,000 events takes under 5 ms",
         "Property test: replaying the same path twice gives identical state"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -748,8 +748,8 @@
         "Reset is a node, so undoing a reset restores the previous board",
         "Property tests over random action sequences: undo is the inverse of append; nodes are never removed"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2209,6 +2209,31 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M4-02a",
+      "title": "Reducer test hardening",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M4-02"
+      ],
+      "files": [
+        "src/state/reducer.ts",
+        "src/state/reducer.test.ts"
+      ],
+      "description": "Reviewer minors on M4-02: (1) add a property/unit test for branching trees: undo before node 63, branch, replay both branches past a snapshot boundary and compare with a cold replay; (2) remove the dead `void b;` destructuring in reducer.test.ts; (3) document on createReplayer that a Replayer is per game (new game of the same puzzle needs a new Replayer).",
+      "acceptance": [
+        "Branching snapshot test added and passing",
+        "No dead `void b` code",
+        "Doc comment on createReplayer"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
