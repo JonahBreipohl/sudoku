@@ -3,9 +3,9 @@
  * protocol.ts (one entry per method). Uses a module Worker when available, otherwise runs the
  * same handlers in-thread (tests, environments without workers).
  */
-import type { CellValue, Grid } from "../engine";
+import type { CellValue, Grid, Level } from "../engine";
 import { dispatch } from "./protocol";
-import type { Handlers, Method, Request, Response } from "./protocol";
+import type { GeneratedResult, Handlers, Method, Request, Response } from "./protocol";
 
 export class CancelledError extends Error {
   constructor() {
@@ -23,6 +23,7 @@ export interface EngineClient {
   call<M extends Method>(method: M, ...args: Parameters<Handlers[M]>): Promise<Awaited<ReturnType<Handlers[M]>>>;
   solve(grid: Grid): Promise<CellValue[] | null>;
   countSolutions(grid: Grid, limit?: number): Promise<number>;
+  generate(level: Level, seed: number | string): Promise<GeneratedResult>;
   /** Rejects every pending call with CancelledError and stops any running computation. */
   cancel(): void;
   dispose(): void;
@@ -82,6 +83,7 @@ export function createEngineClient(opts: { inThread?: boolean } = {}): EngineCli
     call,
     solve: (grid) => call("solve", grid),
     countSolutions: (grid, limit) => call("countSolutions", grid, limit),
+    generate: (level, seed) => call("generate", level, seed),
     cancel,
     dispose: () => {
       cancel();

@@ -33,3 +33,12 @@ describe("engine client (in-thread)", () => {
     expect(await c.countSolutions(EMPTY, 2)).toBe(2);
   });
 });
+
+describe("engine client generate", () => {
+  it("generates a puzzle of the level", async () => {
+    const c = createEngineClient({ inThread: true });
+    const g = await c.generate("easy", "t");
+    expect(g.puzzle).toHaveLength(81);
+    expect(g.level).toBe("easy");
+  });
+});

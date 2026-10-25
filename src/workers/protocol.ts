@@ -4,12 +4,23 @@
  * Arguments and results must be structured-cloneable. Add a convenience method to the client
  * in client.ts only if you want a nicer signature than `client.call("name", ...args)`.
  */
-import { countSolutions, solve } from "../engine";
-import type { CellValue, Grid } from "../engine";
+import { countSolutions, generate, solve } from "../engine";
+import type { CellValue, Grid, Level } from "../engine";
+
+export interface GeneratedResult {
+  puzzle: string;
+  solution: string;
+  score: number;
+  level: Level;
+}
 
 export const handlers = {
   solve: (grid: Grid): CellValue[] | null => solve(grid),
   countSolutions: (grid: Grid, limit?: number): number => countSolutions(grid, limit),
+  generate: (level: Level, seed: number | string): GeneratedResult => {
+    const p = generate({ level, seed });
+    return { puzzle: p.puzzle.join(""), solution: p.solution.join(""), score: p.score, level: p.level };
+  },
 };
 
 export type Handlers = typeof handlers;
