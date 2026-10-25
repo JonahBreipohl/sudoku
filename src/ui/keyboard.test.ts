@@ -33,4 +33,22 @@ describe("actionForKey", () => {
     expect(key("Enter")).toBeNull();
     expect(key("F1")).toBeNull();
   });
+
+  it("maps Shift+digit (by physical key) to a note, in any layout of the shifted symbol", () => {
+    expect(actionForKey({ key: "!", code: "Digit1", shiftKey: true, ctrlKey: false, metaKey: false, altKey: false })).toEqual({
+      type: "note",
+      digit: 1,
+    });
+    expect(actionForKey({ key: "9", code: "Numpad9", shiftKey: true, ctrlKey: false, metaKey: false, altKey: false })).toEqual({
+      type: "note",
+      digit: 9,
+    });
+    expect(actionForKey({ key: ")", code: "Digit0", shiftKey: true, ctrlKey: false, metaKey: false, altKey: false })).toBeNull();
+  });
+
+  it("maps N to toggle-notes and does not treat other letters that way", () => {
+    expect(key("n")).toEqual({ type: "toggle-notes" });
+    expect(key("N")).toEqual({ type: "toggle-notes" });
+    expect(key("n", { ctrlKey: true })).toBeNull();
+  });
 });

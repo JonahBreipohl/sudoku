@@ -4,11 +4,13 @@ import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
 import { createGameStore, newGameRecord } from "../state/store";
 import { Board } from "./components/Board";
+import { Controls } from "./components/Controls";
 import { Pad } from "./components/Pad";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
 import { cellCommitCounts } from "./renderProbe";
 import { moveSelection } from "./selection";
+import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 
@@ -54,32 +56,58 @@ function Game() {
   const { game, dispatch } = useGame();
   // Selection is UI state; board state lives in the store.
   const [selected, setSelected] = useState<number | null>(null);
+  const [notesMode, setNotesMode] = useState(false);
+  const [shiftHeld, setShiftHeld] = useState(false);
+  const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
+  const noting = notesMode || shiftHeld;
   const act = useCallback(
     (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
       if (action.type === "move") {
         setSelected((cell) => moveSelection(cell ?? 0, action.direction));
         return;
       }
+      if (action.type === "toggle-notes") {
+        setNotesMode((on) => !on);
+        return;
+      }
       if (selected === null) return;
-      if (action.type === "place")
+      if (action.type === "note" || (action.type === "place" && noting)) {
+        // Notes only make sense on empty cells.
+        if (board[selected] !== 0) return;
+        const digit = action.digit;
+        const on = (notes[selected]! & (1 << (digit - 1))) === 0;
+        dispatch({ type: "note", cell: selected, digit, on });
+      } else if (action.type === "place")
         dispatch({ type: "place", cell: selected, digit: action.digit, input });
       else dispatch({ type: "erase", cell: selected });
     },
-    [selected, dispatch],
+    [selected, dispatch, noting, board, notes],
   );
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, textarea, select, dialog")) return;
+      if (e.key === "Shift") setShiftHeld(true);
       const action = actionForKey(e);
       if (!action) return;
       e.preventDefault();
       act(action);
     }
+    function onKeyUp(e: KeyboardEvent) {
+      if (e.key === "Shift") setShiftHeld(false);
+    }
+    // A Shift release while the window is unfocused would otherwise leave notes stuck on.
+    const onBlur = () => setShiftHeld(false);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener("keyup", onKeyUp);
+    window.addEventListener("blur", onBlur);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener("keyup", onKeyUp);
+      window.removeEventListener("blur", onBlur);
+    };
   }, [act]);
 
   // Keep keyboard focus on the selected cell so screen readers follow the selection.
@@ -91,6 +119,14 @@ function Game() {
 
   const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
+
+  const onAutoNotes = useCallback(() => dispatch({ type: "auto-notes" }), [dispatch]);
+  const onToggleAuto = useCallback(() => {
+    const autoCandidates = !settings.autoCandidates;
+    update({ autoCandidates });
+    dispatch({ type: "settings-assist", autoCandidates });
+    if (autoCandidates) dispatch({ type: "auto-notes" });
+  }, [settings.autoCandidates, update, dispatch]);
 
   return (
     <div className="app">
@@ -107,7 +143,17 @@ function Game() {
           conflicts={conflicts}
           onSelect={setSelected}
         />
-        <Pad board={board} onDigit={onDigit} onErase={onErase} />
+        <div className="play-side">
+          <Controls
+            notesMode={notesMode}
+            shiftHeld={shiftHeld}
+            autoCandidates={settings.autoCandidates}
+            onToggleNotes={() => setNotesMode((on) => !on)}
+            onAutoNotes={onAutoNotes}
+            onToggleAuto={onToggleAuto}
+          />
+          <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} />
+        </div>
       </main>
     </div>
   );

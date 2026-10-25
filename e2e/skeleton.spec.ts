@@ -168,3 +168,32 @@ test("pad shows remaining counts and marks finished digits", async ({ page }) =>
   expect(box!.width).toBeGreaterThanOrEqual(44);
   expect(box!.height).toBeGreaterThanOrEqual(44);
 });
+
+test("notes: toggle button, N key, Shift+digit, and peers cleared on place", async ({ page }) => {
+  const toggle = page.getByRole("button", { name: /^.?\s*Notes:/ });
+  await expect(toggle).toContainText("Notes: Off");
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("Shift+4");
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await expect(page.locator(cell(2))).not.toHaveClass(/cell--conflict/);
+  await page.keyboard.press("n");
+  await expect(toggle).toContainText("Notes: On");
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await page.keyboard.press("6");
+  await expect(page.locator(cell(2))).toContainText("6");
+  await page.keyboard.press("n");
+  await expect(toggle).toContainText("Notes: Off");
+  // Placing 4 in a peer cell removes it from cell 2's notes.
+  await page.locator(cell(3)).click();
+  await page.keyboard.press("4");
+  await expect(page.locator(cell(2))).not.toContainText("4");
+  await expect(page.locator(cell(2))).toContainText("6");
+});
+
+test("fill notes is an assist and undo removes it", async ({ page }) => {
+  await page.goto("/?test=1");
+  await page.getByRole("button", { name: "Fill notes" }).click();
+  await expect(page.locator(cell(2))).not.toHaveText("");
+  await page.evaluate(() => (window as unknown as { __sudoku: { store: { dispatch(c: unknown): void } } }).__sudoku.store.dispatch({ type: "undo" }));
+  await expect(page.locator(cell(2))).toHaveText("");
+});
