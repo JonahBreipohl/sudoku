@@ -2207,8 +2207,8 @@
         "Rewind past the last node is rejected in isGameRecord; test added",
         "Architecture doc matches the code"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
