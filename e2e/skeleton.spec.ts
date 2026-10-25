@@ -101,3 +101,31 @@ test("resumes board and timer after reload", async ({ page }) => {
   expect(log.types).toContain("hidden");
   expect(log.types.at(-1)).toBe("visible");
 });
+
+test("renders notes as a 3x3 grid with a labelled cell", async ({ page }) => {
+  await page.goto("/?test=1");
+  await page.evaluate(() => {
+    const s = (window as unknown as { __sudoku: { store: { dispatch(c: unknown): void } } }).__sudoku.store;
+    for (const digit of [1, 4, 9]) s.dispatch({ type: "note", cell: 2, digit, on: true });
+  });
+  const c = page.locator(cell(2));
+  await expect(c).toHaveAttribute("aria-label", "Row 1, column 3, empty, notes 1 4 9");
+  await expect(c.locator(".note")).toHaveCount(9);
+  await expect(c.locator(".note")).toHaveText(["1", "", "", "4", "", "", "", "", "9"]);
+  await expect(c).toHaveClass(/cell--noted/);
+});
+
+test("a single placement re-renders only the affected cells", async ({ page }) => {
+  await page.goto("/?test=1");
+  await page.locator(cell(2)).click();
+  const total = async () =>
+    (await page.evaluate(() => (window as unknown as { __sudoku: { cellCommits(): number[] } }).__sudoku.cellCommits())).reduce(
+      (a, b) => a + b,
+      0,
+    );
+  const before = await total();
+  await page.keyboard.press("4");
+  await expect(page.locator(cell(2))).toHaveText("4");
+  // The placed cell, cells sharing the digit, and conflicts; never the whole board.
+  expect((await total()) - before).toBeLessThan(15);
+});
