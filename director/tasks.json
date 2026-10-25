@@ -558,7 +558,7 @@
         "For every technique: no step eliminates a solution digit or places a wrong digit, over at least 200 generated or corpus puzzles",
         "Grading a Master-level puzzle takes under 200 ms in Node (assertion with headroom); the whole suite stays under 20 s"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -979,8 +979,8 @@
         "Each highlight kind has a distinct non-color cue documented in styles.css",
         "Works in both themes at 390px and 1440px"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2328,6 +2328,31 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M2-14a",
+      "title": "Make M2-14 tests deterministic",
+      "milestone": 2,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-14"
+      ],
+      "files": [
+        "src/engine/human/invariants.test.ts",
+        "src/engine/grade.perf.test.ts"
+      ],
+      "description": "Reviewer minors: (1) fc.assert at invariants.test.ts:104 has no fixed seed, so its fired.size coverage check is nondeterministic; fix the seed. (2) grade.perf.test.ts:18 rebuilds 3 perf puzzles from generator seeds 140/153/40; store them as fixed grid strings.",
+      "acceptance": [
+        "Property test is seeded",
+        "Perf puzzles are fixed strings and still grade Master",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
