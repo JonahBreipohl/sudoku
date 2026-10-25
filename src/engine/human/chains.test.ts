@@ -183,12 +183,13 @@ describe("x-chain", () => {
 
   it("is required to solve a known puzzle", () => {
     const state = fromGrid(parseGrid(XCHAIN_PUZZLE.puzzle));
-    const full = solveLogically(state, "master");
+    // A unique rectangle (cheaper at Master) shortcuts the long chain in this puzzle.
+    const full = solveLogically(state, "master", registryWithout("unique-rectangle"));
     expect(full.solved).toBe(true);
     const chains = full.steps.filter((s) => s.technique === "x-chain");
     expect(chains.some((s) => s.cells.length >= 6)).toBe(true);
     expect(full.steps.reduce(applyStep, state).values.join("")).toBe(XCHAIN_PUZZLE.solution);
-    expect(solveLogically(state, "master", registryWithout("x-chain", "xy-chain")).solved).toBe(false);
+    expect(solveLogically(state, "master", registryWithout("x-chain", "xy-chain", "unique-rectangle")).solved).toBe(false);
   });
 
   it("finds nothing once the chain's eliminations are gone", () => {
@@ -411,6 +412,8 @@ function thinned(seed: number, holes: number, removals: number): { state: Candid
   return { state, solution };
 }
 
+const NO_UR = registryWithout("unique-rectangle");
+
 describe("properties", () => {
   it("X- and XY-chains never eliminate a solution digit and run within the time bounds, at any state along a Master solve", () => {
     let fired = 0;
@@ -442,7 +445,8 @@ describe("properties", () => {
               expectXYChainWellFormed(state, xy);
               for (const { cell: c, digit } of xy.eliminations) expect(digit).not.toBe(solution[c]);
             }
-            const step = nextStep(state, "master");
+            // Thinned grids often have several solutions, where unique rectangles are unsound.
+            const step = nextStep(state, "master", NO_UR);
             if (!step) break;
             for (const { cell: c, digit } of step.eliminations) expect(digit).not.toBe(solution[c]);
             state = applyStep(state, step);

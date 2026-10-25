@@ -101,13 +101,14 @@ describe("W-Wing", () => {
   it("is required to solve a known puzzle", () => {
     const state = fromGrid(parseGrid(WW_PUZZLE.puzzle));
     expect(solveLogically(state, "expert").solved).toBe(false);
-    const full = solveLogically(state, "master");
+    // Unique rectangles are cheaper at Master and can stand in for the W-Wing here.
+    const full = solveLogically(state, "master", registryWithout("unique-rectangle"));
     expect(full.solved).toBe(true);
     expect(full.steps.some((s) => s.technique === "w-wing")).toBe(true);
     expect(full.steps.reduce(applyStep, state).values.join("")).toBe(WW_PUZZLE.solution);
     // An XY-chain can make the same eliminations in this puzzle, so drop it too to show the
     // puzzle needs a W-Wing rather than anything cheaper.
-    expect(solveLogically(state, "master", registryWithout("w-wing", "xy-chain")).solved).toBe(false);
+    expect(solveLogically(state, "master", registryWithout("w-wing", "xy-chain", "unique-rectangle")).solved).toBe(false);
   });
 
   it("needs a strong link: a third holder of 1 in the unit breaks it", () => {
@@ -166,6 +167,8 @@ function thinned(seed: number, holes: number, removals: number): { state: Candid
   return { state, solution };
 }
 
+const NO_UR = registryWithout("unique-rectangle");
+
 describe("properties", () => {
   it("never eliminates a solution digit, at any state along a Master solve", () => {
     let fired = 0;
@@ -184,7 +187,8 @@ describe("properties", () => {
               expectWWingWellFormed(state, ww);
               for (const { cell: c, digit } of ww.eliminations) expect(digit).not.toBe(solution[c]);
             }
-            const step = nextStep(state, "master");
+            // Thinned grids often have several solutions, where unique rectangles are unsound.
+            const step = nextStep(state, "master", NO_UR);
             if (!step) break;
             for (const { cell: c, digit } of step.eliminations) expect(digit).not.toBe(solution[c]);
             state = applyStep(state, step);
