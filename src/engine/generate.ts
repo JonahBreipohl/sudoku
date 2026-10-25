@@ -70,13 +70,25 @@ export interface LeveledPuzzle extends GeneratedPuzzle {
 }
 
 /**
- * Attempt budgets per level, several times the worst case measured over seeds 0..39 (attempts:
- * easy 1, medium 6, hard 143, expert 9, master 8). Hard needs by far the most; see generate.
+ * Attempt budgets per level. The bar is that no seed in a sweep needs more than about a third of
+ * its budget, so a budget stays several times the worst case measured rather than hugging it.
+ * Sweep with scripts/sweep-attempts.ts over seeds 0..199 (attempts: mean, p90, worst; the budget
+ * is what the worst case is judged against):
+ *   easy    1.0,   1,  1  of 10
+ *   medium  1.8,   3,  6  of 50
+ *   expert  2.7,   5, 11  of 100
+ *   master  2.8,   6, 12  of 100
+ *   hard   52.8, 121, 262 (seed 112) of 1000
+ * Every level but Hard sits far under a third of its budget. Hard has a heavy tail and, at the old
+ * budget of 500, 10 of the 200 seeds needed more than a third of it (the worst over half), which
+ * was too tight for a runtime fallback, so it was raised to 1000. Attempts are consumed in the
+ * same PRNG order whatever the budget, so raising it never changes the puzzle a seed yields, only
+ * whether a rare slow seed throws. A seed that does exhaust it costs on the order of ten seconds.
  */
 export const DEFAULT_MAX_ATTEMPTS: Readonly<Record<Level, number>> = {
   easy: 10,
   medium: 50,
-  hard: 500,
+  hard: 1000,
   expert: 100,
   master: 100,
 };
@@ -208,12 +220,13 @@ function climb(
  * brings Medium, Expert and Master to a few attempts and makes Hard reachable at all, though it
  * stays the slowest level by far, which is why the bank pre-generates it.
  *
- * Measured median time per generate call (tsx on Node 22, dev container, seeds 0..39):
- *   easy    ~2 ms     (median 1 attempt)
- *   medium  ~13 ms    (median 1 attempt)
- *   hard    ~440 ms   (median 27 attempts, worst seen 2.6 s)
- *   expert  ~40 ms    (median 3 attempts)
- *   master  ~20 ms    (median 2 attempts)
+ * Measured median time per generate call (tsx on Node 22, dev container, seeds 0..199, several
+ * processes sharing 4 cores so worst cases run a little slow):
+ *   easy    ~1 ms     (median 1 attempt)
+ *   medium  ~12 ms    (median 1 attempt)
+ *   hard    ~410 to 530 ms (median 35 attempts, worst seen 3.8 s)
+ *   expert  ~17 ms    (median 2 attempts)
+ *   master  ~17 ms    (median 2 attempts)
  *
  * Throws if no attempt within `maxAttempts` reaches the level.
  */

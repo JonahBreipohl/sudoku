@@ -10,6 +10,7 @@
     "lint": "eslint . --max-warnings=0",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "test:slow": "vitest run --config vitest.slow.config.ts",
     "check": "npm run lint && npm run typecheck && npm run test",
     "e2e": "playwright test",
     "gen:bank": "tsx scripts/generate-bank.ts",

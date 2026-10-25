@@ -1,16 +1,8 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { CELL_COUNT, serializeGrid } from "./grid";
-import {
-  DEFAULT_MAX_ATTEMPTS,
-  generate,
-  generateUnique,
-  randomFullGrid,
-  removeCluesSymmetric,
-  symmetricCell,
-  type LeveledPuzzle,
-} from "./generate";
-import { grade } from "./grade";
+import { generate, generateUnique, randomFullGrid, removeCluesSymmetric, symmetricCell } from "./generate";
+import { expectValidAt } from "./generate.testing";
 import type { Level } from "./step";
 import { createRng } from "./random";
 import { hasUniqueSolution, solve } from "./solver";
@@ -118,24 +110,12 @@ describe("generateUnique", () => {
   });
 });
 
-function expectValidAt(result: LeveledPuzzle, level: Level): void {
-  expect(result.level).toBe(level);
-  expect(result.attempts).toBeGreaterThanOrEqual(1);
-  expect(result.attempts).toBeLessThanOrEqual(DEFAULT_MAX_ATTEMPTS[level]);
-  expect(isSolved(result.solution)).toBe(true);
-  expect(respectsGivens(result.solution, result.puzzle)).toBe(true);
-  expect(hasUniqueSolution(result.puzzle)).toBe(true);
-  // The reported level and score are the grader's, not the generator's own bookkeeping.
-  const graded = grade(result.puzzle);
-  expect(graded.level).toBe(level);
-  if (graded.level !== null) expect(result.score).toBe(graded.score);
-}
-
 describe("generate", () => {
-  // Easy and Medium take milliseconds per puzzle; Hard is the slow level (median ~0.4 s, see
-  // generate's doc comment), so its run gets an explicit, generous timeout.
-  function reachesForTenSeeds(level: Level): void {
-    for (let seed = 0; seed < 10; seed++) {
+  // Easy and Medium take milliseconds per puzzle. Hard is the slow level (median ~0.4 s, see
+  // generate's doc comment), so the full 10-seed Hard run lives in generate.slow.test.ts
+  // (npm run test:slow) and the check run keeps only the two cheapest seeds.
+  function reachesForSeeds(level: Level, seeds: readonly number[]): void {
+    for (const seed of seeds) {
       const result = generate({ level, seed });
       expect(result.seed).toBe(seed);
       expectValidAt(result, level);
@@ -143,12 +123,14 @@ describe("generate", () => {
   }
 
   it.each(["easy", "medium"] as const)("reaches %s for 10 seeds within the default budget", (level) => {
-    reachesForTenSeeds(level);
+    reachesForSeeds(level, Array.from({ length: 10 }, (_, seed) => seed));
   });
 
-  it("reaches hard for 10 seeds within the default budget (slow, several seconds)", () => {
-    reachesForTenSeeds("hard");
-  }, 60_000);
+  // Seeds 8 and 9 take 11 and 16 attempts (about 0.1 to 0.2 s); the rest of 0..9 take 22 to 121
+  // (up to 3 s). Two seeds still run the whole Hard path: capped removal, climb and the grade check.
+  it("reaches hard for the two quickest of seeds 0..9 within the default budget", () => {
+    reachesForSeeds("hard", [8, 9]);
+  }, 20_000);
 
   it.each(["expert", "master"] as const)(
     "reaches %s for 3 seeds within the default budget",
