@@ -8,4 +8,5 @@ import "../fish";
 import "../wings";
 import "../coloring";
 import "../wwing";
+import "../unique";
 import "../chains";
