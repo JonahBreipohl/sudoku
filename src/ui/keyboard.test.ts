@@ -28,7 +28,7 @@ describe("actionForKey", () => {
   });
 
   it("leaves modified and unrelated keys alone", () => {
-    expect(key("z", { ctrlKey: true })).toBeNull();
+    expect(key("q", { ctrlKey: true })).toBeNull();
     expect(key("1", { metaKey: true })).toBeNull();
     expect(key("Enter")).toBeNull();
     expect(key("F1")).toBeNull();
@@ -50,5 +50,35 @@ describe("actionForKey", () => {
     expect(key("n")).toEqual({ type: "toggle-notes" });
     expect(key("N")).toEqual({ type: "toggle-notes" });
     expect(key("n", { ctrlKey: true })).toBeNull();
+  });
+
+  describe("modifier bindings", () => {
+    for (const mod of ["ctrlKey", "metaKey"] as const) {
+      const press = (k: string, shiftKey = false) =>
+        actionForKey({ key: k, ctrlKey: false, metaKey: false, altKey: false, shiftKey, [mod]: true });
+      it(`handles undo and redo with ${mod}`, () => {
+        expect(press("z")).toEqual({ type: "undo" });
+        expect(press("Z", true)).toEqual({ type: "redo" });
+        expect(press("y")).toEqual({ type: "redo" });
+        expect(press("Y", true)).toBeNull();
+        expect(press("z", true)).toEqual({ type: "redo" });
+      });
+      it(`does not fire plain bindings with ${mod}`, () => {
+        for (const k of ["1", "p", "?", "n", "h", "H", "Backspace", "ArrowUp"]) expect(press(k)).toBeNull();
+      });
+    }
+    it("ignores Alt", () => {
+      expect(key("z", { ctrlKey: true, altKey: true })).toBeNull();
+      expect(key("p", { altKey: true })).toBeNull();
+    });
+  });
+
+  it("maps P, ?, N and H", () => {
+    expect(key("p")).toEqual({ type: "pause" });
+    expect(key("P")).toEqual({ type: "pause" });
+    expect(key("?")).toEqual({ type: "help" });
+    expect(key("n")).toEqual({ type: "toggle-notes" });
+    expect(key("H")).toEqual({ type: "hint" });
+    expect(key("h")).toEqual({ type: "move", direction: "left" });
   });
 });

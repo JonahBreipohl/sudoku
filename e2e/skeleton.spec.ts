@@ -356,3 +356,57 @@ for (const theme of ["light", "dark"] as const) {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 }
+
+test("? opens the shortcuts dialog, keys are inert inside, Escape closes and restores focus", async ({ page }) => {
+  const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("?");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
+  await page.keyboard.press("4");
+  await page.keyboard.press("p");
+  // Focus trap: the page behind is inert, so tabbing never reaches the board or header.
+  for (const k of ["Tab", "Tab", "Shift+Tab"]) {
+    await page.keyboard.press(k);
+    await expect(page.locator("[data-cell]:focus, .app-header :focus")).toHaveCount(0);
+  }
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator(cell(2))).toBeFocused();
+  await expect(page.locator(cell(2))).toHaveText("");
+  await expect(page.getByRole("grid")).toBeVisible();
+});
+
+test("undo and redo shortcuts, and P pauses", async ({ page }) => {
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await page.keyboard.press("Control+z");
+  await expect(page.locator(cell(2))).toHaveText("");
+  await page.keyboard.press("Control+Shift+z");
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await page.keyboard.press("Control+z");
+  await page.keyboard.press("Control+y");
+  await expect(page.locator(cell(2))).toHaveText("4");
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`shortcuts dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.getByRole("button", { name: "Shortcuts" }).click();
+    const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
+    await expect(dialog).toBeVisible();
+    const results = await new AxeBuilder({ page }).analyze();
+    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+    const viewport = page.viewportSize()!;
+    const box = (await dialog.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+    const b = (await dialog.getByRole("button", { name: "Close" }).boundingBox())!;
+    expect(b.height).toBeGreaterThanOrEqual(44);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
