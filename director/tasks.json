@@ -1274,7 +1274,7 @@
         "A unit test computes contrast for the token pairs used for text and asserts at least 4.5:1 (3:1 for large digits)",
         "System follows OS changes live"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
