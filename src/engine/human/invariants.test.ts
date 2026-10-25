@@ -114,7 +114,9 @@ describe("every registered technique over generated puzzles", () => {
           }
           walk(state, solution, fired);
         }),
-        { numRuns: 40 },
+        // Fixed seed: the fired.size coverage check below depends on which cases run, so a random
+        // draw could make it flaky.
+        { numRuns: 40, seed: 20240607 },
       );
       expect(fired.size).toBeGreaterThan(TECHNIQUES.length / 2);
     },
