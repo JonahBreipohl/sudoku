@@ -75,6 +75,8 @@ const isCell = (v: unknown): v is number => isInt(v) && v >= 0 && v < 81;
 const isDigit = (v: unknown): v is number => isInt(v) && v >= 1 && v <= 9;
 const isStr = (v: unknown): v is string => typeof v === "string";
 const isGridString = (v: unknown): v is string => isStr(v) && /^[0-9.]{81}$/.test(v);
+// A solution is complete, so unlike a puzzle it has no blanks.
+const isSolutionString = (v: unknown): v is string => isStr(v) && /^[1-9]{81}$/.test(v);
 
 export function isBoardEvent(v: unknown, index?: number): v is BoardEvent {
   if (!isObj(v)) return false;
@@ -136,7 +138,7 @@ export function isGameRecord(json: unknown): json is GameRecord {
   if (!isObj(json)) return false;
   if (json.version !== RECORD_VERSION) return false;
   if (!isStr(json.id) || json.id === "") return false;
-  if (!isGridString(json.puzzle) || !isGridString(json.solution)) return false;
+  if (!isGridString(json.puzzle) || !isSolutionString(json.solution)) return false;
   if (!isStr(json.level) || !(LEVELS as readonly string[]).includes(json.level)) return false;
   if (typeof json.score !== "number" || !Number.isFinite(json.score)) return false;
   if (!isStr(json.source) || !SOURCES.includes(json.source)) return false;
@@ -146,5 +148,7 @@ export function isGameRecord(json: unknown): json is GameRecord {
   if (!Array.isArray(nodes) || !Array.isArray(log)) return false;
   if (!nodes.every((n, i) => isBoardEvent(n, i))) return false;
   if (!log.every(isMetaEvent)) return false;
+  // A rewind target must be a real node (-1 is the starting position).
+  if (!log.every((e) => e.type !== "rewind" || e.to < nodes.length)) return false;
   return isInt(cursor) && cursor >= -1 && cursor < nodes.length;
 }

@@ -42,6 +42,11 @@ describe("isGameRecord", () => {
     expect(isGameRecord(JSON.parse(JSON.stringify(record())))).toBe(true);
   });
 
+  it("accepts a rewind to the last node and to the start", () => {
+    expect(isGameRecord(bad((r) => (r.log = [{ at: 3, type: "rewind", to: 2 }])))).toBe(true);
+    expect(isGameRecord(bad((r) => (r.log = [{ at: 3, type: "rewind", to: -1 }])))).toBe(true);
+  });
+
   it("accepts a fresh record with no events and cursor -1", () => {
     expect(isGameRecord({ ...record(), nodes: [], log: [], cursor: -1, status: "playing" })).toBe(true);
   });
@@ -56,6 +61,9 @@ describe("isGameRecord", () => {
     ["empty id", (r: Record<string, unknown>) => (r.id = "")],
     ["short puzzle", (r: Record<string, unknown>) => (r.puzzle = "123")],
     ["bad solution chars", (r: Record<string, unknown>) => (r.solution = "x".repeat(81))],
+    ["solution with zeros", (r: Record<string, unknown>) => (r.solution = "0".repeat(81))],
+    ["solution with blanks", (r: Record<string, unknown>) => (r.solution = ".".repeat(81))],
+    ["rewind past last node", (r: Record<string, unknown>) => (r.log = [{ at: 3, type: "rewind", to: 3 }])],
     ["unknown level", (r: Record<string, unknown>) => (r.level = "insane")],
     ["NaN score", (r: Record<string, unknown>) => (r.score = NaN)],
     ["unknown source", (r: Record<string, unknown>) => (r.source = "web")],

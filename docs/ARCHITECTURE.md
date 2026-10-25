@@ -168,8 +168,14 @@ notes, and conflicts; snapshots every 64 nodes keep replay fast.
 
 ### Meta events (not undoable; linear log)
 
-`start`, `pause`, `resume`, `hidden`, `visible`, `undo`, `redo`, `rewind`, `check` (result),
-`hint` (tier, step), `settings-assist` (auto-candidates on/off), `submit` (result), each with `at`.
+`start`, `pause`, `resume`, `hidden`, `visible`, `undo`, `redo`, each with `at` and no other fields.
+The rest carry:
+
+- `rewind` (to): a node id the cursor moved to; -1 is the starting position. Must be below the node count.
+- `check` (mistakes): the running mistake count, a non-negative integer.
+- `hint` (tier, step): tier is `nudge` | `technique` | `reveal`; step is a technique id string.
+- `settings-assist` (autoCandidates): boolean, the auto-candidates setting after the change.
+- `submit` (result): `solved` | `incorrect`.
 
 ### Timer
 
