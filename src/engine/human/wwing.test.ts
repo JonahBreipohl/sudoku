@@ -105,7 +105,9 @@ describe("W-Wing", () => {
     expect(full.solved).toBe(true);
     expect(full.steps.some((s) => s.technique === "w-wing")).toBe(true);
     expect(full.steps.reduce(applyStep, state).values.join("")).toBe(WW_PUZZLE.solution);
-    expect(solveLogically(state, "master", registryWithout("w-wing")).solved).toBe(false);
+    // An XY-chain can make the same eliminations in this puzzle, so drop it too to show the
+    // puzzle needs a W-Wing rather than anything cheaper.
+    expect(solveLogically(state, "master", registryWithout("w-wing", "xy-chain")).solved).toBe(false);
   });
 
   it("needs a strong link: a third holder of 1 in the unit breaks it", () => {

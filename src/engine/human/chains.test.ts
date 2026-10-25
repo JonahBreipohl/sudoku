@@ -1,12 +1,23 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { eliminate, fromGrid, type CandidateState } from "../candidates";
-import { DIGITS, PEERS, UNITS, cellIndex, digitBit, emptyGrid, parseGrid, type CellValue, type Digit } from "../grid";
+import { DIGITS, PEERS, UNITS, cellIndex, digitBit, emptyGrid, parseGrid, popcount, type CellValue, type Digit } from "../grid";
 import { createRng } from "../random";
 import { SAMPLE_EASY } from "../samples";
 import { solve } from "../solver";
 import { applyStep, cellName, type Step } from "../step";
-import { MAX_CHAIN_LINKS, buildDigitLinks, findXChain, formatChain, nodeCell, nodeOf, shortestChains } from "./chains";
+import {
+  MAX_CHAIN_LINKS,
+  buildBivalueLinks,
+  buildDigitLinks,
+  findXChain,
+  findXYChain,
+  formatChain,
+  formatXYChain,
+  nodeCell,
+  nodeOf,
+  shortestChains,
+} from "./chains";
 import { nextStep, solveLogically } from "./driver";
 import { createRegistry, defaultRegistry } from "./registry";
 import "./techniques";
@@ -196,14 +207,165 @@ describe("x-chain", () => {
   });
 });
 
+/** Empty-grid candidates with the listed cells cut down to exactly the given digits. */
+function withMarks(marks: [number, Digit[]][]): CandidateState {
+  let state: CandidateState = fromGrid(emptyGrid());
+  for (const [c, keep] of marks) for (const d of DIGITS) if (!keep.includes(d)) state = eliminate(state, c, d);
+  return state;
+}
+const maskAt = (state: CandidateState, c: number) => (state.values[c] === 0 ? (state.candidates[c] ?? 0) : 0);
+
+/** Checks the XY-chain logic against the state directly: walks the cells forcing digits along. */
+function expectXYChainWellFormed(state: CandidateState, step: Step): void {
+  expect(step.technique).toBe("xy-chain");
+  expect(step.placements).toEqual([]);
+  expect(step.digits).toHaveLength(1);
+  const digit = step.digits[0]!;
+  const cells = step.cells;
+  expect(cells.length).toBeGreaterThanOrEqual(3);
+  expect(2 * cells.length - 1).toBeLessThanOrEqual(MAX_CHAIN_LINKS);
+  expect(new Set(cells).size).toBe(cells.length);
+  // Assume the first cell is not `digit`; each cell then forces the next off the shared digit.
+  let banned: Digit = digit;
+  for (let i = 0; i < cells.length; i++) {
+    const m = maskAt(state, cells[i]!);
+    expect(popcount(m)).toBe(2);
+    expect(m & digitBit(banned)).not.toBe(0);
+    if (i > 0) expect(sees(cells[i - 1]!, cells[i]!)).toBe(true);
+    banned = DIGITS.find((d) => d !== banned && (m & digitBit(d)) !== 0)!;
+  }
+  // ... and the last cell lands on `digit`.
+  expect(banned).toBe(digit);
+  const a = cells[0]!;
+  const b = cells[cells.length - 1]!;
+  expect(a).toBeLessThan(b);
+  expect(step.eliminations.length).toBeGreaterThan(0);
+  const elimCells = step.eliminations.map((e) => e.cell);
+  expect(elimCells).toEqual([...elimCells].sort((x, y) => x - y));
+  for (const { cell: c, digit: d } of step.eliminations) {
+    expect(d).toBe(digit);
+    expect(has(state, c, d)).toBe(true);
+    expect(c === a || c === b).toBe(false);
+    expect(sees(c, a) && sees(c, b)).toBe(true);
+  }
+  expect(step.explanation).not.toMatch(/\n/);
+  expect(step.explanation).toContain(cellName(a));
+  expect(step.explanation).toContain(cellName(b));
+  for (const c of elimCells) expect(step.explanation).toContain(cellName(c));
+}
+
+// r1c1 (1=2) - r1c5 (2=3) - r5c5 (3=4) - r5c9 (4=1): one of r1c1 and r5c9 is 1, so r1c9 and
+// r5c1 lose 1. No two of the cells share a pair or form an XY-Wing, and every other candidate is
+// left in place, so nothing cheaper applies.
+const XY_MARKS: [number, Digit[]][] = [
+  [cell(1, 1), [1, 2]],
+  [cell(1, 5), [2, 3]],
+  [cell(5, 5), [3, 4]],
+  [cell(5, 9), [1, 4]],
+];
+const XY_CHAIN = [cell(1, 1), cell(1, 5), cell(5, 5), cell(5, 9)];
+
+// XY_MARKS plus a 3-cell chain on 5 elsewhere, which is shorter and wins although it starts later:
+// r7c1 (5=6) - r7c9 (6=7) - r9c9 (7=5), whose ends both see r7c7, r7c8 (row 7 and box 9)
+// and r9c1..r9c3 (box 7 and row 9). It is also an XY-Wing, but the finder itself does not care.
+const XY_SHORT_MARKS: [number, Digit[]][] = [
+  ...XY_MARKS,
+  [cell(7, 1), [5, 6]],
+  [cell(7, 9), [6, 7]],
+  [cell(9, 9), [5, 7]],
+];
+
+// Found by search: a generated puzzle the Master driver solves only with a 4-cell XY-chain.
+const XYCHAIN_PUZZLE = {
+  puzzle: "..8...59...4....82.1..9..3......4.13..57.19..64.3......8..5..2.45....8...73...1..",
+  solution: "768432591934175682512896437897564213325781946641329758189657324456213879273948165",
+};
+
+describe("xy-chain", () => {
+  it("builds strong links inside bivalue cells and weak links between bivalue peers", () => {
+    const state = withMarks(XY_MARKS);
+    const graph = buildBivalueLinks(state);
+    const n = (r: number, c: number, d: Digit) => nodeOf(cell(r, c), d);
+    expect(graph.strong[n(1, 1, 1)]).toEqual([n(1, 1, 2)]);
+    expect(graph.strong[n(1, 5, 3)]).toEqual([n(1, 5, 2)]);
+    expect(graph.weak[n(1, 1, 2)]).toEqual([n(1, 5, 2)]);
+    expect(graph.weak[n(1, 5, 3)]).toEqual([n(5, 5, 3)]);
+    // Cells with more than two candidates get no nodes.
+    expect(graph.strong[n(1, 9, 1)]).toEqual([]);
+    expect(graph.weak[n(1, 1, 1)]).toEqual([]);
+  });
+
+  it("formats each cell with the digit it gives up and the one it is forced to", () => {
+    const n = (r: number, c: number, d: Digit) => nodeOf(cell(r, c), d);
+    expect(formatXYChain([n(1, 1, 1), n(1, 1, 2), n(1, 5, 2), n(1, 5, 3)])).toBe("r1c1 (1=2) - r1c5 (2=3)");
+  });
+
+  it("finds a 4-cell chain where every cheaper technique fails", () => {
+    const state = withMarks(XY_MARKS);
+    expect(nextStep(state, "expert")).toBeNull();
+    expect(nextStep(state, "master", registryWithout("xy-chain"))).toBeNull();
+    const step = nextStep(state, "master")!;
+    expect(step).toEqual(findXYChain(state));
+    expectXYChainWellFormed(state, step);
+    expect(step.cells).toEqual(XY_CHAIN);
+    expect(step.digits).toEqual([1]);
+    expect(step.eliminations).toEqual([
+      { cell: cell(1, 9), digit: 1 },
+      { cell: cell(5, 1), digit: 1 },
+    ]);
+    expect(step.explanation).toBe(
+      "XY-Chain on 1: r1c1 (1=2) - r1c5 (2=3) - r5c5 (3=4) - r5c9 (4=1); one of r1c1 and r5c9 must be 1, " +
+        "so remove 1 from r1c9, r5c1",
+    );
+  });
+
+  it("prefers a shorter chain over a longer one, even at a higher digit and start cell", () => {
+    const state = withMarks(XY_SHORT_MARKS);
+    const step = findXYChain(state)!;
+    expectXYChainWellFormed(state, step);
+    expect(step.cells).toEqual([cell(7, 1), cell(7, 9), cell(9, 9)]);
+    expect(step.eliminations.map((e) => e.cell)).toEqual([cell(7, 7), cell(7, 8), cell(9, 1), cell(9, 2), cell(9, 3)]);
+  });
+
+  it("is required to solve a known puzzle", () => {
+    const state = fromGrid(parseGrid(XYCHAIN_PUZZLE.puzzle));
+    const full = solveLogically(state, "master");
+    expect(full.solved).toBe(true);
+    const chains = full.steps.filter((s) => s.technique === "xy-chain");
+    expect(chains.some((s) => s.cells.length >= 4)).toBe(true);
+    expect(full.steps.reduce(applyStep, state).values.join("")).toBe(XYCHAIN_PUZZLE.solution);
+    expect(solveLogically(state, "master", registryWithout("xy-chain")).solved).toBe(false);
+  });
+
+  it("finds nothing once the chain's eliminations are gone, or with only two cells", () => {
+    let state = withMarks(XY_MARKS);
+    for (const c of [cell(1, 9), cell(5, 1)]) state = eliminate(state, c, 1);
+    expect(findXYChain(state)).toBeNull();
+    // A naked pair is a two-cell chain; it is left to the naked pair finder.
+    expect(findXYChain(withMarks([[cell(1, 1), [1, 2]], [cell(1, 5), [1, 2]]]))).toBeNull();
+  });
+
+  it("returns null on an empty or solved grid and does not mutate its input", () => {
+    expect(findXYChain(fromGrid(emptyGrid()))).toBeNull();
+    expect(findXYChain(fromGrid(parseGrid(SAMPLE_EASY.solution)))).toBeNull();
+    const state = withMarks(XY_MARKS);
+    const copy = structuredClone(state);
+    findXYChain(state);
+    expect(state).toEqual(copy);
+  });
+});
+
 describe("bounds", () => {
   it("runs under 50 ms on dense and chain-rich states", () => {
     const states = [fromGrid(emptyGrid()), LONG_STATE(), SHORT_AND_LONG_STATE(), fromGrid(parseGrid(XCHAIN_PUZZLE.puzzle))];
-    for (const state of states) findXChain(state); // warm up the JIT
-    for (const state of states) {
-      const t0 = performance.now();
-      findXChain(state);
-      expect(performance.now() - t0).toBeLessThan(50);
+    states.push(withMarks(XY_SHORT_MARKS), fromGrid(parseGrid(XYCHAIN_PUZZLE.puzzle)));
+    for (const find of [findXChain, findXYChain]) {
+      for (const state of states) find(state); // warm up the JIT
+      for (const state of states) {
+        const t0 = performance.now();
+        find(state);
+        expect(performance.now() - t0).toBeLessThan(50);
+      }
     }
   });
 });
@@ -213,6 +375,12 @@ describe("registration", () => {
     const t = defaultRegistry.list("master").find((x) => x.id === "x-chain");
     expect(t).toMatchObject({ level: "master", weight: 60, name: "X-Chain" });
     expect(defaultRegistry.list("expert").some((x) => x.id === "x-chain")).toBe(false);
+  });
+
+  it("registers XY-Chain at Master with weight 70", () => {
+    const t = defaultRegistry.list("master").find((x) => x.id === "xy-chain");
+    expect(t).toMatchObject({ level: "master", weight: 70, name: "XY-Chain" });
+    expect(defaultRegistry.list("expert").some((x) => x.id === "xy-chain")).toBe(false);
   });
 });
 
@@ -232,8 +400,9 @@ function thinned(seed: number, holes: number, removals: number): { state: Candid
 }
 
 describe("properties", () => {
-  it("never eliminates a solution digit and runs under 50 ms, at any state along a Master solve", () => {
+  it("X- and XY-chains never eliminate a solution digit and run under 50 ms, at any state along a Master solve", () => {
     let fired = 0;
+    let firedXY = 0;
     let slowest = 0;
     fc.assert(
       fc.property(
@@ -253,6 +422,14 @@ describe("properties", () => {
               expectXChainWellFormed(state, own);
               for (const { cell: c, digit } of own.eliminations) expect(digit).not.toBe(solution[c]);
             }
+            const t1 = performance.now();
+            const xy = findXYChain(state);
+            slowest = Math.max(slowest, performance.now() - t1);
+            if (xy) {
+              firedXY++;
+              expectXYChainWellFormed(state, xy);
+              for (const { cell: c, digit } of xy.eliminations) expect(digit).not.toBe(solution[c]);
+            }
             const step = nextStep(state, "master");
             if (!step) break;
             for (const { cell: c, digit } of step.eliminations) expect(digit).not.toBe(solution[c]);
@@ -264,6 +441,7 @@ describe("properties", () => {
     );
     // Guards against a vacuous pass.
     expect(fired).toBeGreaterThan(0);
+    expect(firedXY).toBeGreaterThan(0);
     expect(slowest).toBeLessThan(50);
   });
 });

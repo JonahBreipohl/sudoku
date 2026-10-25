@@ -428,7 +428,7 @@
         "XY-chain finder registered; returns shortest chain; tests where it is required",
         "Property test: never eliminates a solution digit"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2256,6 +2256,30 @@
         "Each no-op case adds no node and does not notify subscribers; tests added",
         "Invalid rewind target is ignored; test added",
         "check, build and e2e pass"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M2-10a",
+      "title": "Make chain timing assertions robust",
+      "milestone": 2,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "effort": "medium",
+      "agent": "engine-dev",
+      "deps": [
+        "M2-10"
+      ],
+      "files": [
+        "src/engine/human/chains.test.ts"
+      ],
+      "description": "Reviewer minor on M2-10: the property and bound tests assert the single slowest call under 50 ms, which can fail spuriously under parallel vitest load (one unreproduced failure seen). Use a p99/median or a looser ceiling while still catching blow-ups.",
+      "acceptance": [
+        "Timing assertions no longer depend on a single wall-clock maximum",
+        "npm run check passes repeatedly"
       ],
       "status": "todo",
       "attempts": 0,
