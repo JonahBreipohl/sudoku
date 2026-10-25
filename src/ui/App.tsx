@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { Digit } from "../engine";
 import { SAMPLE_EASY } from "../engine/samples";
+import { createLocalStoragePersistence } from "../state/persistence";
 import { createGameStore, newGameRecord } from "../state/store";
 import { Board } from "./components/Board";
 import { Pad } from "./components/Pad";
@@ -15,15 +16,17 @@ function makeStore() {
   let offset = 0;
   const testMode = new URLSearchParams(window.location.search).has("test");
   const now = () => Date.now() + offset;
+  const persistence = createLocalStoragePersistence();
   const store = createGameStore(
-    newGameRecord({
+    persistence.loadCurrent() ??
+      newGameRecord({
       id: "sample",
       puzzle: SAMPLE_EASY.puzzle,
       solution: SAMPLE_EASY.solution,
       level: "easy",
-      createdAt: Date.now(),
-    }),
-    testMode ? { now } : {},
+        createdAt: Date.now(),
+      }),
+    testMode ? { now, persistence } : { persistence },
   );
   if (testMode) {
     (window as unknown as { __sudoku: unknown }).__sudoku = {
@@ -35,7 +38,7 @@ function makeStore() {
 }
 
 export function App() {
-  // Created once per mount; M4 persistence will supply a resumed record here.
+  // Created once per mount; a saved game, if any, resumes here.
   const [store] = useState(makeStore);
   useVisibility(store);
   return (
