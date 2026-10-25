@@ -1433,7 +1433,7 @@
         "Covers wrong placements and note edits that remove the true digit; correct moves and erasures are not mistakes",
         "Tests with hand-built records; property test: a record built only from solution placements has no mistakes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2353,6 +2353,32 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M7-03a",
+      "title": "Analysis lint and comment minors",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "chore-dev",
+      "deps": [
+        "M7-03"
+      ],
+      "files": [
+        "eslint.config.js",
+        "src/analysis/replay.ts"
+      ],
+      "description": "Reviewer minors: (1) replay.ts:5 comment cites nonexistent replay.test.ts; the cross-check is in mistakes.test.ts. (2) eslint.config.js:54 test-file override for src/analysis drops the ../../ui and react-dom patterns; keep them. (3) eslint.config.js:31 analysis rule matches only *.ts; also cover *.tsx.",
+      "acceptance": [
+        "Comment is accurate",
+        "Test-file override still forbids ui and react-dom imports",
+        "Rule covers .tsx",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
