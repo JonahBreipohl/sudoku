@@ -1086,8 +1086,8 @@
         "Keys are ignored while a dialog or text input has focus (except Escape)",
         "The shortcuts dialog is a native dialog with focus trap and Escape to close"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2527,7 +2527,7 @@
         "Moves made during pending are not silently lost",
         "check, build, e2e pass"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }
