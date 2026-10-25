@@ -1,8 +1,9 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { emptyBank, extendBank, serializeBank, validateBank, type Bank, type ExtendOptions } from "./bank";
+import { emptyBank, extendBank, isBankDate, serializeBank, startBank, validateBank, type Bank, type ExtendOptions } from "./bank";
 import { generate } from "./generate";
 import { grade } from "./grade";
 import { LEVELS } from "./step";
@@ -39,6 +40,7 @@ describe("validateBank", () => {
     expect(errorsOf({ ...good(), version: 2 })).toHaveLength(1);
     expect(errorsOf({ ...good(), level: "godlike" }).join()).toMatch(/unknown level/);
     expect(errorsOf({ ...good(), generated: "yesterday" })).toHaveLength(1);
+    expect(errorsOf({ ...good(), generated: "2026-13-45" })).toHaveLength(1);
     expect(errorsOf({ ...good(), puzzles: {} }).join()).toMatch(/array/);
   });
 
@@ -122,6 +124,61 @@ describe("extendBank", () => {
     expect(new Set(out.puzzles.map((p) => p.puzzle)).size).toBe(3);
   });
 
+  it("resuming after a skipped duplicate equals an uninterrupted run", () => {
+    // Candidate 2 repeats candidate 0's puzzle, so the bank ends up smaller than the candidate count.
+    const dupAt2: NonNullable<ExtendOptions["make"]> = (l, s) => fake(l, s.endsWith(":2") ? s.replace(/:2$/, ":0") : s);
+    const seeds: string[] = [];
+    const spy: NonNullable<ExtendOptions["make"]> = (l, s) => (seeds.push(s), dupAt2(l, s));
+
+    const whole = extendBank(start, { level: "hard", seed: 1, count: 8, make: spy });
+    const wholeSeeds = seeds.splice(0);
+
+    const first = extendBank(start, { level: "hard", seed: 1, count: 4, make: spy });
+    const firstSeeds = seeds.splice(0);
+    const resumed = extendBank(first, { level: "hard", seed: 1, count: 8, make: spy });
+    const resumedSeeds = seeds.splice(0);
+
+    expect(resumed).toEqual(whole);
+    expect(serializeBank(resumed)).toBe(serializeBank(whole));
+    // The resumed run carries on after the last candidate tried instead of retrying old ones.
+    expect([...firstSeeds, ...resumedSeeds]).toEqual(wholeSeeds);
+    expect(whole.puzzles.map((p) => p.id).sort()).toContain("h-000003");
+    expect(whole.puzzles.map((p) => p.id)).not.toContain("h-000002");
+  });
+
+  it("resuming a run stopped right after a skipped duplicate still equals an uninterrupted run", () => {
+    const dupAt2: NonNullable<ExtendOptions["make"]> = (l, s) => fake(l, s.endsWith(":2") ? s.replace(/:2$/, ":0") : s);
+    let t = 0;
+    // now() is read once per candidate, so a deadline of 3 stops just after candidate 2 is skipped.
+    const stopped = extendBank(start, { level: "hard", seed: 1, count: 6, deadline: 3, now: () => t++, make: dupAt2 });
+    expect(stopped.puzzles).toHaveLength(2);
+    const resumed = extendBank(stopped, { level: "hard", seed: 1, count: 6, make: dupAt2 });
+    expect(serializeBank(resumed)).toBe(serializeBank(extendBank(start, { level: "hard", seed: 1, count: 6, make: dupAt2 })));
+  });
+
+  it("gives the same bytes however a run is split, duplicates included", () => {
+    fc.assert(
+      fc.property(fc.integer({ min: 1, max: 30 }), fc.integer({ min: 0, max: 30 }), fc.integer({ min: 0, max: 30 }), fc.integer({ min: 2, max: 5 }), (total, a, b, every) => {
+        // Every `every`th candidate repeats the one before it.
+        const make: NonNullable<ExtendOptions["make"]> = (l, s) => {
+          const m = /^(.*:)(\d+)$/.exec(s)!;
+          const n = Number(m[2]);
+          return fake(l, n > 0 && n % every === 0 ? `${m[1]}${n - 1}` : s);
+        };
+        const [x, y] = [Math.min(a, b, total), Math.min(Math.max(a, b), total)];
+        const whole = extendBank(start, { level: "hard", seed: "p", count: total, make });
+        let split = start;
+        for (const c of [x, y, total]) split = extendBank(split, { level: "hard", seed: "p", count: c, make });
+        expect(serializeBank(split)).toBe(serializeBank(whole));
+      }),
+    );
+  });
+
+  it("keeps an existing bank's generated date when extending", () => {
+    const old = { ...emptyBank("hard", "2020-01-02") };
+    expect(extendBank(old, { level: "hard", seed: 1, count: 3, make: fake }).generated).toBe("2020-01-02");
+  });
+
   it("stops at the deadline", () => {
     let t = 0;
     const out = extendBank(start, { level: "hard", seed: 1, count: 100, deadline: 5, now: () => t++, make: fake });
@@ -132,6 +189,32 @@ describe("extendBank", () => {
     const out = extendBank(emptyBank("easy", "2026-10-25"), { level: "easy", seed: 3, count: 3 });
     expect(validateBank(out, { deep: true })).toEqual({ ok: true });
     expect(JSON.parse(serializeBank(out))).toEqual(out);
+  });
+});
+
+describe("startBank", () => {
+  it("stamps a new bank with the given date", () => {
+    expect(startBank(undefined, "hard", "2026-01-31")).toEqual({ ok: true, bank: emptyBank("hard", "2026-01-31") });
+  });
+
+  it("keeps an existing bank's own date, so appending leaves the header alone", () => {
+    // Real puzzles: startBank validates the schema, which the stand-in generator's solutions would fail.
+    const existing = extendBank(emptyBank("easy", "2020-01-02"), { level: "easy", seed: 1, count: 2 });
+    const res = startBank(JSON.parse(serializeBank(existing)), "easy", "2099-12-31");
+    expect(res).toEqual({ ok: true, bank: existing });
+  });
+
+  it("refuses an invalid bank or one for another level", () => {
+    expect(startBank({ version: 2 }, "hard", "2026-01-31").ok).toBe(false);
+    const res = startBank(good(), "hard", "2026-01-31");
+    expect(res.ok ? [] : res.errors.join()).toMatch(/expected hard/);
+  });
+});
+
+describe("isBankDate", () => {
+  it("accepts real calendar dates only", () => {
+    for (const ok of ["2026-10-25", "2024-02-29", "1999-12-31"]) expect(isBankDate(ok)).toBe(true);
+    for (const bad of ["2026-02-30", "2025-02-29", "2026-13-01", "2026-00-10", "2026-1-1", "yesterday", "2026-10-25T00:00", ""]) expect(isBankDate(bad)).toBe(false);
   });
 });
 

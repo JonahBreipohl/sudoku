@@ -35,6 +35,13 @@ const TECHNIQUE_IDS: ReadonlySet<string> = new Set(TECHNIQUES.map((t) => t.id));
 const ID_PATTERN = /^[a-z]-\d{6}$/;
 const MAX_ERRORS = 20;
 
+/** A real calendar date as YYYY-MM-DD; the shape alone would let 2026-13-45 through. */
+export function isBankDate(s: string): boolean {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const t = Date.parse(`${s}T00:00:00Z`);
+  return Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === s;
+}
+
 const isRecord = (v: unknown): v is Record<string, unknown> => typeof v === "object" && v !== null && !Array.isArray(v);
 
 /** Checks schema, uniqueness of ids and puzzles, level labels and score order. Never throws. */
@@ -48,7 +55,7 @@ export function validateBank(json: unknown, { deep = false }: ValidateOptions = 
   const level = json.level;
   const knownLevel = typeof level === "string" && (LEVELS as readonly string[]).includes(level);
   if (!knownLevel) fail(`unknown level ${String(level)}`);
-  if (typeof json.generated !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(json.generated)) fail("generated must be YYYY-MM-DD");
+  if (typeof json.generated !== "string" || !isBankDate(json.generated)) fail("generated must be YYYY-MM-DD");
   if (!Array.isArray(json.puzzles)) return { ok: false, errors: [...errors, "puzzles must be an array"] };
 
   const ids = new Set<string>();
@@ -91,6 +98,21 @@ export function emptyBank(level: Level, generated: string): Bank {
   return { version: 1, level, generated, puzzles: [] };
 }
 
+/**
+ * The bank a run starts from. An existing file keeps its own `generated` date, so appending never
+ * rewrites the header and a resumed run serializes byte for byte like an uninterrupted one;
+ * `generated` only stamps a brand-new bank (`existing` undefined). A file that fails the schema
+ * check, or belongs to another level, is refused rather than appended to.
+ */
+export function startBank(existing: unknown, level: Level, generated: string): { ok: true; bank: Bank } | { ok: false; errors: string[] } {
+  if (existing === undefined) return { ok: true, bank: emptyBank(level, generated) };
+  const res = validateBank(existing);
+  if (!res.ok) return res;
+  const bank = existing as Bank; // validated just above
+  if (bank.level !== level) return { ok: false, errors: [`bank is level ${bank.level}, expected ${level}`] };
+  return { ok: true, bank };
+}
+
 /** One puzzle per line keeps diffs readable and the file compact. */
 export function serializeBank(bank: Bank): string {
   const head = JSON.stringify({ version: bank.version, level: bank.level, generated: bank.generated });
@@ -124,23 +146,24 @@ function makeWithEngine(level: Level, seed: string): { puzzle: string; solution:
 
 /**
  * Appends puzzles until the bank holds `count`. Candidate n is generated from the seed
- * `<seed>:<level>:<n>` with n continuing after the bank's current size, so an empty bank and a
- * seed always give the same result, and a resumed run adds new puzzles instead of redoing old
- * ones. Duplicates of existing puzzles are skipped. Returns a new bank sorted by score.
+ * `<seed>:<level>:<n>` and, if kept, takes the id number n. Ids therefore record the candidate
+ * index: a resumed run continues after the highest id (candidates skipped as duplicates leave a
+ * gap, as they do in an uninterrupted run), so an empty bank and a seed always give the same
+ * result however the work is split across runs. Duplicates of existing puzzles are skipped.
+ * Returns a new bank sorted by score.
  */
 export function extendBank(bank: Bank, opts: ExtendOptions): Bank {
   const { level, seed, count, deadline, now = Date.now, onPuzzle, make = makeWithEngine } = opts;
   const out: Bank = { ...bank, puzzles: bank.puzzles.slice() };
   const seen = new Set(out.puzzles.map((p) => p.puzzle));
-  let nextId = out.puzzles.reduce((m, p) => Math.max(m, Number(p.id.slice(2))), -1) + 1;
-  let n = out.puzzles.length;
   const prefix = LEVEL_PREFIX[level];
-  while (out.puzzles.length < count) {
+  let n = out.puzzles.reduce((m, p) => Math.max(m, Number(p.id.slice(2))), -1) + 1;
+  for (; out.puzzles.length < count; n++) {
     if (deadline !== undefined && now() >= deadline) break;
-    const made = make(level, `${String(seed)}:${level}:${n++}`);
+    const made = make(level, `${String(seed)}:${level}:${n}`);
     if (seen.has(made.puzzle)) continue;
     seen.add(made.puzzle);
-    const entry: BankPuzzle = { id: `${prefix}-${String(nextId++).padStart(6, "0")}`, ...made };
+    const entry: BankPuzzle = { id: `${prefix}-${String(n).padStart(6, "0")}`, ...made };
     out.puzzles.push(entry);
     onPuzzle?.(out, entry);
   }
