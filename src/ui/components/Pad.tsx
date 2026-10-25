@@ -6,6 +6,8 @@ interface PadProps {
   onErase: () => void;
   /** Digits enter notes rather than values; shown on the pad itself. */
   notesMode?: boolean;
+  /** Digit locked in digit-first entry. */
+  lockedDigit?: Digit | null;
 }
 
 /** Index d holds how many of digit d are still to place (index 0 unused). */
@@ -15,7 +17,7 @@ export function remainingCounts(board: Grid): number[] {
   return placed.map((n) => Math.max(0, 9 - n));
 }
 
-export function Pad({ board, onDigit, onErase, notesMode = false }: PadProps) {
+export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = null }: PadProps) {
   const counts = remainingCounts(board);
 
   return (
@@ -30,7 +32,10 @@ export function Pad({ board, onDigit, onErase, notesMode = false }: PadProps) {
           <button
             type="button"
             key={d}
-            className={remaining === 0 ? "pad-key pad-key--done" : "pad-key"}
+            className={["pad-key", remaining === 0 && "pad-key--done", lockedDigit === d && "pad-key--locked"]
+              .filter(Boolean)
+              .join(" ")}
+            aria-pressed={lockedDigit === null ? undefined : lockedDigit === d}
             onClick={() => onDigit(d)}
           >
             {/* The accessible name comes from the content: "4, 7 remaining" or "4, complete". */}

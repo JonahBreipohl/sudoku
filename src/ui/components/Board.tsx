@@ -9,12 +9,14 @@ interface BoardProps {
   selected: number | null;
   conflicts: ReadonlySet<number>;
   onSelect: (cell: number) => void;
+  /** Digit locked in digit-first entry; highlighted wherever it appears. */
+  lockedDigit?: number | null;
 }
 
 const ROWS = Array.from({ length: 9 }, (_, i) => i);
 
-export function Board({ givens, board, notes, selected, conflicts, onSelect }: BoardProps) {
-  const highlights = highlightsFor({ board, notes, conflicts }, selected);
+export function Board({ givens, board, notes, selected, conflicts, onSelect, lockedDigit = null }: BoardProps) {
+  const highlights = highlightsFor({ board, notes, conflicts }, selected, lockedDigit);
 
   return (
     <div className="board" role="grid" aria-label="Sudoku board">

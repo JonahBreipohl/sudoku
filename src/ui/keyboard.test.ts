@@ -77,6 +77,7 @@ describe("actionForKey", () => {
     expect(key("p")).toEqual({ type: "pause" });
     expect(key("P")).toEqual({ type: "pause" });
     expect(key("?")).toEqual({ type: "help" });
+    expect(key("Escape")).toEqual({ type: "escape" });
     expect(key("n")).toEqual({ type: "toggle-notes" });
     expect(key("H")).toEqual({ type: "hint" });
     expect(key("h")).toEqual({ type: "move", direction: "left" });

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import type { Digit } from "../engine";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
@@ -19,6 +19,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { cellCommitCounts } from "./renderProbe";
+import { initialInputMode, inputModeReducer, tapForLockedDigit } from "./inputMode";
 import { moveSelection } from "./selection";
 import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
@@ -108,6 +109,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   const [helpOpen, setHelpOpen] = useState(false);
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
+  const [entry, entryDispatch] = useReducer(inputModeReducer, settings.entryMode, initialInputMode);
+  const digitFirst = entry.mode === "digit-first";
   const noting = notesMode || shiftHeld;
   const paused = isPaused(game.record) && game.record.status === "playing";
   const refocusBoard = useRef(false);
@@ -145,8 +148,17 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         setSelected((cell) => moveSelection(cell ?? 0, action.direction));
         return;
       }
+      if (action.type === "escape") {
+        entryDispatch({ type: "unlock" });
+        return;
+      }
       if (action.type === "toggle-notes") {
         setNotesMode((on) => !on);
+        return;
+      }
+      if (digitFirst && action.type === "place" && !noting) {
+        // Digit-first: a digit key or pad button locks it; cells are filled by tapping them.
+        entryDispatch({ type: "digit", digit: action.digit });
         return;
       }
       if (selected === null) return;
@@ -160,7 +172,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         dispatch({ type: "place", cell: selected, digit: action.digit, input });
       else dispatch({ type: "erase", cell: selected });
     },
-    [selected, dispatch, noting, board, notes, pending, onPause, onResume],
+    [selected, dispatch, noting, board, notes, pending, onPause, onResume, digitFirst],
   );
 
   useEffect(() => {
@@ -180,7 +192,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         return;
       }
       if (!action) return;
-      e.preventDefault();
+      // Escape also closes dialogs natively; blocking its default could swallow that.
+      if (action.type !== "escape") e.preventDefault();
       act(action);
     }
     function onKeyUp(e: KeyboardEvent) {
@@ -211,6 +224,32 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     const el = document.querySelector<HTMLButtonElement>(`[data-cell="${selected}"]`);
     if (el && document.activeElement?.closest(".board")) el.focus();
   }, [selected]);
+
+  // Cells are memoized on onSelect, so the handler stays stable and reads current state via a ref.
+  const tapState = { pending, noting, digitFirst, entry, board, notes, givens, dispatch };
+  const tapRef = useRef(tapState);
+  useEffect(() => {
+    tapRef.current = tapState;
+  });
+  const onSelectCell = useCallback((cell: number) => {
+    setSelected(cell);
+    const t = tapRef.current;
+    if (t.pending) return;
+    if (t.noting && t.digitFirst && t.entry.locked !== null) {
+      if (t.board[cell] !== 0) return;
+      const on = (t.notes[cell]! & (1 << (t.entry.locked - 1))) === 0;
+      t.dispatch({ type: "note", cell, digit: t.entry.locked, on });
+      return;
+    }
+    const tap = tapForLockedDigit(t.entry, t.board[cell] ?? 0, t.givens[cell] !== 0);
+    if (tap?.type === "place") t.dispatch({ type: "place", cell, digit: tap.digit, input: "digit-first" });
+    else if (tap?.type === "erase") t.dispatch({ type: "erase", cell });
+  }, []);
+  const onToggleEntry = useCallback(() => {
+    const mode = digitFirst ? "cell-first" : "digit-first";
+    entryDispatch({ type: "set-mode", mode });
+    update({ entryMode: mode });
+  }, [digitFirst, update]);
 
   const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
@@ -246,7 +285,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             notes={notes}
             selected={selected}
             conflicts={conflicts}
-            onSelect={setSelected}
+            onSelect={onSelectCell}
+            lockedDigit={entry.locked}
           />
         )}
         <div className="play-side">
@@ -259,8 +299,10 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             onToggleAuto={onToggleAuto}
             onPause={onPause}
             paused={paused}
+            digitFirst={digitFirst}
+            onToggleEntry={onToggleEntry}
           />
-          {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} />}
+          {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
         </div>
       </main>
       {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}
