@@ -829,8 +829,8 @@
         "Corrupt or wrong-version data is moved aside and the app starts cleanly; storage exceptions never break play",
         "Tests with an in-memory fake; e2e: enter digits, reload, board and timer resume"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
