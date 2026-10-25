@@ -38,7 +38,7 @@ src/analysis/ when it is created (no ui, no react).
  New game / hint / check / submit / watch ──> worker client ──> engine.worker.ts ──> engine/analysis
 ```
 
-The skeleton in src/state/skeleton.ts is a plain reducer standing in for this store until M4.
+Selection and other UI-only state stay in the UI; the store holds only the record and its derived board.
 
 ## Engine
 

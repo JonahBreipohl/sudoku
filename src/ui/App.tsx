@@ -1,17 +1,54 @@
-import { useCallback, useEffect, useMemo, useReducer } from "react";
-import { findConflicts, parseGrid, type Digit } from "../engine";
+import { useCallback, useEffect, useState } from "react";
+import type { Digit } from "../engine";
 import { SAMPLE_EASY } from "../engine/samples";
-import { initSkeleton, skeletonReducer } from "../state/skeleton";
+import { createGameStore, newGameRecord } from "../state/store";
 import { Board } from "./components/Board";
 import { Pad } from "./components/Pad";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
+import { moveSelection } from "./selection";
+import { GameProvider, useGame } from "./useGame";
 
-const GIVENS = parseGrid(SAMPLE_EASY.puzzle);
+function makeStore() {
+  return createGameStore(
+    newGameRecord({
+      id: "sample",
+      puzzle: SAMPLE_EASY.puzzle,
+      solution: SAMPLE_EASY.solution,
+      level: "easy",
+      createdAt: Date.now(),
+    }),
+  );
+}
 
 export function App() {
-  const [state, dispatch] = useReducer(skeletonReducer, GIVENS, initSkeleton);
-  const conflicts = useMemo(() => findConflicts(state.board), [state.board]);
+  // Created once per mount; M4 persistence will supply a resumed record here.
+  const [store] = useState(makeStore);
+  return (
+    <GameProvider store={store}>
+      <Game />
+    </GameProvider>
+  );
+}
+
+function Game() {
+  const { game, dispatch } = useGame();
+  // Selection is UI state; board state lives in the store.
+  const [selected, setSelected] = useState<number | null>(null);
+  const { givens, board, conflicts } = game;
+  const act = useCallback(
+    (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
+      if (action.type === "move") {
+        setSelected((cell) => moveSelection(cell ?? 0, action.direction));
+        return;
+      }
+      if (selected === null) return;
+      if (action.type === "place")
+        dispatch({ type: "place", cell: selected, digit: action.digit, input });
+      else dispatch({ type: "erase", cell: selected });
+    },
+    [selected, dispatch],
+  );
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -20,22 +57,22 @@ export function App() {
       const action = actionForKey(e);
       if (!action) return;
       e.preventDefault();
-      dispatch(action);
+      act(action);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, []);
+  }, [act]);
 
   // Keep keyboard focus on the selected cell so screen readers follow the selection.
   useEffect(() => {
-    if (state.selected === null) return;
-    const el = document.querySelector<HTMLButtonElement>(`[data-cell="${state.selected}"]`);
+    if (selected === null) return;
+    const el = document.querySelector<HTMLButtonElement>(`[data-cell="${selected}"]`);
     if (el && document.activeElement?.closest(".board")) el.focus();
-  }, [state.selected]);
+  }, [selected]);
 
-  const onSelect = useCallback((cell: number) => dispatch({ type: "select", cell }), []);
-  const onDigit = useCallback((digit: Digit) => dispatch({ type: "place", digit }), []);
-  const onErase = useCallback(() => dispatch({ type: "erase" }), []);
+  const onSelect = setSelected;
+  const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
+  const onErase = useCallback(() => act({ type: "erase" }), [act]);
 
   return (
     <div className="app">
@@ -45,13 +82,13 @@ export function App() {
       </header>
       <main className="play">
         <Board
-          givens={state.givens}
-          board={state.board}
-          selected={state.selected}
+          givens={givens}
+          board={board}
+          selected={selected}
           conflicts={conflicts}
           onSelect={onSelect}
         />
-        <Pad board={state.board} onDigit={onDigit} onErase={onErase} />
+        <Pad board={board} onDigit={onDigit} onErase={onErase} />
       </main>
     </div>
   );

@@ -1,0 +1,159 @@
+// The game store (docs/ARCHITECTURE.md, "Game state"): owns the GameRecord, derives the
+// board by replay, and logs undo/redo/rewind as meta events. UI state such as selection
+// does not live here. The snapshot object is replaced only when something changed, so
+// useSyncExternalStore consumers re-render only on real changes.
+
+import { parseGrid, type CellValue } from "../engine";
+import type { Level } from "../engine";
+import {
+  RECORD_VERSION,
+  type BoardEvent,
+  type GameRecord,
+  type MetaEvent,
+} from "./events";
+import { createReplayer, type BoardState } from "./reducer";
+import { append, redo, rewind, undo, type NewBoardEvent, type Tree } from "./tree";
+
+type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K> : never;
+
+/** Board events as callers write them: the store stamps `at` and `elapsed`. */
+export type BoardCommand = DistributiveOmit<NewBoardEvent, "at" | "elapsed">;
+/** Meta events as callers write them: the store stamps `at`. */
+export type MetaCommand = DistributiveOmit<MetaEvent, "at">;
+export type GameCommand = BoardCommand | MetaCommand;
+
+export interface GameSnapshot {
+  record: GameRecord;
+  givens: CellValue[];
+  board: CellValue[];
+  notes: BoardState["notes"];
+  conflicts: Set<number>;
+  canUndo: boolean;
+  canRedo: boolean;
+}
+
+export interface GameStore {
+  dispatch(command: GameCommand): void;
+  subscribe(listener: () => void): () => void;
+  getSnapshot(): GameSnapshot;
+}
+
+export interface StoreOptions {
+  /** Epoch ms; injectable for tests. */
+  now?: () => number;
+  /** Active play ms. Until the M4 timer lands this defaults to wall time since creation. */
+  elapsed?: () => number;
+}
+
+const BOARD_TYPES: ReadonlySet<string> = new Set([
+  "place",
+  "erase",
+  "note",
+  "auto-notes",
+  "reset",
+  "hint-reveal",
+]);
+
+export function newGameRecord(args: {
+  id: string;
+  puzzle: string;
+  solution: string;
+  level: Level;
+  score?: number;
+  source?: GameRecord["source"];
+  createdAt: number;
+}): GameRecord {
+  return {
+    version: RECORD_VERSION,
+    id: args.id,
+    puzzle: args.puzzle,
+    solution: args.solution,
+    level: args.level,
+    score: args.score ?? 0,
+    source: args.source ?? "bank",
+    createdAt: args.createdAt,
+    nodes: [],
+    cursor: -1,
+    log: [],
+    status: "playing",
+  };
+}
+
+export function createGameStore(initial: GameRecord, options: StoreOptions = {}): GameStore {
+  const now = options.now ?? Date.now;
+  const elapsed = options.elapsed ?? (() => Math.max(0, now() - initial.createdAt));
+  // One Replayer per game so its snapshots are reused across dispatches.
+  const replayer = createReplayer(initial.puzzle);
+  const givens = parseGrid(initial.puzzle);
+  const listeners = new Set<() => void>();
+
+  const snapshotOf = (record: GameRecord): GameSnapshot => {
+    const state = replayer.derive(record.nodes, record.cursor);
+    const tree: Tree = record;
+    return {
+      record,
+      givens,
+      board: state.board,
+      notes: state.notes,
+      conflicts: state.conflicts,
+      canUndo: record.cursor >= 0,
+      canRedo: redo(tree) !== tree,
+    };
+  };
+
+  let snapshot = snapshotOf(initial);
+
+  const commit = (record: GameRecord) => {
+    snapshot = snapshotOf(record);
+    for (const l of [...listeners]) l();
+  };
+
+  /** True when the command would not change the board, so no event is logged. */
+  const isNoop = (c: BoardCommand): boolean => {
+    switch (c.type) {
+      case "place":
+        return givens[c.cell] !== 0 || snapshot.board[c.cell] === c.digit;
+      case "erase":
+        return givens[c.cell] !== 0 || snapshot.board[c.cell] === 0;
+      case "note":
+        return snapshot.board[c.cell] !== 0;
+      default:
+        return false;
+    }
+  };
+
+  return {
+    getSnapshot: () => snapshot,
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => void listeners.delete(listener);
+    },
+    dispatch(command) {
+      const record = snapshot.record;
+      const at = now();
+      if (BOARD_TYPES.has(command.type)) {
+        const c = command as BoardCommand;
+        if (isNoop(c)) return;
+        const tree = append(record, { ...c, at, elapsed: elapsed() } as NewBoardEvent);
+        commit({ ...record, nodes: tree.nodes as BoardEvent[], cursor: tree.cursor });
+        return;
+      }
+      const meta = command as MetaCommand;
+      let tree: Tree = record;
+      if (meta.type === "undo") tree = undo(record);
+      else if (meta.type === "redo") tree = redo(record);
+      else if (meta.type === "rewind") tree = rewind(record, meta.to);
+      // Cursor moves that go nowhere are not history.
+      if (
+        (meta.type === "undo" || meta.type === "redo" || meta.type === "rewind") &&
+        tree.cursor === record.cursor
+      )
+        return;
+      commit({
+        ...record,
+        cursor: tree.cursor,
+        log: [...record.log, { ...meta, at } as MetaEvent],
+      });
+    },
+  };
+}
