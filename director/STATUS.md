@@ -1,6 +1,6 @@
 # Status
 
-_Last updated: run 20261025-0157 (cloud)._
+_Last updated: run 20261025-0306 (cloud)._
 
 ## Progress
 
@@ -8,9 +8,9 @@ _Last updated: run 20261025-0157 (cloud)._
 |---|---|
 | M0 Foundation | done at setup |
 | M1 Engine core | 8 / 8 |
-| M2 Logical solver and grader | 10 / 15 |
+| M2 Logical solver and grader | 13 / 16 |
 | M3 Generator and puzzle bank | 2 / 5 |
-| M4 Game state | 5 / 11 |
+| M4 Game state | 8 / 11 |
 | M5 Board and input | 0 / 9 |
 | M6 Layouts, theming, accessibility | 0 / 7 |
 | M7 Check, Submit, mistake analysis | 0 / 11 |
@@ -20,11 +20,11 @@ _Last updated: run 20261025-0157 (cloud)._
 
 ## Next ready tasks
 
-1. M4-02a haiku S (~$0.10): reducer test hardening
-2. M4-04a sonnet S (~$0.5): store no-op/rewind hardening
-3. M4-05 sonnet S (~$0.3); M5-01 sonnet S after M4-04
-4. M2-09 opus M, M2-12 opus M (~$8 at priors with <3 samples; will be split into S if they cannot fit)
-5. M4-06 sonnet S
+1. M4-06 sonnet S (~$0.5): persistence
+2. M5-01 sonnet S (~$0.5): board and cell components
+3. M7-03 opus S (~$1.0): replay and mistakes
+4. M2-12 opus M (~$8 at priors; one opus M sample so far, 1.09): unique rectangles
+5. Further M2 (M2-11 follow-ons, M2-13) and M3-02 as deps clear
 
 ## Blocked
 
@@ -36,9 +36,9 @@ _Last updated: run 20261025-0157 (cloud)._
 
 ## Spend (API-equivalent)
 
-- This run: about $2.3 of $10 budget. Ledger total about $15.8; 7 days about $15.8 of $40.
-- Median actual: sonnet S $0.19, opus S $0.66, haiku S $0.01.
+- This run: about $4.1 of $10 budget (Director about $0.6). Ledger total about $19.5; 7 days about $19.5 of $40.
+- Median actual: sonnet S $0.20 (12), opus S $0.69 (13), opus M $1.09 (1), haiku S $0.01 (5).
 
 ## Projection
 
-About 70 tasks remain, mostly sonnet S at ~$0.2-0.5 all-in plus opus S ~$0.8-1.0 all-in; roughly $40-50 total, i.e. about 5 runs at the $10 budget (task count cap of 6 per run is the tighter limit: ~12 runs).
+55 tasks remain: 33 sonnet S, 11 sonnet M (no samples; prior $2.0), 6 opus S, 3 opus M, 3 haiku S, plus blocked M10-09. At medians this is about $35-40 of task cost plus overhead and reviews, about $50 total, i.e. about 5-6 runs at $10. The 6-task cap per run is the tighter limit: about 9-10 runs.

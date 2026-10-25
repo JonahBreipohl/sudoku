@@ -67,3 +67,16 @@ Next up: M4-01, M2-12/M2-09 (M, to split), M3-02 after M2-13.
 - M4-04 sonnet S: actual 0.20 (+0.28 review). e2e 18 passed. Minors -> M4-04a. Subagent's first hand-back said only "pending"; verified the branch myself.
 Spend this run about $2.3 of $10. Stopped to wrap up with budget left (cautious; 5 of 6 tasks).
 Next up: M4-02a, M4-04a, M4-05, M4-06, M5-01.
+
+## run 20261025-0306 (cloud)
+
+~35 minutes. Start: local main had unrelated history to origin/main (remote force-updated); the cloud clone was stale, so I kept the old tip as local branch stale-main-20261025 and reset main to origin/main (nothing pushed from it). Trunk green at start (264 tests). Six tasks, all passed first attempt:
+- M2-09 opus M: need 8.0, actual 1.09 (+0.05 review). Chain framework and X-chains.
+- M2-10 opus S: need 1.2, actual 1.03 (+0.06 review). XY-chains. Reviewer minor -> M2-10a.
+- M2-10a sonnet S: actual ~0.2 (Director diff-checked the 26-line test-only change; no reviewer).
+- M4-02a haiku S: actual 0.01 (not reviewed).
+- M4-04a sonnet S: actual ~0.2 (+0.06 review). e2e 18 passed.
+- M4-05 sonnet S: actual ~0.25 (not reviewed). Subagent handed back only "pending"; verified branch myself (297 tests, build, e2e 18).
+Notes: subagents leave the checkout on their task branch; the Director must `git checkout main` before merging (once a merge was a no-op until corrected; nothing lost). Per-task costs for non-opus rows are approximate.
+Spend this run about $4.1 of $10. Stopped at the 6-task cap.
+Next up: M4-06, M5-01, M7-03, M2-12 (opus M, fits the budget now).

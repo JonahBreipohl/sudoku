@@ -803,7 +803,7 @@
         "Board events record elapsed; a test clock can be injected (see Testing hooks in docs/ARCHITECTURE.md)",
         "Hiding the tab stops the timer; returning resumes it"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
