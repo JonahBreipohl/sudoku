@@ -46,7 +46,7 @@ Answer: yes
 Default: Mon Easy, Tue Medium, Wed Medium, Thu Hard, Fri Hard, Sat Expert, Sun Master
 (docs/ARCHITECTURE.md). Say if you want a different rotation or a fixed level.
 
-Answer: i like that idea, go for it. see if ot is possible to ahe an auto generate or at least a way to keep playin
+Answer: i like that idea, go for it. see if ot is possible to ahe it auto generate levels or at least a way to keep playing once you finish.
 
 ## Director note (run 20261024-0915)
 
