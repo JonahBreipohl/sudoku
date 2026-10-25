@@ -1031,7 +1031,7 @@
         "Placing via digit-first records input: 'digit-first' on the event",
         "Keyboard: digits lock in digit-first mode; Escape unlocks"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -1113,8 +1113,8 @@
         "Reset asks to confirm and is undoable",
         "New game dialog lists the five levels and can be cancelled"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
