@@ -129,3 +129,13 @@ test("a single placement re-renders only the affected cells", async ({ page }) =
   // The placed cell, cells sharing the digit, and conflicts; never the whole board.
   expect((await total()) - before).toBeLessThan(15);
 });
+
+test("highlights peers and same digits with non-color cues", async ({ page }) => {
+  await page.locator(cell(0)).click();
+  await expect(page.locator(".cell--related")).toHaveCount(20);
+  await expect(page.locator(".cell--same").first()).toBeVisible();
+  const shadow = await page.locator(".cell--same").first().evaluate((e) => getComputedStyle(e).boxShadow);
+  expect(shadow).not.toBe("none");
+  const image = await page.locator(".cell--related").first().evaluate((e) => getComputedStyle(e).backgroundImage);
+  expect(image).toContain("gradient");
+});

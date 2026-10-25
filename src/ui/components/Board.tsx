@@ -1,4 +1,5 @@
-import { boxOf, colOf, rowOf, type CandidateMask, type Grid } from "../../engine";
+import { type CandidateMask, type Grid } from "../../engine";
+import { highlightsFor } from "../highlight";
 import { Cell } from "./Cell";
 
 interface BoardProps {
@@ -13,7 +14,7 @@ interface BoardProps {
 const ROWS = Array.from({ length: 9 }, (_, i) => i);
 
 export function Board({ givens, board, notes, selected, conflicts, onSelect }: BoardProps) {
-  const selValue = selected === null ? 0 : board[selected]!;
+  const highlights = highlightsFor({ board, notes, conflicts }, selected);
 
   return (
     <div className="board" role="grid" aria-label="Sudoku board">
@@ -22,7 +23,8 @@ export function Board({ givens, board, notes, selected, conflicts, onSelect }: B
           {ROWS.map((c) => {
             const cell = r * 9 + c;
             const value = board[cell]!;
-            const isSelected = cell === selected;
+            const hl = highlights[cell]!;
+            const isSelected = hl.selected;
             return (
               <div role="gridcell" key={c} aria-selected={isSelected}>
                 <Cell
@@ -31,15 +33,10 @@ export function Board({ givens, board, notes, selected, conflicts, onSelect }: B
                   given={givens[cell] !== 0}
                   notes={notes[cell] ?? 0}
                   selected={isSelected}
-                  related={
-                    selected !== null &&
-                    !isSelected &&
-                    (rowOf(cell) === rowOf(selected) ||
-                      colOf(cell) === colOf(selected) ||
-                      boxOf(cell) === boxOf(selected))
-                  }
-                  sameDigit={selValue !== 0 && value === selValue && !isSelected}
-                  conflict={conflicts.has(cell)}
+                  related={hl.related}
+                  sameDigit={hl.sameDigit}
+                  noteDigit={hl.noteDigit}
+                  conflict={hl.conflict}
                   tabbable={isSelected || (selected === null && cell === 0)}
                   onSelect={onSelect}
                 />
