@@ -142,3 +142,22 @@ describe("game store", () => {
     expect(s.getSnapshot().record.log).toHaveLength(0);
   });
 });
+
+describe("store timer", () => {
+  it("stamps board events with log-derived active time", () => {
+    let t = 1000;
+    const store = createGameStore(
+      newGameRecord({ id: "t", puzzle: SAMPLE_EASY.puzzle, solution: SAMPLE_EASY.solution, level: "easy", createdAt: 0 }),
+      { now: () => t },
+    );
+    store.dispatch({ type: "start" });
+    t = 1500;
+    store.dispatch({ type: "hidden" });
+    t = 9000;
+    store.dispatch({ type: "visible" });
+    t = 9100;
+    const cell = blank;
+    store.dispatch({ type: "place", cell, digit: Number(SAMPLE_EASY.solution[cell]), input: "keyboard" });
+    expect(store.getSnapshot().record.nodes[0]?.elapsed).toBe(600);
+  });
+});

@@ -8,9 +8,14 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
 import { moveSelection } from "./selection";
 import { GameProvider, useGame } from "./useGame";
+import { useVisibility } from "./useVisibility";
 
+// ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
 function makeStore() {
-  return createGameStore(
+  let offset = 0;
+  const testMode = new URLSearchParams(window.location.search).has("test");
+  const now = () => Date.now() + offset;
+  const store = createGameStore(
     newGameRecord({
       id: "sample",
       puzzle: SAMPLE_EASY.puzzle,
@@ -18,12 +23,21 @@ function makeStore() {
       level: "easy",
       createdAt: Date.now(),
     }),
+    testMode ? { now } : {},
   );
+  if (testMode) {
+    (window as unknown as { __sudoku: unknown }).__sudoku = {
+      advance: (ms: number) => void (offset += ms),
+      store,
+    };
+  }
+  return store;
 }
 
 export function App() {
   // Created once per mount; M4 persistence will supply a resumed record here.
   const [store] = useState(makeStore);
+  useVisibility(store);
   return (
     <GameProvider store={store}>
       <Game />
