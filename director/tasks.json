@@ -697,7 +697,7 @@
         "When the bank is exhausted, the worker generates one; tests cover both paths with a fake fetch and fake worker",
         "Fetch failures fall back to generation without throwing"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -1140,8 +1140,8 @@
         "Resume via button, P, or Enter; focus returns to the board",
         "Pause and resume are logged meta events"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2425,6 +2425,31 @@
       "acceptance": [
         "Resume after a skipped duplicate equals uninterrupted run (tested)",
         "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-06a",
+      "title": "Wire puzzle source into new-game flow",
+      "milestone": 3,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-06"
+      ],
+      "files": [
+        "src/state/puzzles.ts",
+        "src/ui/"
+      ],
+      "description": "Follow-up from M3-06: use createPuzzleSource in the new-game flow (fetch BASE_URL+'puzzles/', getEngineClient() as generator), show a pending state during top-up, and cap the played-ids set stored in localStorage.",
+      "acceptance": [
+        "New game uses the source; pending state shown while generating",
+        "Played set is bounded",
+        "check, build, e2e pass"
       ],
       "status": "todo",
       "attempts": 0,
