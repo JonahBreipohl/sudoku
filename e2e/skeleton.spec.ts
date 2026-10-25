@@ -5,6 +5,12 @@ import { expect, test } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
+/** Opens the New game dialog and starts the default level. */
+async function startNewGame(page: Page) {
+  await page.getByRole("button", { name: "New game" }).click();
+  await page.getByRole("button", { name: "Start game" }).click();
+}
+
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
@@ -228,7 +234,7 @@ test("new game swaps in a different puzzle from the bank", async ({ page }) => {
   const givens = () =>
     page.locator("[data-cell]").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")?.endsWith("given") ?? false));
   const before = await givens();
-  await page.getByRole("button", { name: "New game" }).click();
+  await startNewGame(page);
   await expect.poll(givens).not.toEqual(before);
   await expect(page.getByRole("button", { name: "New game" })).toBeEnabled();
   // Game remounts on the swap; focus must not fall back to body.
@@ -273,11 +279,10 @@ test("new game shows a pending state while the generator is slow", async ({ page
   const status = page.locator(".new-game").getByRole("status");
   await expect(page.locator(cell(1))).toHaveAttribute("aria-label", "Row 1, column 2, 3, given");
 
-  await newGame.click();
+  await startNewGame(page);
   await expect(status).toContainText("Generating");
   await expect(newGame).toBeDisabled();
   await expect(newGame).toHaveAttribute("aria-busy", "true");
-  await expect(page.getByRole("combobox", { name: "Difficulty" })).toBeDisabled();
   // Focus stays on the button (it is aria-disabled, not disabled), and the old game stays put.
   await expect(newGame).toBeFocused();
   await expect(page.locator(cell(1))).toHaveAttribute("aria-label", "Row 1, column 2, 3, given");
@@ -302,7 +307,7 @@ test("new game asks before abandoning a game in progress", async ({ page }) => {
   await page.keyboard.press("4");
 
   // Escape cancels and hands focus back; the game is untouched.
-  await newGame.click();
+  await startNewGame(page);
   await expect(dialog).toBeVisible();
   await expect(keep).toBeFocused();
   await page.keyboard.press("Escape");
@@ -311,7 +316,7 @@ test("new game asks before abandoning a game in progress", async ({ page }) => {
   await expect(page.locator(cell(2))).toHaveText("4");
 
   // So does the Keep playing button.
-  await newGame.click();
+  await startNewGame(page);
   await keep.click();
   await expect(dialog).toHaveCount(0);
   await expect(newGame).toBeFocused();
@@ -321,7 +326,7 @@ test("new game asks before abandoning a game in progress", async ({ page }) => {
   const givens = () =>
     page.locator("[data-cell]").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")?.endsWith("given") ?? false));
   const before = await givens();
-  await newGame.click();
+  await startNewGame(page);
   await page.keyboard.press("Tab");
   await expect(dialog.getByRole("button", { name: "Abandon and start new" })).toBeFocused();
   await page.keyboard.press("Enter");
@@ -335,7 +340,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await page.locator(cell(2)).click();
     await page.keyboard.press("4");
-    await page.getByRole("button", { name: "New game" }).click();
+    await startNewGame(page);
     const dialog = page.getByRole("dialog", { name: "Abandon this game?" });
     await expect(dialog).toBeVisible();
 
@@ -429,4 +434,63 @@ test("digit-first mode locks a digit, places by tapping and erases on a second t
   await expect(pad.getByRole("button", { name: /^4\b/ })).not.toHaveAttribute("aria-pressed", "true");
   await page.locator(cell(2)).click();
   await expect(page.locator(cell(2))).toHaveText("");
+});
+
+test("new game dialog lists the five levels and cancels without changing the game", async ({ page }) => {
+  const dialog = page.getByRole("dialog", { name: "Choose a difficulty" });
+  const newGame = page.getByRole("button", { name: "New game" });
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await newGame.click();
+  await expect(dialog.getByRole("radio")).toHaveCount(5);
+  await expect(dialog.getByRole("radio", { name: "Easy" })).toBeChecked();
+  await expect(dialog.getByRole("radio", { name: "Easy" })).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(dialog.getByRole("radio", { name: "Medium" })).toBeChecked();
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(newGame).toBeFocused();
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await newGame.click();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator(cell(2))).toHaveText("4");
+});
+
+test("undo and redo buttons track availability", async ({ page }) => {
+  const undo = page.getByRole("button", { name: "Undo" });
+  const redo = page.getByRole("button", { name: "Redo" });
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeDisabled();
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await expect(undo).toBeEnabled();
+  await undo.click();
+  await expect(page.locator(cell(2))).toHaveText("");
+  await expect(undo).toBeDisabled();
+  await expect(redo).toBeEnabled();
+  await redo.click();
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await expect(redo).toBeDisabled();
+});
+
+test("reset asks to confirm and can be undone", async ({ page }) => {
+  const reset = page.getByRole("button", { name: "Reset" });
+  const dialog = page.getByRole("dialog", { name: "Reset this puzzle?" });
+  await expect(reset).toBeDisabled();
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await reset.click();
+  await expect(dialog.getByRole("button", { name: "Keep playing" })).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(reset).toBeFocused();
+  await expect(page.locator(cell(2))).toHaveText("4");
+
+  await reset.click();
+  await dialog.getByRole("button", { name: "Reset", exact: true }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator(cell(2))).toHaveText("");
+  await page.getByRole("button", { name: "Undo" }).click();
+  await expect(page.locator(cell(2))).toHaveText("4");
 });

@@ -1,4 +1,12 @@
+import { useEffect, useRef, useState } from "react";
+import { ConfirmDialog } from "./ConfirmDialog";
+
 interface ControlsProps {
+  canUndo: boolean;
+  canRedo: boolean;
+  onUndo: () => void;
+  onRedo: () => void;
+  onReset: () => void;
   notesMode: boolean;
   /** True while Shift is held, which acts as notes mode without changing the toggle. */
   shiftHeld: boolean;
@@ -13,6 +21,11 @@ interface ControlsProps {
 }
 
 export function Controls({
+  canUndo,
+  canRedo,
+  onUndo,
+  onRedo,
+  onReset,
   notesMode,
   shiftHeld,
   autoCandidates,
@@ -25,9 +38,26 @@ export function Controls({
   onToggleEntry,
 }: ControlsProps) {
   const active = notesMode || shiftHeld;
+  const [confirming, setConfirming] = useState(false);
+  const resetButton = useRef<HTMLButtonElement>(null);
+  const wasConfirming = useRef(false);
+  // The modal keeps the page inert until unmounted, so focus returns only after it closes.
+  useEffect(() => {
+    if (wasConfirming.current && !confirming) resetButton.current?.focus();
+    wasConfirming.current = confirming;
+  }, [confirming]);
   if (paused) return null;
   return (
-    <div className="controls" role="group" aria-label="Notes">
+    <div className="controls" role="group" aria-label="Game controls">
+      <button type="button" className="ctl" disabled={!canUndo} onClick={onUndo} aria-keyshortcuts="Control+Z">
+        <span aria-hidden="true">↶</span> Undo
+      </button>
+      <button type="button" className="ctl" disabled={!canRedo} onClick={onRedo} aria-keyshortcuts="Control+Shift+Z">
+        <span aria-hidden="true">↷</span> Redo
+      </button>
+      <button ref={resetButton} type="button" className="ctl" disabled={!canUndo} aria-haspopup="dialog" onClick={() => setConfirming(true)}>
+        <span aria-hidden="true">⟲</span> Reset
+      </button>
       <button type="button" className="ctl" onClick={onPause} aria-keyshortcuts="P">
         <span aria-hidden="true">❚❚</span> Pause
       </button>
@@ -50,6 +80,19 @@ export function Controls({
       <button type="button" className={autoCandidates ? "ctl ctl--on" : "ctl"} aria-pressed={autoCandidates} onClick={onToggleAuto}>
         <span aria-hidden="true">{autoCandidates ? "☑" : "☐"}</span> Auto-candidates: {autoCandidates ? "On" : "Off"}
       </button>
+      {confirming && (
+        <ConfirmDialog
+          title="Reset this puzzle?"
+          message="This clears every digit and note back to the givens. You can undo the reset afterwards."
+          confirmLabel="Reset"
+          cancelLabel="Keep playing"
+          onCancel={() => setConfirming(false)}
+          onConfirm={() => {
+            setConfirming(false);
+            onReset();
+          }}
+        />
+      )}
     </div>
   );
 }

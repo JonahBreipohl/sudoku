@@ -9,7 +9,7 @@ import type { GameRecord } from "../state/events";
 import { createPlayedStore, createPuzzleSource, type PuzzleSource } from "../state/puzzles";
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
-import { newGame } from "../state/newGame";
+import { newGame, resetGame } from "../state/newGame";
 import { Board } from "./components/Board";
 import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
@@ -254,6 +254,15 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
 
+  const onUndo = useCallback(() => {
+    if (!pending) dispatch({ type: "undo" });
+  }, [dispatch, pending]);
+  const onRedo = useCallback(() => {
+    if (!pending) dispatch({ type: "redo" });
+  }, [dispatch, pending]);
+  const onReset = useCallback(() => {
+    if (!pending) resetGame({ dispatch });
+  }, [dispatch, pending]);
   const onAutoNotes = useCallback(() => {
     if (!pending) dispatch({ type: "auto-notes" });
   }, [dispatch, pending]);
@@ -291,6 +300,11 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         )}
         <div className="play-side">
           <Controls
+            canUndo={game.canUndo}
+            canRedo={game.canRedo}
+            onUndo={onUndo}
+            onRedo={onRedo}
+            onReset={onReset}
             notesMode={notesMode}
             shiftHeld={shiftHeld}
             autoCandidates={settings.autoCandidates}
