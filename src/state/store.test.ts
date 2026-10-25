@@ -92,6 +92,15 @@ describe("game store", () => {
     expect(s.getSnapshot().record.log).toMatchObject([{ type: "pause" }]);
   });
 
+  it("logs pause and resume as meta events that leave the board alone", () => {
+    const s = make();
+    const before = s.getSnapshot().board;
+    s.dispatch({ type: "pause" });
+    s.dispatch({ type: "resume" });
+    expect(s.getSnapshot().record.log.map((e) => e.type)).toEqual(["pause", "resume"]);
+    expect(s.getSnapshot().board).toEqual(before);
+  });
+
   it("notifies subscribers once per change and stops after unsubscribe", () => {
     const s = make();
     const listener = vi.fn();

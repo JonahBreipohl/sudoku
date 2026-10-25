@@ -333,3 +333,31 @@ button {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+/* Pause: same footprint as the board so the layout does not jump. */
+.pause-overlay {
+  --size: min(100cqi, 560px);
+  width: var(--size);
+  aspect-ratio: 1;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: var(--gutter);
+  border: 3px dashed var(--line-strong);
+  background: var(--surface);
+  color: var(--text);
+}
+.pause-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.pause-resume {
+  min-width: 140px;
+  font-weight: 700;
+}
+@container (min-width: 900px) {
+  .pause-overlay {
+    --size: min(calc(100cqi - 320px), 640px, calc(100vh - 120px));
+  }
+}

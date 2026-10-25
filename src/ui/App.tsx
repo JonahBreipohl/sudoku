@@ -1,10 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { Digit } from "../engine";
 import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
+import { isPaused } from "../state/timer";
 import { createGameStore, newGameRecord } from "../state/store";
 import { Board } from "./components/Board";
 import { Controls } from "./components/Controls";
+import { PauseOverlay } from "./components/PauseOverlay";
 import { Pad } from "./components/Pad";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
@@ -61,6 +63,20 @@ function Game() {
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
   const noting = notesMode || shiftHeld;
+  const paused = isPaused(game.record) && game.record.status === "playing";
+  const refocusBoard = useRef(false);
+  const pausedRef = useRef(paused);
+  useEffect(() => {
+    pausedRef.current = paused;
+  }, [paused]);
+  const onPause = useCallback(() => {
+    if (!pausedRef.current) dispatch({ type: "pause" });
+  }, [dispatch]);
+  const onResume = useCallback(() => {
+    if (!pausedRef.current) return;
+    refocusBoard.current = true;
+    dispatch({ type: "resume" });
+  }, [dispatch]);
   const act = useCallback(
     (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
       if (action.type === "move") {
@@ -90,6 +106,19 @@ function Game() {
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, textarea, select, dialog")) return;
       if (e.key === "Shift") setShiftHeld(true);
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === "p" || e.key === "P")) {
+        e.preventDefault();
+        if (pausedRef.current) onResume();
+        else onPause();
+        return;
+      }
+      if (pausedRef.current) {
+        if (e.key === "Enter") {
+          e.preventDefault();
+          onResume();
+        }
+        return;
+      }
       const action = actionForKey(e);
       if (!action) return;
       e.preventDefault();
@@ -108,7 +137,14 @@ function Game() {
       window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener("blur", onBlur);
     };
-  }, [act]);
+  }, [act, onPause, onResume]);
+
+  // Hand focus back to the board once the overlay (and the focused Resume button) is gone.
+  useEffect(() => {
+    if (paused || !refocusBoard.current) return;
+    refocusBoard.current = false;
+    document.querySelector<HTMLButtonElement>(`[data-cell="${selected ?? 0}"]`)?.focus();
+  }, [paused, selected]);
 
   // Keep keyboard focus on the selected cell so screen readers follow the selection.
   useEffect(() => {
@@ -135,14 +171,18 @@ function Game() {
         <ThemeToggle />
       </header>
       <main className="play">
-        <Board
-          givens={givens}
-          board={board}
-          notes={notes}
-          selected={selected}
-          conflicts={conflicts}
-          onSelect={setSelected}
-        />
+        {paused ? (
+          <PauseOverlay onResume={onResume} />
+        ) : (
+          <Board
+            givens={givens}
+            board={board}
+            notes={notes}
+            selected={selected}
+            conflicts={conflicts}
+            onSelect={setSelected}
+          />
+        )}
         <div className="play-side">
           <Controls
             notesMode={notesMode}
@@ -151,8 +191,10 @@ function Game() {
             onToggleNotes={() => setNotesMode((on) => !on)}
             onAutoNotes={onAutoNotes}
             onToggleAuto={onToggleAuto}
+            onPause={onPause}
+            paused={paused}
           />
-          <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} />
+          {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} />}
         </div>
       </main>
     </div>

@@ -6,6 +6,8 @@ interface ControlsProps {
   onToggleNotes: () => void;
   onAutoNotes: () => void;
   onToggleAuto: () => void;
+  onPause: () => void;
+  paused: boolean;
 }
 
 export function Controls({
@@ -15,10 +17,16 @@ export function Controls({
   onToggleNotes,
   onAutoNotes,
   onToggleAuto,
+  onPause,
+  paused,
 }: ControlsProps) {
   const active = notesMode || shiftHeld;
+  if (paused) return null;
   return (
     <div className="controls" role="group" aria-label="Notes">
+      <button type="button" className="ctl" onClick={onPause} aria-keyshortcuts="P">
+        <span aria-hidden="true">❚❚</span> Pause
+      </button>
       <button
         type="button"
         className={active ? "ctl ctl--on" : "ctl"}
