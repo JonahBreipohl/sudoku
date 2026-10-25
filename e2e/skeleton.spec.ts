@@ -58,15 +58,62 @@ test("marks conflicts without relying on color", async ({ page }) => {
   await expect(page.locator(cell(2))).toHaveAttribute("aria-label", /conflict/);
 });
 
-test("theme toggle cycles and persists", async ({ page }) => {
-  const toggle = page.getByRole("button", { name: /^Theme:/ });
-  await toggle.click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await toggle.click();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+test("settings dialog changes the theme by keyboard, persists, and System follows the OS live", async ({ page }) => {
+  const html = page.locator("html");
+  await page.getByRole("button", { name: "Settings" }).focus();
+  await page.keyboard.press("Enter");
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await expect(dialog).toBeVisible();
+  await dialog.getByRole("radio", { name: "Dark" }).focus();
+  await page.keyboard.press("Space");
+  await expect(html).toHaveAttribute("data-theme", "dark");
+  await dialog.getByRole("radio", { name: "Light" }).check();
+  await expect(html).toHaveAttribute("data-theme", "light");
   await page.reload();
-  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(html).toHaveAttribute("data-theme", "light");
+
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("radio", { name: "System" }).check();
+  await expect(html).not.toHaveAttribute("data-theme", /.+/);
+  await page.emulateMedia({ colorScheme: "dark" });
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(21, 23, 27)");
+  await page.emulateMedia({ colorScheme: "light" });
+  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(247, 245, 240)");
+
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Settings" })).toBeFocused();
 });
+
+test("settings dialog toggles reach the app", async ({ page }) => {
+  await page.getByRole("button", { name: "Settings" }).click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await dialog.getByRole("radio", { name: "Digit first" }).check();
+  await dialog.getByRole("checkbox", { name: /Show timer/ }).uncheck();
+  await page.reload();
+  await page.getByRole("button", { name: "Settings" }).click();
+  await expect(page.getByRole("radio", { name: "Digit first" })).toBeChecked();
+  await expect(page.getByRole("checkbox", { name: /Show timer/ })).not.toBeChecked();
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`settings dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.getByRole("button", { name: "Settings" }).click();
+    const dialog = page.getByRole("dialog", { name: "Settings" });
+    await expect(dialog).toBeVisible();
+    const results = await new AxeBuilder({ page }).analyze();
+    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+    const viewport = page.viewportSize()!;
+    const box = (await dialog.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
 
 test("has no horizontal scroll", async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);

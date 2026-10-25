@@ -15,7 +15,7 @@ import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
-import { ThemeToggle } from "./components/ThemeToggle";
+import { SettingsDialog } from "./components/SettingsDialog";
 import { actionForKey } from "./keyboard";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { cellCommitCounts } from "./renderProbe";
@@ -107,6 +107,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   const [notesMode, setNotesMode] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
   const [entry, entryDispatch] = useReducer(inputModeReducer, settings.entryMode, initialInputMode);
@@ -282,7 +283,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         <button type="button" className="ctl" onClick={() => setHelpOpen(true)} aria-keyshortcuts="?">
           Shortcuts
         </button>
-        <ThemeToggle />
+        <button type="button" className="ctl" onClick={() => setSettingsOpen(true)}>
+          Settings
+        </button>
       </header>
       <main className="play">
         {paused ? (
@@ -319,6 +322,15 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
         </div>
       </main>
+      {settingsOpen && (
+        <SettingsDialog
+          settings={settings}
+          onChange={update}
+          onToggleEntry={onToggleEntry}
+          onToggleAuto={onToggleAuto}
+          onClose={() => setSettingsOpen(false)}
+        />
+      )}
       {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}
     </div>
   );
