@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { LEVELS, type Level } from "../../engine/step";
+import type { Level } from "../../engine/step";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { NewGameDialog, levelLabel } from "./NewGameDialog";
 
 interface NewGameProps {
   pending: boolean;
@@ -9,32 +10,21 @@ interface NewGameProps {
   onNewGame: (level: Level) => void;
 }
 
-const label = (l: Level) => l[0]!.toUpperCase() + l.slice(1);
-
 export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
-  const [level, setLevel] = useState<Level>("easy");
-  const [confirming, setConfirming] = useState(false);
+  const [choosing, setChoosing] = useState(false);
+  const [confirm, setConfirm] = useState<Level | null>(null);
   const button = useRef<HTMLButtonElement>(null);
-  const wasConfirming = useRef(false);
+  const wasOpen = useRef(false);
+  const open = choosing || confirm !== null;
 
   // The modal dialog keeps the page inert until it is unmounted, so focus can only go back after.
   useEffect(() => {
-    if (wasConfirming.current && !confirming) button.current?.focus();
-    wasConfirming.current = confirming;
-  }, [confirming]);
+    if (wasOpen.current && !open) button.current?.focus();
+    wasOpen.current = open;
+  }, [open]);
 
   return (
     <div className="new-game" role="group" aria-label="New game">
-      <label>
-        <span className="sr-only">Difficulty</span>
-        <select className="ctl" value={level} disabled={pending} onChange={(e) => setLevel(e.target.value as Level)}>
-          {LEVELS.map((l) => (
-            <option key={l} value={l}>
-              {label(l)}
-            </option>
-          ))}
-        </select>
-      </label>
       {/* aria-disabled rather than disabled, so focus stays on the button while generating. */}
       <button
         ref={button}
@@ -43,10 +33,9 @@ export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
         className="ctl"
         aria-disabled={pending}
         aria-busy={pending}
+        aria-haspopup="dialog"
         onClick={() => {
-          if (pending) return;
-          if (inProgress) setConfirming(true);
-          else onNewGame(level);
+          if (!pending) setChoosing(true);
         }}
       >
         New game
@@ -54,15 +43,26 @@ export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
       <span role="status" className="new-game-status">
         {pending ? <><span aria-hidden="true">⏳ </span>Generating…</> : ""}
       </span>
-      {confirming && (
+      {choosing && (
+        <NewGameDialog
+          onCancel={() => setChoosing(false)}
+          onStart={(level) => {
+            setChoosing(false);
+            if (inProgress) setConfirm(level);
+            else onNewGame(level);
+          }}
+        />
+      )}
+      {confirm !== null && (
         <ConfirmDialog
           title="Abandon this game?"
-          message={`Starting a new ${label(level)} game discards your progress on this puzzle. It is kept in your history as abandoned.`}
+          message={`Starting a new ${levelLabel(confirm)} game discards your progress on this puzzle. It is kept in your history as abandoned.`}
           confirmLabel="Abandon and start new"
           cancelLabel="Keep playing"
-          onCancel={() => setConfirming(false)}
+          onCancel={() => setConfirm(null)}
           onConfirm={() => {
-            setConfirming(false);
+            const level = confirm;
+            setConfirm(null);
             onNewGame(level);
           }}
         />

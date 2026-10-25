@@ -460,3 +460,40 @@ button {
   font: inherit;
   font-weight: 700;
 }
+
+.level-list {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 var(--gutter);
+  padding: 0;
+  border: 0;
+}
+.level-option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: var(--touch);
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+/* Chosen level: heavier border and weight, plus the radio itself, not only a fill. */
+.level-option--on {
+  border: 3px solid var(--line-strong);
+  font-weight: 700;
+}
+.level-option input {
+  width: 20px;
+  height: 20px;
+  margin: 0;
+}
+.level-option:focus-within {
+  outline: 3px solid var(--focus, currentColor);
+  outline-offset: 2px;
+}
+.ctl:disabled {
+  border-style: dashed;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
