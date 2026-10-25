@@ -19,6 +19,8 @@ rendered or self-solving puzzle, and today's stats). Static site, no backend.
 | `npm run build` | Production build to dist/. |
 | `npm run e2e` | Playwright at 390x844 (touch) and 1440x900, with axe checks. Builds and serves itself. |
 | `npm run gen:bank` | Pre-generate the puzzle bank into public/puzzles/ (from M3). |
+| `npm run test:slow` | Slow generator suite (Hard 10-seed headroom assertion); run in CI as its own job. |
+| `npx tsx scripts/sweep-attempts.ts` | Sweep generator attempt counts to check headroom (M3-02a tooling). |
 | `node scripts/usage.mjs --since <ISO>` | Usage and cost from transcripts (Director tooling). |
 
 Run checks with quiet output and read failures, not passing output.
