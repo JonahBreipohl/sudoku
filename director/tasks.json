@@ -511,8 +511,31 @@
         "A reference set of at least 10 puzzles (2 per level) grades into the expected level",
         "If weights are tuned, docs/ARCHITECTURE.md's table is updated to match"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M2-13a",
+      "title": "Fix Ungraded comment in grade.ts",
+      "milestone": 2,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M2-13"
+      ],
+      "files": [
+        "src/engine/grade.ts"
+      ],
+      "description": "Reviewer minor: the Ungraded doc comment at grade.ts:23 claims null level means invalid or non-unique puzzle, but grade only guarantees Master techniques could not finish it. Reword to match behavior; comment only.",
+      "acceptance": [
+        "Comment matches behavior",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     },
     {
@@ -855,8 +878,8 @@
         "Theme still applies before first paint (no flash)",
         "Tests for defaults and migration"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
