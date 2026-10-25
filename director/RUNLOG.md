@@ -107,3 +107,13 @@ Spend about $1.6 of $10. Stopped early, cautious. Next up: M2-14, M5-02, M5-03, 
 - M2-14 opus S: need 2.4, actual 0.75 (+0.25 review). Property/perf suite; reviewer approve, minors -> M2-14a.
 - M5-02 sonnet S: need 1.2, actual 0.3 (not reviewed per Q4). Highlighting; e2e 26 passed.
 Spend about $2 of $10. Stopped early, cautious. Next up: M2-14a, M5-03, M7-03, M3-02.
+
+## run 20261025-1122 (cloud)
+
+~35 minutes. Local main again unrelated to force-updated origin/main; reset to origin/main (old tip kept as local branch stale-main-20261025-c, not pushed). Trunk green (359 tests). Four tasks passed first attempt:
+- M2-14a sonnet S: need 1.2, actual ~0.2 (diff-checked, test-only).
+- M5-03 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Pad remaining counts; e2e 28 passed.
+- M7-03 opus S: need 2.4, actual ~0.8 (+0.25 review). src/analysis created with ESLint boundary; reviewer approve, minors -> M7-03a.
+- M3-02 opus M: need 8.0, actual ~2.0 (+0.25 review). generate() into a band; Hard is slow (~0.4s median), reviewer minors -> M3-02a.
+Spend about $3.6 of $10. Costs for subagents are estimates from token counts. Stopped after four tasks to keep the run short.
+Next up: M3-03/M3-04, M5-04, M5-05, M7-04.

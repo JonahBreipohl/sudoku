@@ -613,7 +613,7 @@
         "Expert and Master reach their level for at least 3 seeds each within a documented budget",
         "Documents measured median generation time per level in a comment"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2380,6 +2380,31 @@
       "status": "todo",
       "attempts": 0,
       "notes": ""
+    },
+    {
+      "id": "M3-02a",
+      "title": "Generator test speed and Hard budget coverage",
+      "milestone": 3,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
+      "deps": [
+        "M3-02"
+      ],
+      "files": [
+        "src/engine/generate.test.ts",
+        "src/engine/generate.ts"
+      ],
+      "description": "Reviewer minors: (1) the Hard 10-seed test takes ~8.5s of the ~10.6s check run; move it to a separate slow test file or otherwise cut check time without dropping coverage. (2) Hard/Expert/Master budgets were only measured on seeds 0..39; run a wider sweep (e.g. 200 seeds, script not part of check) and raise DEFAULT_MAX_ATTEMPTS if any seed exceeds ~1/3 of its budget; record the result in the comment.",
+      "acceptance": [
+        "npm run check still covers Hard reachability",
+        "Wider seed sweep documented",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Note from M3-02: Hard is slowest to generate (median ~0.4s); bank/worker (M3-03/04) should pre-generate Hard."
     }
   ]
 }
