@@ -2451,8 +2451,8 @@
         "Played set is bounded",
         "check, build, e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
