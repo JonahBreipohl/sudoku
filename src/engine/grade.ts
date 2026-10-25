@@ -20,7 +20,10 @@ export interface Graded {
   steps: Step[];
 }
 
-/** The Master driver got stuck: the puzzle needs guessing, has no unique solution, or is invalid. */
+/**
+ * The Master driver got stuck before filling the grid. That only means no Master-tier technique
+ * finished it; the puzzle may still be valid and unique, and grade does not check either.
+ */
 export interface Ungraded {
   level: null;
   /** Steps found before the driver got stuck, for diagnostics. */
