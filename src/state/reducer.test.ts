@@ -32,7 +32,7 @@ describe("board reducer", () => {
   });
 
   it("place removes the digit from peers' notes and clears own notes", () => {
-    const [a, b] = empties as [number, number];
+    const a = empties[0]!;
     const nodes = chain([
       { type: "note", cell: a, digit: 5, on: true },
       { type: "note", cell: a, digit: 6, on: true },
@@ -42,7 +42,6 @@ describe("board reducer", () => {
     const s = replayPath(puzzle, nodes, 2);
     expect(s.board[a]).toBe(5);
     expect(s.notes[a]).toBe(0);
-    void b;
   });
 
   it("peer notes lose the placed digit", () => {
@@ -137,6 +136,36 @@ describe("replay properties", () => {
         for (let i = 0; i < givens.length; i++) if (givens[i]) expect(fresh.board[i]).toBe(givens[i]);
       }),
       { numRuns: 100 },
+    );
+  });
+
+  it("branches that diverge before a snapshot boundary replay the same as a cold replay", () => {
+    const bodiesArb = fc.array(bodyArb, { minLength: 70, maxLength: 70 });
+    fc.assert(
+      fc.property(bodiesArb, bodiesArb, bodiesArb, (main, branchA, branchB) => {
+        // Nodes are append-only, so ids equal indices. Undo to node 61 (before the snapshot at 63),
+        // then grow two branches from there; each branch crosses a snapshot boundary of its own.
+        const nodes: BoardEvent[] = [];
+        const extend = (parent: number, bodies: Body[]): number => {
+          for (const body of bodies) {
+            const id = nodes.length;
+            nodes.push({ id, parent, at: id, elapsed: id, ...body } as BoardEvent);
+            parent = id;
+          }
+          return parent;
+        };
+        const mainEnd = extend(-1, main); // ids 0..69, snapshot at 63 on this path
+        const undoPoint = 61;
+        const endA = extend(undoPoint, branchA); // ids 70..139, snapshot at 127 on this path
+        const endB = extend(undoPoint, branchB); // ids 140..209, snapshot at 191 on this path
+
+        const r = createReplayer(puzzle);
+        const cursors = [undoPoint, mainEnd, endA, endB, mainEnd, endA, endB];
+        for (const cursor of cursors) {
+          expect(r.derive(nodes, cursor)).toEqual(replayPath(puzzle, nodes, cursor));
+        }
+      }),
+      { numRuns: 30 },
     );
   });
 
