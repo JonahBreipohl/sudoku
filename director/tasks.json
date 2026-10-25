@@ -2232,8 +2232,8 @@
         "No dead `void b` code",
         "Doc comment on createReplayer"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2257,8 +2257,8 @@
         "Invalid rewind target is ignored; test added",
         "check, build and e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2281,7 +2281,7 @@
         "Timing assertions no longer depend on a single wall-clock maximum",
         "npm run check passes repeatedly"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }
