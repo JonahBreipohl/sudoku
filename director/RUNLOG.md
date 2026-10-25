@@ -176,3 +176,12 @@ Next up: M5-04, M6-04, M7-03a, M7-04, M7-06.
 - M5-07 sonnet S: need 0.6, actual ~0.25. Undo/redo/reset controls and new-game difficulty dialog; e2e 60 passed.
 Spend about $0.85 of $10; stopped because the 7-day total (~$37.7) is near the $40 weekly cap.
 Next up: M6-04, M7-03a, M7-04, M7-06, M10-03.
+
+## run 20261025-2022 (cloud)
+
+~12 minutes. Local main (be0b8b2, shallow-clone artifact) was reset to origin/main after `git fetch --unshallow`; old tip kept on local branch backup/local-main-20261025 (not pushed). Trunk green (419 -> 523 tests). Three tasks passed first attempt (none reviewed per Q4):
+- M6-04 sonnet S: need 0.3, actual 0.29. Settings dialog with theme choice and contrast test; e2e 66 passed.
+- M7-01 sonnet S: need 0.3, actual 0.28. Check button, optional wrong-cell highlight with non-color cue; e2e 68 passed. Follow-up: check result lives in App state, lost on reload.
+- M7-03a sonnet S: need 0.3, actual 0.12. Lint/comment minors.
+Spend about $1.1 of $10; stopped because the 7-day total (~$38.7) is near the $40 weekly cap.
+Next up: M5-10, M6-01, M7-04, M7-06, M10-03.
