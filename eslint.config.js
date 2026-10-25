@@ -28,6 +28,34 @@ export default tseslint.config(
     },
   },
   {
+    files: ["src/analysis/**/*.ts"],
+    rules: {
+      // Analysis is pure and runs in the worker: engine values plus state *types* only
+      // (docs/ARCHITECTURE.md, "Modules and layering").
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            { group: ["react", "react-*", "react/*", "react-dom", "react-dom/*"], message: "Analysis must not import React." },
+            { group: ["../ui", "../ui/*", "../../ui", "../../ui/*"], message: "Analysis must not import ui." },
+            { group: ["../state", "../state/*"], allowTypeImports: true, message: "Analysis imports state types only." },
+          ],
+        },
+      ],
+      "no-restricted-globals": ["error", "window", "document", "localStorage", "navigator"],
+    },
+  },
+  {
+    // Tests may cross-check analysis against the real state reducer.
+    files: ["src/analysis/**/*.test.ts"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { patterns: [{ group: ["react", "react-*", "react/*", "../ui", "../ui/*"], message: "No ui or React in analysis." }] },
+      ],
+    },
+  },
+  {
     files: ["scripts/**/*.{ts,mjs,js}", "e2e/**/*.ts", "*.config.{ts,js}"],
     languageOptions: { globals: globals.node },
   },
