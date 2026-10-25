@@ -38,20 +38,25 @@ export interface PuzzleSource {
 }
 
 const PLAYED_KEY = "sudoku.played";
+/** Bounds localStorage growth; generated ids carry a whole 81-char puzzle each. */
+export const PLAYED_CAP = 500;
 
 /** Played ids kept in localStorage; storage failures degrade to in-memory only. */
 export function createPlayedStore(storage: Pick<Storage, "getItem" | "setItem"> | null = safeStorage()): PlayedStore {
   const ids = new Set<string>();
   try {
     const raw: unknown = JSON.parse(storage?.getItem(PLAYED_KEY) ?? "[]");
-    if (Array.isArray(raw)) for (const id of raw) if (typeof id === "string") ids.add(id);
+    if (Array.isArray(raw)) for (const id of raw.slice(-PLAYED_CAP)) if (typeof id === "string") ids.add(id);
   } catch {
     /* unreadable storage: start empty */
   }
   return {
     has: (id) => ids.has(id),
     add(id) {
+      // Re-insert so a replayed id counts as recent; Set iterates oldest first.
+      ids.delete(id);
       ids.add(id);
+      while (ids.size > PLAYED_CAP) ids.delete(ids.values().next().value as string);
       try {
         storage?.setItem(PLAYED_KEY, JSON.stringify([...ids]));
       } catch {
