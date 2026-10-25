@@ -96,7 +96,14 @@ Display-mode watch puzzle.
 A puzzle's **level** is the tier of the hardest technique the driver needs. Its **score** is the
 sum of step weights along the driver's solve path; puzzles within a level are ordered by score.
 Puzzles the driver cannot finish with Master techniques are rejected (Master never requires
-guessing). The weights are a starting point; M2-13 may tune them and must update this table.
+guessing). The weights above are the ones in `TECHNIQUES` (src/engine/step.ts); keep the two in sync.
+
+`grade(puzzle)` (src/engine/grade.ts) runs `solveLogically` at Master and returns
+`{level, score, hardest, steps}`, where `hardest` is the highest-tier technique used (heaviest
+within that tier), or `{level: null, steps}` when the driver gets stuck. M2-13 kept the starting
+weights: over 6000 generated puzzles they order levels as intended (typical scores: easy 55-65,
+medium 60-70, hard 80-100, expert 100-140, master 180-300), and score only orders puzzles within
+a level, so overlap at the easy/medium boundary is harmless.
 
 ### Generator
 
