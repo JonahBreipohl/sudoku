@@ -1,15 +1,11 @@
-import { useEffect, useState } from "react";
-import { THEME_ORDER, applyTheme, loadTheme, saveTheme, type ThemePref } from "../theme";
+import { THEME_ORDER, type ThemePref } from "../theme";
+import { useSettings } from "../useSettings";
 
 const LABELS: Record<ThemePref, string> = { system: "System", light: "Light", dark: "Dark" };
 
 export function ThemeToggle() {
-  const [pref, setPref] = useState<ThemePref>(loadTheme);
-
-  useEffect(() => {
-    applyTheme(pref);
-    saveTheme(pref);
-  }, [pref]);
+  const { settings, update } = useSettings();
+  const pref = settings.theme;
 
   const next = THEME_ORDER[(THEME_ORDER.indexOf(pref) + 1) % THEME_ORDER.length]!;
   return (
@@ -17,7 +13,7 @@ export function ThemeToggle() {
       type="button"
       className="theme-toggle"
       aria-label={`Theme: ${LABELS[pref]}. Switch to ${LABELS[next]}`}
-      onClick={() => setPref(next)}
+      onClick={() => update({ theme: next })}
     >
       Theme: {LABELS[pref]}
     </button>
