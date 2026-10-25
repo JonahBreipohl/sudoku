@@ -1379,7 +1379,7 @@
         "Highlighting wrong cells only when the setting is on, with a non-color cue",
         "Logged as a check meta event"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
