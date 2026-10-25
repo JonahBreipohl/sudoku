@@ -829,7 +829,7 @@
         "Corrupt or wrong-version data is moved aside and the app starts cleanly; storage exceptions never break play",
         "Tests with an in-memory fake; e2e: enter digits, reload, board and timer resume"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -907,8 +907,8 @@
         "Cell aria-labels include notes ('empty, notes 1 4 9')",
         "Re-render count test or React profiler check for a single placement"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
