@@ -4,6 +4,8 @@ interface PadProps {
   board: Grid;
   onDigit: (digit: Digit) => void;
   onErase: () => void;
+  /** Digits enter notes rather than values; shown on the pad itself. */
+  notesMode?: boolean;
 }
 
 /** Index d holds how many of digit d are still to place (index 0 unused). */
@@ -13,11 +15,15 @@ export function remainingCounts(board: Grid): number[] {
   return placed.map((n) => Math.max(0, 9 - n));
 }
 
-export function Pad({ board, onDigit, onErase }: PadProps) {
+export function Pad({ board, onDigit, onErase, notesMode = false }: PadProps) {
   const counts = remainingCounts(board);
 
   return (
-    <div className="pad" role="group" aria-label="Number pad">
+    <div
+      className={notesMode ? "pad pad--notes" : "pad"}
+      role="group"
+      aria-label={notesMode ? "Number pad, notes mode" : "Number pad"}
+    >
       {DIGITS.map((d) => {
         const remaining = counts[d]!;
         return (

@@ -282,6 +282,39 @@ button {
   text-decoration: line-through;
 }
 
+.play-side {
+  display: grid;
+  gap: 8px;
+  justify-items: center;
+}
+
+.controls {
+  width: min(100cqi, 560px);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.ctl {
+  min-height: var(--touch);
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+/* On state: heavier border and weight, plus the text and icon in the label. */
+.ctl--on {
+  border: 3px solid var(--line-strong);
+  font-weight: 700;
+}
+
+.pad--notes .pad-key {
+  border-style: dashed;
+}
+
 /* Wide containers: pad beside the grid. */
 @container (min-width: 900px) {
   .play {
@@ -291,6 +324,9 @@ button {
   }
   .board {
     --size: min(calc(100cqi - 320px), 640px, calc(100vh - 120px));
+  }
+  .controls {
+    width: 280px;
   }
   .pad {
     width: 280px;
