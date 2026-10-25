@@ -110,8 +110,12 @@ a level, so overlap at the easy/medium boundary is harmless.
 1. Random full grid: fast solver with PRNG candidate order on an empty grid.
 2. Clue removal: visit cell pairs in PRNG order under 180-degree rotational symmetry; remove a
    pair if the puzzle stays unique (countSolutions = 1).
-3. Grade; accept if the level matches the requested band, otherwise retry with a new seed,
-   bounded by an attempt limit. Return `{puzzle, solution, level, score, seed}`.
+3. Grade; accept if the level matches the requested band. Otherwise steer the puzzle by local
+   search (asymmetric clue removals and swaps, kept while unique and no further from the target;
+   see `generate` in src/engine/generate.ts), then retry from the next PRNG draw, bounded by a
+   per-level attempt limit. Return `{puzzle, solution, level, score, seed, attempts}`.
+   Hard is the slow level (median ~0.4 s): hard-tier subsets almost only appear alongside Expert
+   steps, so Hard puzzles come from steering, not from plain removal.
 
 Generation is slow for Expert and Master, so `scripts/generate-bank.ts` pre-generates a bank;
 the runtime generator (in the worker) only tops up when the bank for a level is exhausted.
