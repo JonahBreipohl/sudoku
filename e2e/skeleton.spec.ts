@@ -197,3 +197,27 @@ test("fill notes is an assist and undo removes it", async ({ page }) => {
   await page.evaluate(() => (window as unknown as { __sudoku: { store: { dispatch(c: unknown): void } } }).__sudoku.store.dispatch({ type: "undo" }));
   await expect(page.locator(cell(2))).toHaveText("");
 });
+
+test("pause hides the board, resume restores it and focus", async ({ page }) => {
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await page.getByRole("button", { name: /Pause/ }).click();
+  await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
+  await expect(page.locator("[data-cell]")).toHaveCount(0);
+  await expect(page.getByRole("grid")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Resume" })).toBeFocused();
+  // Digits are ignored while paused.
+  await page.keyboard.press("5");
+  await page.getByRole("button", { name: "Resume" }).click();
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await expect(page.locator(cell(2))).toBeFocused();
+
+  await page.keyboard.press("p");
+  await expect(page.locator("[data-cell]")).toHaveCount(0);
+  await page.keyboard.press("p");
+  await expect(page.locator(cell(2))).toBeFocused();
+  await page.keyboard.press("p");
+  await page.keyboard.press("Enter");
+  await expect(page.locator(cell(2))).toBeFocused();
+
+});
