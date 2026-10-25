@@ -141,3 +141,4 @@ Next up: M3-06a, M5-04, M6-04, M7-04, M7-06.
 - M3-06a sonnet S: need 1.2, actual ~0.3 (estimate, not reviewed per Q4). New-game UI wired to puzzle source; check, build, e2e 36 passed. Follow-up -> M3-06b.
 Spend about $0.5 of $10. Stopped early, cautious.
 Next up: M3-02a, M3-04a, M4-08, M5-04, M5-06.
+diverged 20261025: container's local main (be0b8b2, 24 commits) shares no history with origin/main (2be7be4, 72 commits); cannot fast-forward, stopped without changes. Needs a fresh clone of origin/main.
