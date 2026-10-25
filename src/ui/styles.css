@@ -7,6 +7,8 @@
   --line: #c9c4b8;
   --line-strong: #2f3238;
   --given: #1d1f24;
+  --given-bg: #eceae3;
+  --note: #4a4f5a;
   --entry: #1f5fbf;
   --related: #ece7dc;
   --same: #d6e4fa;
@@ -34,6 +36,8 @@
     --line: #3b3f47;
     --line-strong: #c7c9cf;
     --given: #f1efea;
+    --given-bg: #292d34;
+    --note: #b4b9c3;
     --entry: #8cb6ff;
     --related: #262a31;
     --same: #2b3a55;
@@ -55,6 +59,8 @@
   --line: #3b3f47;
   --line-strong: #c7c9cf;
   --given: #f1efea;
+  --given-bg: #292d34;
+  --note: #b4b9c3;
   --entry: #8cb6ff;
   --related: #262a31;
   --same: #2b3a55;
@@ -184,7 +190,28 @@ button {
 
 .cell--given {
   color: var(--given);
+  background: var(--given-bg);
   font-weight: 700;
+}
+/* Entered digits are lighter weight and italic, so they differ from givens without color. */
+.cell--entry {
+  font-weight: 400;
+  font-style: italic;
+}
+.notes {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template: repeat(3, 1fr) / repeat(3, 1fr);
+  padding: 8%;
+  color: var(--note);
+  font-size: calc(var(--size) / 9 * 0.24);
+  font-weight: 500;
+  font-style: normal;
+}
+.note {
+  display: grid;
+  place-items: center;
 }
 .cell--related {
   background: var(--related);

@@ -7,6 +7,7 @@ import { Board } from "./components/Board";
 import { Pad } from "./components/Pad";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
+import { cellCommitCounts } from "./renderProbe";
 import { moveSelection } from "./selection";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
@@ -32,6 +33,7 @@ function makeStore() {
     (window as unknown as { __sudoku: unknown }).__sudoku = {
       advance: (ms: number) => void (offset += ms),
       store,
+      cellCommits: () => [...cellCommitCounts()],
     };
   }
   return store;
@@ -52,7 +54,7 @@ function Game() {
   const { game, dispatch } = useGame();
   // Selection is UI state; board state lives in the store.
   const [selected, setSelected] = useState<number | null>(null);
-  const { givens, board, conflicts } = game;
+  const { givens, board, notes, conflicts } = game;
   const act = useCallback(
     (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
       if (action.type === "move") {
@@ -87,7 +89,6 @@ function Game() {
     if (el && document.activeElement?.closest(".board")) el.focus();
   }, [selected]);
 
-  const onSelect = setSelected;
   const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
 
@@ -101,9 +102,10 @@ function Game() {
         <Board
           givens={givens}
           board={board}
+          notes={notes}
           selected={selected}
           conflicts={conflicts}
-          onSelect={onSelect}
+          onSelect={setSelected}
         />
         <Pad board={board} onDigit={onDigit} onErase={onErase} />
       </main>
