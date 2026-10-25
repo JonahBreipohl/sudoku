@@ -139,3 +139,32 @@ test("highlights peers and same digits with non-color cues", async ({ page }) =>
   const image = await page.locator(".cell--related").first().evaluate((e) => getComputedStyle(e).backgroundImage);
   expect(image).toContain("gradient");
 });
+
+test("pad shows remaining counts and marks finished digits", async ({ page }) => {
+  await page.goto("/?test=1");
+  const pad = page.getByRole("group", { name: "Number pad" });
+  const key = pad.locator(".pad-key").filter({ hasText: /^1/ });
+  const before = Number(await key.locator(".pad-count [aria-hidden]").textContent());
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  const four = pad.locator(".pad-key").filter({ hasText: /^4/ });
+  const n4 = Number(await four.locator(".pad-count [aria-hidden]").textContent());
+  await page.keyboard.press("Backspace");
+  await expect(four.locator(".pad-count [aria-hidden]")).toHaveText(String(n4 + 1));
+  expect(before).toBeGreaterThan(0);
+  // Finish digit 4 through the store, then check dimming, strike-through and the label.
+  await page.evaluate(() => {
+    const s = (window as unknown as { __sudoku: { store: { getSnapshot(): { board: number[] }; dispatch(c: unknown): void } } }).__sudoku.store;
+    for (const [i, v] of s.getSnapshot().board.entries()) {
+      if (v === 0) s.dispatch({ type: "place", cell: i, digit: 4, input: "pad" });
+    }
+  });
+  await expect(four).toHaveClass(/pad-key--done/);
+  await expect(four).toHaveAccessibleName(/^4\s*,\s*complete$/);
+  expect(await four.evaluate((e) => getComputedStyle(e.querySelector(".pad-digit")!).textDecorationLine)).toContain("line-through");
+  await four.focus();
+  await expect(four).toBeFocused();
+  const box = await four.boundingBox();
+  expect(box!.width).toBeGreaterThanOrEqual(44);
+  expect(box!.height).toBeGreaterThanOrEqual(44);
+});
