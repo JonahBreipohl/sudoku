@@ -38,6 +38,7 @@ export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
       {/* aria-disabled rather than disabled, so focus stays on the button while generating. */}
       <button
         ref={button}
+        data-new-game
         type="button"
         className="ctl"
         aria-disabled={pending}

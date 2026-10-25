@@ -57,6 +57,13 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
   const [store, setStore] = useState(() => makeStore());
   const [pending, setPending] = useState(false);
   const puzzleSource = useRef<PuzzleSource | null>(source ?? null);
+  const refocusNewGame = useRef(false);
+  // The swap remounts Game, which drops focus to body; hand it back to the control the player used.
+  useEffect(() => {
+    if (!refocusNewGame.current) return;
+    refocusNewGame.current = false;
+    document.querySelector<HTMLButtonElement>("[data-new-game]")?.focus();
+  }, [store]);
   const onNewGame = useCallback(
     (level: Level) => {
       puzzleSource.current ??= createPuzzleSource({
@@ -69,6 +76,7 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
       puzzleSource.current
         .nextPuzzle(level)
         .then((p) => {
+          refocusNewGame.current = true;
           setStore(
             makeStore(
               newGameRecord({
@@ -123,6 +131,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   }, [dispatch]);
   const act = useCallback(
     (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
+      // Input is ignored while a new puzzle generates: the swap would discard it.
+      if (pending && action.type !== "move") return;
       if (action.type === "move") {
         setSelected((cell) => moveSelection(cell ?? 0, action.direction));
         return;
@@ -142,7 +152,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         dispatch({ type: "place", cell: selected, digit: action.digit, input });
       else dispatch({ type: "erase", cell: selected });
     },
-    [selected, dispatch, noting, board, notes],
+    [selected, dispatch, noting, board, notes, pending],
   );
 
   useEffect(() => {
@@ -200,13 +210,16 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
 
-  const onAutoNotes = useCallback(() => dispatch({ type: "auto-notes" }), [dispatch]);
+  const onAutoNotes = useCallback(() => {
+    if (!pending) dispatch({ type: "auto-notes" });
+  }, [dispatch, pending]);
   const onToggleAuto = useCallback(() => {
+    if (pending) return;
     const autoCandidates = !settings.autoCandidates;
     update({ autoCandidates });
     dispatch({ type: "settings-assist", autoCandidates });
     if (autoCandidates) dispatch({ type: "auto-notes" });
-  }, [settings.autoCandidates, update, dispatch]);
+  }, [settings.autoCandidates, update, dispatch, pending]);
 
   return (
     <div className="app">

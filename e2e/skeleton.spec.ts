@@ -231,6 +231,8 @@ test("new game swaps in a different puzzle from the bank", async ({ page }) => {
   await page.getByRole("button", { name: "New game" }).click();
   await expect.poll(givens).not.toEqual(before);
   await expect(page.getByRole("button", { name: "New game" })).toBeEnabled();
+  // Game remounts on the swap; focus must not fall back to body.
+  await expect(page.getByRole("button", { name: "New game" })).toBeFocused();
 });
 
 /**
@@ -287,6 +289,7 @@ test("new game shows a pending state while the generator is slow", async ({ page
   slow.release();
   await expect(page.locator(cell(1))).toHaveAttribute("aria-label", "Row 1, column 2, 7, given");
   await expect(page.getByRole("button", { name: "New game" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "New game" })).toBeFocused();
   await expect(page.locator(".new-game").getByRole("status")).toHaveText("");
   expect(slow.requests()).toBe(1);
 });
