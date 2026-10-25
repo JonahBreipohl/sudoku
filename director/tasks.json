@@ -2281,8 +2281,8 @@
         "Timing assertions no longer depend on a single wall-clock maximum",
         "npm run check passes repeatedly"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
