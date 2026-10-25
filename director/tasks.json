@@ -698,8 +698,8 @@
         "Types match the architecture doc; isGameRecord(json) validates shape and version",
         "Tests for valid and invalid records"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
