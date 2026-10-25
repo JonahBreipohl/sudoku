@@ -11,6 +11,7 @@ import {
   type GameRecord,
   type MetaEvent,
 } from "./events";
+import type { PersistenceAdapter } from "./persistence";
 import { activeMs } from "./timer";
 import { createReplayer, type BoardState } from "./reducer";
 import { append, redo, rewind, undo, type NewBoardEvent, type Tree } from "./tree";
@@ -44,6 +45,8 @@ export interface StoreOptions {
   now?: () => number;
   /** Active play ms; defaults to the log-derived timer at `now`. */
   elapsed?: () => number;
+  /** When given, the record is saved after every change. */
+  persistence?: PersistenceAdapter;
 }
 
 const BOARD_TYPES: ReadonlySet<string> = new Set([
@@ -108,6 +111,13 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
   const commit = (record: GameRecord) => {
     current = record;
     snapshot = snapshotOf(record);
+    const p = options.persistence;
+    if (p) {
+      if (record.status === "submitted") {
+        p.archive(record);
+        p.clearCurrent();
+      } else p.saveCurrent(record);
+    }
     for (const l of [...listeners]) l();
   };
 

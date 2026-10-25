@@ -73,3 +73,31 @@ for (const theme of ["light", "dark"] as const) {
     expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
   });
 }
+
+test("resumes board and timer after reload", async ({ page }) => {
+  await page.goto("/?test=1");
+  await expect(page.locator("[data-cell]")).toHaveCount(81);
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await expect(page.locator(cell(2))).toHaveText("4");
+  await page.evaluate(() => {
+    const w = window as unknown as { __sudoku: { advance(ms: number): void } };
+    w.__sudoku.advance(60_000);
+  });
+  await page.keyboard.press("Backspace");
+  await page.keyboard.press("4");
+  await page.reload();
+  await expect(page.locator(cell(2))).toHaveText("4");
+  const log = await page.evaluate(() => {
+    const w = window as unknown as {
+      __sudoku: { store: { getSnapshot(): { record: { log: { type: string }[]; nodes: unknown[] } } } };
+    };
+    const r = w.__sudoku.store.getSnapshot().record;
+    return { types: r.log.map((e) => e.type), nodes: r.nodes.length };
+  });
+  expect(log.nodes).toBe(3);
+  // One start, and the reload closed the clock (hidden) then reopened it (visible).
+  expect(log.types.filter((t) => t === "start")).toHaveLength(1);
+  expect(log.types).toContain("hidden");
+  expect(log.types.at(-1)).toBe("visible");
+});
