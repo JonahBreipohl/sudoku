@@ -534,8 +534,8 @@
         "Comment matches behavior",
         "npm run check passes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
