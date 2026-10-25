@@ -369,5 +369,6 @@ describe("properties", () => {
     // Guards against a vacuous pass.
     expect(runs).toBeGreaterThan(20);
     expect(fired.size).toBeGreaterThan(0);
-  });
+    // ~3s alone, which is too close to the 5s default when files run in parallel.
+  }, 30_000);
 });
