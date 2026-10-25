@@ -17,7 +17,7 @@
   --conflict-bg: #f8dcd9;
   --focus: #1f5fbf;
   --pad-bg: #ffffff;
-  --pad-done: #9aa0aa;
+  --pad-done: #767c87;
   --scrim: rgb(29 31 36 / 0.55);
 
   --gutter: 16px;
@@ -38,7 +38,7 @@
     --line-strong: #c7c9cf;
     --given: #f1efea;
     --given-bg: #292d34;
-    --note: #b4b9c3;
+    --note: #d0d4dc;
     --entry: #8cb6ff;
     --related: #262a31;
     --same: #2b3a55;
@@ -62,7 +62,7 @@
   --line-strong: #c7c9cf;
   --given: #f1efea;
   --given-bg: #292d34;
-  --note: #b4b9c3;
+  --note: #d0d4dc;
   --entry: #8cb6ff;
   --related: #262a31;
   --same: #2b3a55;
@@ -126,15 +126,6 @@ button {
 .app-header h1 {
   font-size: 1.4rem;
   margin: 12px 0;
-}
-
-.theme-toggle {
-  min-height: var(--touch);
-  padding: 0 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  cursor: pointer;
 }
 
 .play {
@@ -496,4 +487,60 @@ button {
   border-style: dashed;
   color: var(--text-muted);
   cursor: not-allowed;
+}
+
+.settings-group {
+  margin: 0 0 12px;
+  padding: 0;
+  border: 0;
+}
+.settings-group legend {
+  padding: 0;
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+.settings-radios {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.settings-radio,
+.settings-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: var(--touch);
+  cursor: pointer;
+}
+.settings-radio {
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.settings-radio:has(input:checked) {
+  border: 3px solid var(--line-strong);
+  font-weight: 700;
+}
+.settings-radio input,
+.settings-row input[type="checkbox"] {
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  flex: none;
+  accent-color: var(--entry);
+}
+.settings-hint {
+  display: block;
+  color: var(--text-muted);
+}
+.settings-number {
+  width: 4.5rem;
+  min-height: var(--touch);
+  flex: none;
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
 }
