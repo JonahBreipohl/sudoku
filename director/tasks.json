@@ -534,7 +534,7 @@
         "Comment matches behavior",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -900,8 +900,8 @@
       "acceptance": [
         "ARCHITECTURE.md describes settings store, hook and key shape"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
