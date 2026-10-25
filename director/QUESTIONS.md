@@ -30,7 +30,7 @@ a Pro plan's weekly window allows; the plan-usage ceilings stop the Director at 
 window either way, if the status-line signal is enabled (director/README.md). Change
 `weekly_budget_usd` if you want it lower.
 
-Answer: please clarify what input is needed from me, dont understand question
+Answer: i set it to 10 and 40
 
 ## Q4: Review volume (non-blocking)
 
