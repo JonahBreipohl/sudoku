@@ -541,3 +541,42 @@ test("reset asks to confirm and can be undone", async ({ page }) => {
   await page.getByRole("button", { name: "Undo" }).click();
   await expect(page.locator(cell(2))).toHaveText("4");
 });
+
+test("Check reports on track or a count without digits, and marks wrong cells with a cue", async ({ page }) => {
+  const status = page.getByRole("status").filter({ hasText: /track|error/ });
+  const check = page.getByRole("button", { name: "Check", exact: true });
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4"); // correct
+  await check.click();
+  await expect(page.getByRole("status").filter({ hasText: "On track" })).toBeVisible();
+  await page.locator(cell(3)).click();
+  await page.keyboard.press("9"); // wrong
+  await expect(page.getByText("On track")).toHaveCount(0);
+  await check.click();
+  await expect(status).toHaveText("1 error");
+  await expect(page.locator(cell(3))).toHaveClass(/cell--wrong/);
+  await expect(page.locator(cell(3))).toHaveAttribute("aria-label", /wrong/);
+  await expect(page.locator(cell(2))).not.toHaveClass(/cell--wrong/);
+  expect(await page.locator(".controls").innerText()).not.toContain("6");
+
+  for (const theme of ["light", "dark"] as const) {
+    await page.emulateMedia({ colorScheme: theme });
+    const results = await new AxeBuilder({ page }).analyze();
+    expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
+  }
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+  expect(overflow).toBe(false);
+
+  // Editing makes the result stale.
+  await page.keyboard.press("6");
+  await expect(page.locator(cell(3))).not.toHaveClass(/cell--wrong/);
+
+  // With the setting off, the count shows but no cell is marked.
+  await page.keyboard.press("9");
+  await page.getByRole("button", { name: "Settings" }).click();
+  await page.getByRole("checkbox", { name: /Highlight wrong cells/ }).uncheck();
+  await page.getByRole("button", { name: "Close" }).click();
+  await check.click();
+  await expect(status).toHaveText("1 error");
+  await expect(page.locator(".cell--wrong")).toHaveCount(0);
+});

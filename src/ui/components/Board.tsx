@@ -8,6 +8,8 @@ interface BoardProps {
   notes: readonly CandidateMask[];
   selected: number | null;
   conflicts: ReadonlySet<number>;
+  /** Cells to mark wrong after a Check; empty when highlighting is off. */
+  wrong?: ReadonlySet<number>;
   onSelect: (cell: number) => void;
   /** Digit locked in digit-first entry; highlighted wherever it appears. */
   lockedDigit?: number | null;
@@ -15,7 +17,7 @@ interface BoardProps {
 
 const ROWS = Array.from({ length: 9 }, (_, i) => i);
 
-export function Board({ givens, board, notes, selected, conflicts, onSelect, lockedDigit = null }: BoardProps) {
+export function Board({ givens, board, notes, selected, conflicts, wrong, onSelect, lockedDigit = null }: BoardProps) {
   const highlights = highlightsFor({ board, notes, conflicts }, selected, lockedDigit);
 
   return (
@@ -39,6 +41,7 @@ export function Board({ givens, board, notes, selected, conflicts, onSelect, loc
                   sameDigit={hl.sameDigit}
                   noteDigit={hl.noteDigit}
                   conflict={hl.conflict}
+                  wrong={wrong?.has(cell) ?? false}
                   tabbable={isSelected || (selected === null && cell === 0)}
                   onSelect={onSelect}
                 />

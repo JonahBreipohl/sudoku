@@ -238,6 +238,31 @@ button {
   text-underline-offset: 4px;
 }
 
+/* Wrong after Check: thick inset frame plus a corner cross, so it reads without color. */
+.cell--wrong {
+  color: var(--conflict);
+  box-shadow: inset 0 0 0 3px var(--conflict);
+  position: relative;
+}
+.cell--wrong::after {
+  content: "\2715";
+  position: absolute;
+  top: 1px;
+  right: 3px;
+  font-size: 0.55em;
+  font-weight: 800;
+  line-height: 1;
+}
+.check-status {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding-inline: 0.75rem;
+  font-weight: 700;
+}
+.check-status--bad::before { content: "\2715\00a0"; }
+.check-status--ok::before { content: "\2713\00a0"; }
+
 /* Number pad */
 .pad {
   width: min(100cqi, 560px);
