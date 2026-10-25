@@ -213,8 +213,18 @@ button {
   display: grid;
   place-items: center;
 }
+/* Highlight cues, each distinct without color:
+   selected = thick inset ring; same digit = thin inset ring; related (row/col/box) = diagonal hatch;
+   matching note = bold underlined digit; conflict = wavy underline on the digit. */
 .cell--related {
-  background: var(--related);
+  background-color: var(--related);
+  background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 7px);
+}
+.note--match {
+  font-weight: 800;
+  color: var(--entry);
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 /* Same digit: fill plus an inset ring, so it reads without color. */
 .cell--same {

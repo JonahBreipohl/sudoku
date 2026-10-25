@@ -10,6 +10,7 @@ export interface CellProps {
   selected: boolean;
   related: boolean;
   sameDigit: boolean;
+  noteDigit: number;
   conflict: boolean;
   tabbable: boolean;
   onSelect: (cell: number) => void;
@@ -55,7 +56,7 @@ export const Cell = memo(function Cell(p: CellProps) {
       ) : p.notes !== 0 ? (
         <span className="notes" aria-hidden="true">
           {NOTE_SLOTS.map((d) => (
-            <span key={d} className="note">
+            <span key={d} className={p.noteDigit === d ? "note note--match" : "note"}>
               {p.notes & (1 << (d - 1)) ? d : ""}
             </span>
           ))}
