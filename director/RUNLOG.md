@@ -81,3 +81,4 @@ Notes: subagents leave the checkout on their task branch; the Director must `git
 Spend this run about $4.1 of $10. Stopped at the 6-task cap.
 Next up: M4-06, M5-01, M7-03, M2-12 (opus M, fits the budget now).
 diverged 20261025: container's local main (tip be0b8b2, 24 commits ahead) shares no history with origin/main (4cc5bda, force-updated); cannot fast-forward, stopped without dispatching. Local commits preserved in branch backup-local-main-20261025 (container-only, not pushed).
+diverged 20261025-run2: this container's local main (be0b8b2) shares no history with origin/main (2e4459e); cannot fast-forward, stopped without dispatching. Local commits kept in a container-only backup branch.
