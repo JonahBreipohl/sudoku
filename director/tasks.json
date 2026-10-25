@@ -403,8 +403,8 @@
         "Tests for an X-chain of length 6 or more where shorter techniques fail",
         "Property test: never eliminates a solution digit; finder runs under 50 ms on test states"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
