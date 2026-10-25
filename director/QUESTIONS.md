@@ -54,3 +54,9 @@ Answer: i like that idea, go for it. see if it is possible to make it auto gener
 - Q2: you asked for a $10 run budget. The Director may not edit config.json, so please set `run_budget_usd` to 10 yourself. Until then M-size opus tasks are split into S tasks when reached.
 - Q3 (clarified): no input needed beyond optionally lowering `weekly_budget_usd` ($40 now) if your plan's weekly window is smaller. Spend so far is about $14 API-equivalent.
 - Q5: the daily-level rotation is accepted. Your note was cut off after "a way to keep playin..."; please re-send the end of that sentence (auto-generate / keep playing after the daily puzzle?).
+
+## Q6: Hint key (non-blocking)
+
+M5-06: the spec lists h as move-left (vim) and H as hint. Implemented plain h = move left, Shift+H = hint (documented in the shortcuts dialog; hint is a no-op until M7). Say if you want a different hint key.
+
+Answer:

@@ -152,3 +152,12 @@ diverged 20261025: container's local main (be0b8b2, 24 commits) shares no histor
 Spend about $3.3 of $10; stopped because the 7-day total is near the $40 weekly cap.
 Added scripts/retry-unshallow.sh and scripts/sync-trunk.sh with a SessionStart hook in .claude/settings.json (owner request): on failure in a shallow repo, unshallow and retry once.
 Next up: M3-02b, M3-06c, M4-08, M5-06, M5-04.
+
+## run 20261025-1723 (cloud)
+
+~12 minutes. Local main was behind because of the shallow clone; unshallow + ff worked. Trunk green (414 tests). Three tasks passed first attempt (none reviewed per Q4: not opus/engine/state):
+- M3-02b sonnet S: need 0.6, actual 0.13. test:slow documented and added as a CI job.
+- M3-06c sonnet S: need 0.6, actual 0.09. Focus restored after swap; input ignored while pending; e2e 44 passed. (Its first hand-back said only "placeholder"; verified directly.)
+- M5-06 sonnet S: need 0.6, actual ~0.2. Table-driven keymap and shortcuts dialog; check 420 tests, build, e2e 52 passed. Q6 asked about the hint key.
+Spend about $0.8 of $10; stopped to keep the 7-day total under $40.
+Next up: M4-08, M5-04, M6-04, M7-03a, M7-06.

@@ -1086,9 +1086,9 @@
         "Keys are ignored while a dialog or text input has focus (except Escape)",
         "The shortcuts dialog is a native dialog with focus trap and Escape to close"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Shift+H = hint (plain h = move left); hint is a no-op until M7. See Q6."
     },
     {
       "id": "M5-07",
