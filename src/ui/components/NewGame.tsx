@@ -57,7 +57,7 @@ export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
       {confirming && (
         <ConfirmDialog
           title="Abandon this game?"
-          message={`Starting a new ${label(level)} game discards your progress on this puzzle. It is not saved or counted in your stats.`}
+          message={`Starting a new ${label(level)} game discards your progress on this puzzle. It is kept in your history as abandoned.`}
           confirmLabel="Abandon and start new"
           cancelLabel="Keep playing"
           onCancel={() => setConfirming(false)}
