@@ -18,6 +18,7 @@
   --focus: #1f5fbf;
   --pad-bg: #ffffff;
   --pad-done: #9aa0aa;
+  --scrim: rgb(29 31 36 / 0.55);
 
   --gutter: 16px;
   --radius: 8px;
@@ -47,6 +48,7 @@
     --focus: #8cb6ff;
     --pad-bg: #23262c;
     --pad-done: #6b707a;
+    --scrim: rgb(0 0 0 / 0.65);
     color-scheme: dark;
   }
 }
@@ -70,6 +72,7 @@
   --focus: #8cb6ff;
   --pad-bg: #23262c;
   --pad-done: #6b707a;
+  --scrim: rgb(0 0 0 / 0.65);
   color-scheme: dark;
 }
 
@@ -371,4 +374,42 @@ button {
 
 .new-game-status {
   min-width: 8ch;
+}
+
+/* Busy, not broken: dashed border and the "Generating" text carry it, not the muted color. */
+.ctl[aria-disabled="true"] {
+  border-style: dashed;
+  color: var(--text-muted);
+  cursor: progress;
+}
+
+.dialog {
+  width: 26rem;
+  max-width: calc(100% - 2 * var(--gutter));
+  padding: var(--gutter);
+  border: 3px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+}
+.dialog::backdrop {
+  background: var(--scrim);
+}
+.dialog-title {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+.dialog-message {
+  margin: 0 0 var(--gutter);
+}
+.dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+/* The destructive choice is named in its label; weight and a heavier border back it up. */
+.dialog-confirm {
+  border: 2px solid var(--line-strong);
+  font-weight: 700;
 }
