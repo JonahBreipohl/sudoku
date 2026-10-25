@@ -698,7 +698,7 @@
         "Types match the architecture doc; isGameRecord(json) validates shape and version",
         "Tests for valid and invalid records"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2184,6 +2184,31 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M4-01a",
+      "title": "Tighten event validators",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M4-01"
+      ],
+      "files": [
+        "src/state/events.ts",
+        "src/state/events.test.ts"
+      ],
+      "description": "Reviewer minors on M4-01: (1) solution grid must be digits 1-9 only (no 0 or '.'); (2) isGameRecord should reject a rewind meta event whose `to` is >= nodes.length; (3) docs/ARCHITECTURE.md line ~171 lists check as '(result)' but the code uses `mistakes: number`: update the doc to say check (mistakes) and document the other chosen field types (hint step is a technique id string, hint tier nudge|technique|reveal, submit result solved|incorrect, rewind to node id, settings-assist autoCandidates).",
+      "acceptance": [
+        "Solution with 0 or '.' is rejected; tests added",
+        "Rewind past the last node is rejected in isGameRecord; test added",
+        "Architecture doc matches the code"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
