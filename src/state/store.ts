@@ -11,6 +11,7 @@ import {
   type GameRecord,
   type MetaEvent,
 } from "./events";
+import { activeMs } from "./timer";
 import { createReplayer, type BoardState } from "./reducer";
 import { append, redo, rewind, undo, type NewBoardEvent, type Tree } from "./tree";
 
@@ -41,7 +42,7 @@ export interface GameStore {
 export interface StoreOptions {
   /** Epoch ms; injectable for tests. */
   now?: () => number;
-  /** Active play ms. Until the M4 timer lands this defaults to wall time since creation. */
+  /** Active play ms; defaults to the log-derived timer at `now`. */
   elapsed?: () => number;
 }
 
@@ -81,7 +82,8 @@ export function newGameRecord(args: {
 
 export function createGameStore(initial: GameRecord, options: StoreOptions = {}): GameStore {
   const now = options.now ?? Date.now;
-  const elapsed = options.elapsed ?? (() => Math.max(0, now() - initial.createdAt));
+  let current = initial;
+  const elapsed = options.elapsed ?? (() => activeMs(current, now()));
   // One Replayer per game so its snapshots are reused across dispatches.
   const replayer = createReplayer(initial.puzzle);
   const givens = parseGrid(initial.puzzle);
@@ -104,6 +106,7 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
   let snapshot = snapshotOf(initial);
 
   const commit = (record: GameRecord) => {
+    current = record;
     snapshot = snapshotOf(record);
     for (const l of [...listeners]) l();
   };
