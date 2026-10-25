@@ -2501,9 +2501,9 @@
         "CI runs test:slow",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Followup: slow CI job runs in parallel, not gated by needs (acceptable)."
     },
     {
       "id": "M3-06c",
@@ -2527,8 +2527,8 @@
         "Moves made during pending are not silently lost",
         "check, build, e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
