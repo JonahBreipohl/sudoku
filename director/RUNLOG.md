@@ -80,3 +80,4 @@ Next up: M4-02a, M4-04a, M4-05, M4-06, M5-01.
 Notes: subagents leave the checkout on their task branch; the Director must `git checkout main` before merging (once a merge was a no-op until corrected; nothing lost). Per-task costs for non-opus rows are approximate.
 Spend this run about $4.1 of $10. Stopped at the 6-task cap.
 Next up: M4-06, M5-01, M7-03, M2-12 (opus M, fits the budget now).
+diverged 20261025: container's local main (tip be0b8b2, 24 commits ahead) shares no history with origin/main (4cc5bda, force-updated); cannot fast-forward, stopped without dispatching. Local commits preserved in branch backup-local-main-20261025 (container-only, not pushed).
