@@ -361,3 +361,14 @@ button {
     --size: min(calc(100cqi - 320px), 640px, calc(100vh - 120px));
   }
 }
+
+.new-game {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.new-game-status {
+  min-width: 8ch;
+}

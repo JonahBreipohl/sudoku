@@ -63,3 +63,17 @@ describe("played store", () => {
     expect(s.has("x")).toBe(true);
   });
 });
+
+describe("played store cap", () => {
+  it("keeps only the most recent PLAYED_CAP ids, in storage too", async () => {
+    const { createPlayedStore, PLAYED_CAP } = await import("./puzzles");
+    const data = new Map<string, string>();
+    const storage = { getItem: (k: string) => data.get(k) ?? null, setItem: (k: string, v: string) => void data.set(k, v) };
+    const store = createPlayedStore(storage);
+    for (let i = 0; i < PLAYED_CAP + 10; i++) store.add(`id${i}`);
+    expect(store.has("id0")).toBe(false);
+    expect(store.has(`id${PLAYED_CAP + 9}`)).toBe(true);
+    expect(JSON.parse(data.get("sudoku.played")!)).toHaveLength(PLAYED_CAP);
+    expect(createPlayedStore(storage).has("id9")).toBe(false);
+  });
+});

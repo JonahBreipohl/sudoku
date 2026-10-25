@@ -221,3 +221,12 @@ test("pause hides the board, resume restores it and focus", async ({ page }) => 
   await expect(page.locator(cell(2))).toBeFocused();
 
 });
+
+test("new game swaps in a different puzzle from the bank", async ({ page }) => {
+  const givens = () =>
+    page.locator("[data-cell]").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")?.endsWith("given") ?? false));
+  const before = await givens();
+  await page.getByRole("button", { name: "New game" }).click();
+  await expect.poll(givens).not.toEqual(before);
+  await expect(page.getByRole("button", { name: "New game" })).toBeEnabled();
+});

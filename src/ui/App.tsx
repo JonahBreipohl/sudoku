@@ -1,12 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { Digit } from "../engine";
+import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
 import { isPaused } from "../state/timer";
+import type { GameRecord } from "../state/events";
+import { createPlayedStore, createPuzzleSource, type PuzzleSource } from "../state/puzzles";
+import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
 import { Board } from "./components/Board";
 import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
+import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
@@ -17,25 +22,28 @@ import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
-function makeStore() {
-  let offset = 0;
-  const testMode = new URLSearchParams(window.location.search).has("test");
-  const now = () => Date.now() + offset;
-  const persistence = createLocalStoragePersistence();
+const testMode = new URLSearchParams(window.location.search).has("test");
+let clockOffset = 0;
+const persistence = createLocalStoragePersistence();
+
+function makeStore(record?: GameRecord) {
+  const now = () => Date.now() + clockOffset;
   const store = createGameStore(
-    persistence.loadCurrent() ??
+    record ??
+      persistence.loadCurrent() ??
       newGameRecord({
-      id: "sample",
-      puzzle: SAMPLE_EASY.puzzle,
-      solution: SAMPLE_EASY.solution,
-      level: "easy",
+        id: "sample",
+        puzzle: SAMPLE_EASY.puzzle,
+        solution: SAMPLE_EASY.solution,
+        level: "easy",
         createdAt: Date.now(),
       }),
     testMode ? { now, persistence } : { persistence },
   );
+  if (record) persistence.saveCurrent(record);
   if (testMode) {
     (window as unknown as { __sudoku: unknown }).__sudoku = {
-      advance: (ms: number) => void (offset += ms),
+      advance: (ms: number) => void (clockOffset += ms),
       store,
       cellCommits: () => [...cellCommitCounts()],
     };
@@ -43,18 +51,53 @@ function makeStore() {
   return store;
 }
 
-export function App() {
-  // Created once per mount; a saved game, if any, resumes here.
-  const [store] = useState(makeStore);
+export function App({ source }: { source?: PuzzleSource } = {}) {
+  // A saved game, if any, resumes on first mount; "New game" swaps in a fresh store.
+  const [store, setStore] = useState(() => makeStore());
+  const [pending, setPending] = useState(false);
+  const puzzleSource = useRef<PuzzleSource | null>(source ?? null);
+  const onNewGame = useCallback(
+    (level: Level) => {
+      puzzleSource.current ??= createPuzzleSource({
+        fetch: (url) => fetch(url),
+        generator: getEngineClient(),
+        played: createPlayedStore(),
+        baseUrl: import.meta.env.BASE_URL + "puzzles/",
+      });
+      setPending(true);
+      puzzleSource.current
+        .nextPuzzle(level)
+        .then((p) => {
+          setStore(
+            makeStore(
+              newGameRecord({
+                id: p.id,
+                puzzle: p.puzzle,
+                solution: p.solution,
+                level: p.level,
+                score: p.score,
+                source: p.source,
+                createdAt: Date.now(),
+              }),
+            ),
+          );
+        })
+        .catch(() => {
+          /* generation failed or was cancelled: keep the current game */
+        })
+        .finally(() => setPending(false));
+    },
+    [],
+  );
   useVisibility(store);
   return (
     <GameProvider store={store}>
-      <Game />
+      <Game key={store.getSnapshot().record.id} pending={pending} onNewGame={onNewGame} />
     </GameProvider>
   );
 }
 
-function Game() {
+function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Level) => void }) {
   const { game, dispatch } = useGame();
   // Selection is UI state; board state lives in the store.
   const [selected, setSelected] = useState<number | null>(null);
@@ -168,6 +211,7 @@ function Game() {
     <div className="app">
       <header className="app-header">
         <h1>Sudoku</h1>
+        <NewGame pending={pending} onNewGame={onNewGame} />
         <ThemeToggle />
       </header>
       <main className="play">
