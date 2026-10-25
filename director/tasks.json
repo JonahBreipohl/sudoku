@@ -926,8 +926,8 @@
         "Starting a new game archives the current record with status and active time",
         "Tests with a fake puzzle source for bank, generated and import sources"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
