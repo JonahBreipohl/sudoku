@@ -134,3 +134,10 @@ halted 20261025: local trunk diverged from origin/main (unrelated histories, loc
 - M5-08 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Pause; check 402 tests, build, e2e 34 passed. Light/dark overlay not checked by hand.
 Spend about $1 of $10 (subagent costs estimated from token counts). Stopped early, cautious.
 Next up: M3-06a, M5-04, M6-04, M7-04, M7-06.
+
+## run 20261025-1523 (cloud)
+
+~10 minutes. Local main had unrelated history to origin/main; moved to backup branch local-main-backup (not pushed) and recreated main from origin/main. Trunk green (403 tests). One task passed first attempt:
+- M3-06a sonnet S: need 1.2, actual ~0.3 (estimate, not reviewed per Q4). New-game UI wired to puzzle source; check, build, e2e 36 passed. Follow-up -> M3-06b.
+Spend about $0.5 of $10. Stopped early, cautious.
+Next up: M3-02a, M3-04a, M4-08, M5-04, M5-06.

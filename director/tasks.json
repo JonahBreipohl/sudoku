@@ -2451,8 +2451,33 @@
         "Played set is bounded",
         "check, build, e2e pass"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M3-06b",
+      "title": "New game: slow-generator pending e2e and abandon confirm",
+      "milestone": 3,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M3-06a"
+      ],
+      "files": [
+        "e2e/skeleton.spec.ts",
+        "src/ui/components/NewGame.tsx"
+      ],
+      "description": "Follow-ups from M3-06a: e2e covering the pending state with a stubbed slow generator; confirm or archive the abandoned game when starting a new one.",
+      "acceptance": [
+        "Pending state covered by e2e",
+        "Abandoning a game is confirmed or archived",
+        "check, build, e2e pass"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
