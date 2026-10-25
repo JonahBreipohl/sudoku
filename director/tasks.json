@@ -2402,7 +2402,7 @@
         "Wider seed sweep documented",
         "npm run check passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": "Note from M3-02: Hard is slowest to generate (median ~0.4s); bank/worker (M3-03/04) should pre-generate Hard."
     },
@@ -2426,8 +2426,8 @@
         "Resume after a skipped duplicate equals uninterrupted run (tested)",
         "npm run check passes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2475,6 +2475,31 @@
         "Pending state covered by e2e",
         "Abandoning a game is confirmed or archived",
         "check, build, e2e pass"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M3-02b",
+      "title": "Document and gate the slow generator suite",
+      "milestone": 3,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "chore-dev",
+      "deps": [
+        "M3-02a"
+      ],
+      "files": [
+        "CLAUDE.md",
+        ".github/workflows/ci.yml"
+      ],
+      "description": "Follow-ups from M3-02a: add `npm run test:slow` and `npx tsx scripts/sweep-attempts.ts` to the CLAUDE.md Commands table, and run `npm run test:slow` in CI (separate step or job) so the Hard 10-seed headroom assertion does not go unchecked.",
+      "acceptance": [
+        "CLAUDE.md lists test:slow and the sweep script",
+        "CI runs test:slow",
+        "npm run check passes"
       ],
       "status": "todo",
       "attempts": 0,
