@@ -3,6 +3,7 @@ import type { Digit } from "../engine";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
+import { hasProgress } from "../state/progress";
 import { isPaused } from "../state/timer";
 import type { GameRecord } from "../state/events";
 import { createPlayedStore, createPuzzleSource, type PuzzleSource } from "../state/puzzles";
@@ -211,7 +212,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     <div className="app">
       <header className="app-header">
         <h1>Sudoku</h1>
-        <NewGame pending={pending} onNewGame={onNewGame} />
+        <NewGame pending={pending} inProgress={hasProgress(game.record)} onNewGame={onNewGame} />
         <ThemeToggle />
       </header>
       <main className="play">

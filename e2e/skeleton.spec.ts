@@ -1,4 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
+import type { Page } from "@playwright/test";
+import { SAMPLE_EASY } from "../src/engine/samples";
 import { expect, test } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
@@ -230,3 +232,124 @@ test("new game swaps in a different puzzle from the bank", async ({ page }) => {
   await expect.poll(givens).not.toEqual(before);
   await expect(page.getByRole("button", { name: "New game" })).toBeEnabled();
 });
+
+/**
+ * Replaces the engine worker with one that answers `generate` only after the test releases it,
+ * and empties the bank so the generator is what new game waits on. Returns release() and the
+ * number of generate requests seen.
+ */
+async function stubSlowGenerator(page: Page) {
+  let open!: () => void;
+  const gate = new Promise<void>((resolve) => (open = resolve));
+  let requests = 0;
+  // Digits relabelled 1<->9 etc. keep the puzzle valid and unique but visibly different.
+  const relabel = (grid: string) => grid.replace(/[1-9]/g, (d) => String(10 - Number(d)));
+  const result = { puzzle: relabel(SAMPLE_EASY.puzzle), solution: relabel(SAMPLE_EASY.solution), score: 1, level: "easy" };
+  // Not valid bank JSON, so the source falls back to generation without a failed request.
+  await page.route("**/puzzles/*.json", (route) => route.fulfill({ json: [] }));
+  await page.route("**/__generator-gate", async (route) => {
+    requests++;
+    await gate;
+    await route.fulfill({ body: "ok" });
+  });
+  await page.route("**/engine.worker*.js", (route) =>
+    route.fulfill({
+      contentType: "text/javascript",
+      body: `const result = ${JSON.stringify(result)};
+onmessage = async (e) => {
+  await fetch(self.location.origin + "/__generator-gate");
+  postMessage({ id: e.data.id, ok: true, result });
+};`,
+    }),
+  );
+  return { release: open, requests: () => requests, result };
+}
+
+test("new game shows a pending state while the generator is slow", async ({ page }) => {
+  const slow = await stubSlowGenerator(page);
+  const newGame = page.getByRole("button", { name: "New game" });
+  const status = page.locator(".new-game").getByRole("status");
+  await expect(page.locator(cell(1))).toHaveAttribute("aria-label", "Row 1, column 2, 3, given");
+
+  await newGame.click();
+  await expect(status).toContainText("Generating");
+  await expect(newGame).toBeDisabled();
+  await expect(newGame).toHaveAttribute("aria-busy", "true");
+  await expect(page.getByRole("combobox", { name: "Difficulty" })).toBeDisabled();
+  // Focus stays on the button (it is aria-disabled, not disabled), and the old game stays put.
+  await expect(newGame).toBeFocused();
+  await expect(page.locator(cell(1))).toHaveAttribute("aria-label", "Row 1, column 2, 3, given");
+  const noWideScroll = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+  expect(noWideScroll).toBeLessThanOrEqual(0);
+
+  // A second activation while pending must not start another generation.
+  await newGame.click({ force: true });
+  slow.release();
+  await expect(page.locator(cell(1))).toHaveAttribute("aria-label", "Row 1, column 2, 7, given");
+  await expect(page.getByRole("button", { name: "New game" })).toBeEnabled();
+  await expect(page.locator(".new-game").getByRole("status")).toHaveText("");
+  expect(slow.requests()).toBe(1);
+});
+
+test("new game asks before abandoning a game in progress", async ({ page }) => {
+  const dialog = page.getByRole("dialog", { name: "Abandon this game?" });
+  const newGame = page.getByRole("button", { name: "New game" });
+  const keep = dialog.getByRole("button", { name: "Keep playing" });
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+
+  // Escape cancels and hands focus back; the game is untouched.
+  await newGame.click();
+  await expect(dialog).toBeVisible();
+  await expect(keep).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(newGame).toBeFocused();
+  await expect(page.locator(cell(2))).toHaveText("4");
+
+  // So does the Keep playing button.
+  await newGame.click();
+  await keep.click();
+  await expect(dialog).toHaveCount(0);
+  await expect(newGame).toBeFocused();
+  await expect(page.locator(cell(2))).toHaveText("4");
+
+  // Confirming by keyboard abandons the game for a different puzzle.
+  const givens = () =>
+    page.locator("[data-cell]").evaluateAll((els) => els.map((e) => e.getAttribute("aria-label")?.endsWith("given") ?? false));
+  const before = await givens();
+  await newGame.click();
+  await page.keyboard.press("Tab");
+  await expect(dialog.getByRole("button", { name: "Abandon and start new" })).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(dialog).toHaveCount(0);
+  await expect.poll(givens).not.toEqual(before);
+  await expect(page.locator(cell(2))).toHaveText("");
+});
+
+for (const theme of ["light", "dark"] as const) {
+  test(`abandon dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.locator(cell(2)).click();
+    await page.keyboard.press("4");
+    await page.getByRole("button", { name: "New game" }).click();
+    const dialog = page.getByRole("dialog", { name: "Abandon this game?" });
+    await expect(dialog).toBeVisible();
+
+    const results = await new AxeBuilder({ page }).analyze();
+    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
+    expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
+
+    const viewport = page.viewportSize()!;
+    const box = (await dialog.boundingBox())!;
+    expect(box.x).toBeGreaterThanOrEqual(0);
+    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
+    for (const name of ["Keep playing", "Abandon and start new"]) {
+      const b = (await dialog.getByRole("button", { name }).boundingBox())!;
+      expect(b.height).toBeGreaterThanOrEqual(44);
+      expect(b.width).toBeGreaterThanOrEqual(44);
+    }
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    expect(overflow).toBeLessThanOrEqual(0);
+  });
+}
