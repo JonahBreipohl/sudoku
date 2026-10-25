@@ -10,7 +10,7 @@ export const RECORD_VERSION = 1;
 export type InputMethod = "keyboard" | "pad" | "digit-first";
 export type HintTier = "nudge" | "technique" | "reveal";
 export type GameSource = "bank" | "generated" | "daily" | "import";
-export type GameStatus = "playing" | "submitted";
+export type GameStatus = "playing" | "submitted" | "abandoned";
 
 interface BoardEventBase {
   /** Index in `nodes`. */
@@ -60,6 +60,8 @@ export interface GameRecord {
   cursor: number;
   log: MetaEvent[];
   status: GameStatus;
+  /** Active play ms, stamped when the game is archived without being submitted. */
+  activeMs?: number;
 }
 
 const SOURCES: readonly string[] = ["bank", "generated", "daily", "import"];
@@ -143,7 +145,8 @@ export function isGameRecord(json: unknown): json is GameRecord {
   if (typeof json.score !== "number" || !Number.isFinite(json.score)) return false;
   if (!isStr(json.source) || !SOURCES.includes(json.source)) return false;
   if (!isTime(json.createdAt)) return false;
-  if (json.status !== "playing" && json.status !== "submitted") return false;
+  if (json.status !== "playing" && json.status !== "submitted" && json.status !== "abandoned") return false;
+  if (json.activeMs !== undefined && !isTime(json.activeMs)) return false;
   const { nodes, log, cursor } = json;
   if (!Array.isArray(nodes) || !Array.isArray(log)) return false;
   if (!nodes.every((n, i) => isBoardEvent(n, i))) return false;

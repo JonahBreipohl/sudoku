@@ -9,6 +9,7 @@ import type { GameRecord } from "../state/events";
 import { createPlayedStore, createPuzzleSource, type PuzzleSource } from "../state/puzzles";
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
+import { newGame } from "../state/newGame";
 import { Board } from "./components/Board";
 import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
@@ -74,30 +75,21 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
         baseUrl: import.meta.env.BASE_URL + "puzzles/",
       });
       setPending(true);
-      puzzleSource.current
-        .nextPuzzle(level)
-        .then((p) => {
+      newGame(level, puzzleSource.current, {
+        current: store.getSnapshot().record,
+        persistence,
+        now: Date.now,
+      })
+        .then((record) => {
           refocusNewGame.current = true;
-          setStore(
-            makeStore(
-              newGameRecord({
-                id: p.id,
-                puzzle: p.puzzle,
-                solution: p.solution,
-                level: p.level,
-                score: p.score,
-                source: p.source,
-                createdAt: Date.now(),
-              }),
-            ),
-          );
+          setStore(makeStore(record));
         })
         .catch(() => {
           /* generation failed or was cancelled: keep the current game */
         })
         .finally(() => setPending(false));
     },
-    [],
+    [store],
   );
   useVisibility(store);
   return (
