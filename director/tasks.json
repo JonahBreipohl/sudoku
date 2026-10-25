@@ -668,8 +668,8 @@
         "validateBank(json) checks schema, uniqueness of every puzzle, and level labels; tested",
         "public/puzzles/<level>.json exists for all five levels, passes validateBank, totals under 400 KB; seed and counts in the report"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
