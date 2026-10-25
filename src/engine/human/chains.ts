@@ -1,5 +1,5 @@
 import type { CandidateState } from "../candidates";
-import { CELL_COUNT, DIGITS, PEERS, UNITS, digitBit, type Digit } from "../grid";
+import { CELL_COUNT, DIGITS, PEERS, UNITS, digitBit, maskDigits, popcount, type Digit } from "../grid";
 import { cellName, type Step } from "../step";
 import { registerTechnique } from "./registry";
 
@@ -12,8 +12,8 @@ import { registerTechnique } from "./registry";
  * ... => B true". Every strong link between two candidates of one digit in one unit is also a
  * weak link, so weak adjacency includes strong adjacency.
  *
- * Single-digit links (X-chains) are built here; other chain types (XY-chain) can add bivalue
- * strong links and same-cell weak links to the same graph shape.
+ * Single-digit links (X-chains) and bivalue-cell links (XY-chains) both build this graph shape
+ * and share one breadth-first search.
  */
 
 export const NODE_COUNT = CELL_COUNT * 9;
@@ -177,5 +177,97 @@ export function findXChain(state: CandidateState): Step | null {
   };
 }
 
-// Level and weight come from TECHNIQUES in step.ts (Master: X-Chain 60).
+/**
+ * Bivalue links: strong between the two candidates of a cell with exactly two candidates (if one
+ * is false the other is true), weak between equal digits in two bivalue cells that see each
+ * other. Only bivalue cells get nodes, so every chain through this graph is an XY-chain.
+ */
+export function buildBivalueLinks(state: CandidateState): LinkGraph {
+  const strong: number[][] = Array.from({ length: NODE_COUNT }, () => []);
+  const weak: number[][] = Array.from({ length: NODE_COUNT }, () => []);
+  const bivalue: number[] = [];
+  for (let c = 0; c < CELL_COUNT; c++) {
+    if (state.values[c] === 0 && popcount(state.candidates[c] ?? 0) === 2) bivalue.push(c);
+  }
+  for (const a of bivalue) {
+    const [x, y] = maskDigits(state.candidates[a] ?? 0) as [Digit, Digit];
+    strong[nodeOf(a, x)]!.push(nodeOf(a, y));
+    strong[nodeOf(a, y)]!.push(nodeOf(a, x));
+    // bivalue is ascending, so pushing in order keeps each list sorted.
+    for (const b of bivalue) {
+      if (a === b || !sees(a, b)) continue;
+      const shared = (state.candidates[a] ?? 0) & (state.candidates[b] ?? 0);
+      for (const d of maskDigits(shared)) weak[nodeOf(a, d)]!.push(nodeOf(b, d));
+    }
+  }
+  return { strong, weak };
+}
+
+/** "r1c1 (1=2) - r1c5 (2=3) - r4c5 (3=1)": each cell with the digit it gives up and the one it is forced to. */
+export function formatXYChain(nodes: readonly number[]): string {
+  const parts: string[] = [];
+  for (let i = 0; i + 1 < nodes.length; i += 2) {
+    parts.push(`${cellName(nodeCell(nodes[i]!))} (${nodeDigit(nodes[i]!)}=${nodeDigit(nodes[i + 1]!)})`);
+  }
+  return parts.join(" - ");
+}
+
+/**
+ * XY-chain: a path of bivalue cells, each seeing the next and sharing the digit that links them.
+ * If the first cell is not d it is its other digit, which forces the next cell off that digit,
+ * and so on down the chain until the last cell is d; so one of the two end cells is d, and d goes
+ * from every cell that sees both ends. Chains need at least three cells (two cells with the
+ * same pair are a naked pair).
+ *
+ * Returns the shortest chain with an elimination; ties go to the lower digit, then the lower
+ * start cell, then the lower end cell. Each chain is reported once, from its lower end. cells
+ * lists the chain's cells in order from start to end, each once.
+ */
+export function findXYChain(state: CandidateState): Step | null {
+  const graph = buildBivalueLinks(state);
+  let best: { digit: Digit; nodes: number[]; eliminations: { cell: number; digit: Digit }[] } | null = null;
+
+  for (const digit of DIGITS) {
+    const bit = digitBit(digit);
+    for (let start = 0; start < CELL_COUNT; start++) {
+      const startNode = nodeOf(start, digit);
+      if (graph.strong[startNode]!.length === 0) continue;
+      const limit: number = best ? best.nodes.length - 1 : MAX_CHAIN_LINKS;
+      for (const nodes of shortestChains(graph, startNode, limit)) {
+        const links = nodes.length - 1;
+        if (links < 5) continue;
+        if (best && links >= best.nodes.length - 1) break;
+        const end = nodes[nodes.length - 1]!;
+        const b = nodeCell(end);
+        if (nodeDigit(end) !== digit || b < start) continue;
+        const eliminations: { cell: number; digit: Digit }[] = [];
+        for (let c = 0; c < CELL_COUNT; c++) {
+          if (c !== start && c !== b && hasDigit(state, c, bit) && sees(c, start) && sees(c, b)) eliminations.push({ cell: c, digit });
+        }
+        if (eliminations.length === 0) continue;
+        best = { digit, nodes, eliminations };
+        break;
+      }
+    }
+  }
+  if (!best) return null;
+
+  const { digit, nodes, eliminations } = best;
+  const cells = nodes.filter((_, i) => i % 2 === 0).map(nodeCell);
+  const a = cells[0]!;
+  const b = cells[cells.length - 1]!;
+  return {
+    technique: "xy-chain",
+    placements: [],
+    eliminations,
+    cells,
+    digits: [digit],
+    explanation:
+      `XY-Chain on ${digit}: ${formatXYChain(nodes)}; one of ${cellName(a)} and ${cellName(b)} must be ${digit}, ` +
+      `so remove ${digit} from ${eliminations.map((e) => cellName(e.cell)).join(", ")}`,
+  };
+}
+
+// Level and weight come from TECHNIQUES in step.ts (Master: X-Chain 60, XY-Chain 70).
 registerTechnique("x-chain", findXChain);
+registerTechnique("xy-chain", findXYChain);
