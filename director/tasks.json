@@ -668,7 +668,7 @@
         "validateBank(json) checks schema, uniqueness of every puzzle, and level labels; tested",
         "public/puzzles/<level>.json exists for all five levels, passes validateBank, totals under 400 KB; seed and counts in the report"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2405,6 +2405,30 @@
       "status": "todo",
       "attempts": 0,
       "notes": "Note from M3-02: Hard is slowest to generate (median ~0.4s); bank/worker (M3-03/04) should pre-generate Hard."
+    },
+    {
+      "id": "M3-04a",
+      "title": "Bank generator minors",
+      "milestone": 3,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "engine-dev",
+      "deps": [
+        "M3-04"
+      ],
+      "files": [
+        "scripts/generate-bank.ts",
+        "src/engine/bank.ts"
+      ],
+      "description": "Reviewer minors: (1) resumed runs restart candidate numbering at puzzles.length instead of last tried index (src/engine/bank.ts ~136); persist or derive the next candidate index so resume equals an uninterrupted run. (2) 'generated' header uses today's date, making output non-byte-deterministic; keep an existing file's value on append or accept a --generated flag.",
+      "acceptance": [
+        "Resume after a skipped duplicate equals uninterrupted run (tested)",
+        "npm run check passes"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }
