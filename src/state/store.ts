@@ -115,8 +115,17 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
         return givens[c.cell] !== 0 || snapshot.board[c.cell] === c.digit;
       case "erase":
         return givens[c.cell] !== 0 || snapshot.board[c.cell] === 0;
-      case "note":
-        return snapshot.board[c.cell] !== 0;
+      case "note": {
+        if (snapshot.board[c.cell] !== 0) return true;
+        const has = (snapshot.notes[c.cell]! & (1 << (c.digit - 1))) !== 0;
+        return has === c.on;
+      }
+      case "hint-reveal":
+        return givens[c.cell] !== 0 || snapshot.board[c.cell] === c.digit;
+      case "reset":
+        return (
+          snapshot.board.every((v, i) => v === givens[i]) && snapshot.notes.every((m) => m === 0)
+        );
       default:
         return false;
     }
@@ -142,7 +151,11 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
       let tree: Tree = record;
       if (meta.type === "undo") tree = undo(record);
       else if (meta.type === "redo") tree = redo(record);
-      else if (meta.type === "rewind") tree = rewind(record, meta.to);
+      else if (meta.type === "rewind") {
+        // A stale or bogus target is ignored rather than crashing the caller.
+        if (!Number.isInteger(meta.to) || meta.to < -1 || meta.to >= record.nodes.length) return;
+        tree = rewind(record, meta.to);
+      }
       // Cursor moves that go nowhere are not history.
       if (
         (meta.type === "undo" || meta.type === "redo" || meta.type === "rewind") &&

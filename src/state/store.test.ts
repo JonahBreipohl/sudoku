@@ -114,4 +114,31 @@ describe("game store", () => {
     place(s);
     expect(s.getSnapshot()).not.toBe(a);
   });
+
+  it("treats redundant notes, hints and resets as no-ops", () => {
+    const s = make();
+    const listener = vi.fn();
+    s.subscribe(listener);
+    s.dispatch({ type: "note", cell: blank, digit: 4, on: false }); // bit already clear
+    s.dispatch({ type: "reset" }); // untouched board
+    s.dispatch({ type: "hint-reveal", cell: given, digit: 1, step: "x" });
+    expect(listener).not.toHaveBeenCalled();
+    s.dispatch({ type: "note", cell: blank, digit: 4, on: true });
+    s.dispatch({ type: "note", cell: blank, digit: 4, on: true }); // bit already set
+    expect(listener).toHaveBeenCalledTimes(1);
+    place(s);
+    s.dispatch({ type: "hint-reveal", cell: blank, digit: 4, step: "x" }); // already correct
+    expect(listener).toHaveBeenCalledTimes(2);
+    expect(s.getSnapshot().record.nodes.map((n) => n.type)).toEqual(["note", "place"]);
+  });
+
+  it("ignores rewind to an unknown node", () => {
+    const s = make();
+    place(s);
+    const listener = vi.fn();
+    s.subscribe(listener);
+    for (const to of [5, -2, 1.5, Number.NaN]) s.dispatch({ type: "rewind", to });
+    expect(listener).not.toHaveBeenCalled();
+    expect(s.getSnapshot().record.log).toHaveLength(0);
+  });
 });
