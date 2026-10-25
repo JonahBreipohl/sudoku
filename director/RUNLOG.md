@@ -56,3 +56,14 @@ Next up: M2-07, M2-08, M2-11, M3-01, M4-01.
 - M3-01 opus S: need 1.0, actual 0.38 (+0.12 review).
 Spend this run about $3.8 of $6 (Director ~0.6). Stopped with ~1.7 left to keep a safe wrap-up margin. Config budget still $6 (you asked for $10; see QUESTIONS.md).
 Next up: M4-01, M2-12/M2-09 (M, to split), M3-02 after M2-13.
+
+## run 20261025-0157 (cloud)
+
+~10 minutes. Trunk green at start (207 tests). Config budget now $10. Five tasks, all passed first attempt:
+- M4-01 sonnet S: need 2.4 (prior x2), actual 0.23 (+0.17 review). Reviewer minors -> M4-01a.
+- M4-01a haiku S: actual 0.01 (not reviewed).
+- M4-02 sonnet S: actual 0.16 (+0.19 review). Minors -> M4-02a.
+- M4-03 sonnet S: actual 0.11 (not reviewed; state review rotated per Q4).
+- M4-04 sonnet S: actual 0.20 (+0.28 review). e2e 18 passed. Minors -> M4-04a. Subagent's first hand-back said only "pending"; verified the branch myself.
+Spend this run about $2.3 of $10. Stopped to wrap up with budget left (cautious; 5 of 6 tasks).
+Next up: M4-02a, M4-04a, M4-05, M4-06, M5-01.

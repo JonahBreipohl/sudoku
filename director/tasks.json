@@ -777,7 +777,7 @@
         "Existing e2e specs still pass",
         "Store tests cover dispatch of each board event and subscriber notification"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2231,6 +2231,31 @@
         "Branching snapshot test added and passing",
         "No dead `void b` code",
         "Doc comment on createReplayer"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M4-04a",
+      "title": "Store no-op and rewind hardening",
+      "milestone": 4,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M4-04"
+      ],
+      "files": [
+        "src/state/store.ts",
+        "src/state/store.test.ts"
+      ],
+      "description": "Reviewer minors on M4-04: (1) isNoop for note must also return true when the note bit already equals `on`; (2) treat hint-reveal on a given or an already-correct cell, and reset on an untouched board, as no-ops (no node, no notification); (3) dispatching rewind with an unknown node id must be ignored, not throw.",
+      "acceptance": [
+        "Each no-op case adds no node and does not notify subscribers; tests added",
+        "Invalid rewind target is ignored; test added",
+        "check, build and e2e pass"
       ],
       "status": "todo",
       "attempts": 0,
