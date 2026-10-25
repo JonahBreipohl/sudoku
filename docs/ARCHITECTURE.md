@@ -197,6 +197,22 @@ the current game record under a versioned key, completed records in a capped arc
 and settings separately. Saves after every event (synchronously, it is small). Loading validates
 version and shape; corrupt data is moved aside, never thrown.
 
+### Settings
+
+`src/state/settings.ts` holds one flat `Settings` object: `theme` (light | dark | system),
+`entryMode` (digit-first | cell-first), `autoCandidates`, `checkHighlighting`, `wallClock`,
+`leftHanded`, `idleMinutes` (integer 0-240, 0 disables idle switching), and `showTimer`. Defaults
+live in `DEFAULT_SETTINGS`. Storage is untrusted, so `normalizeSettings` validates each key on its
+own: unknown keys are dropped and an invalid value falls back to its default without discarding
+the rest. A pre-settings theme key is read once when no stored `theme` exists, so the choice
+survives the move.
+
+`createSettingsStore` (a getSnapshot / update / subscribe store, the shape `useSyncExternalStore`
+expects) writes through the persistence adapter only when a value actually changes.
+`getSettingsStore()` returns the app-wide instance backed by localStorage. `useSettings()`
+(`src/ui/useSettings.ts`) wraps it and returns `{settings, update}`; components never write
+storage themselves.
+
 ## Analysis
 
 All analysis runs in the worker on a `GameRecord` and the path ending at its cursor.
