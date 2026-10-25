@@ -98,3 +98,12 @@ Next up: M2-13, M4-07, M5-02, M5-03, M7-03.
 - M2-13 opus S: need 2.4, actual 0.73 (+0.19 review). Grader; reviewer minor -> M2-13a.
 - M4-07 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Settings model; e2e 24 passed. Follow-up -> M4-07a.
 Spend about $1.6 of $10. Stopped early, cautious. Next up: M2-14, M5-02, M5-03, M7-03.
+
+## run 20261025-1023 (cloud)
+
+~20 minutes. Local main again unrelated to force-updated origin/main; reset to origin/main (local was the old stale tip, no unique work). Trunk green (345 tests). Four tasks passed first attempt:
+- M2-13a haiku S: actual 0.01 (comment fix).
+- M4-07a haiku S: actual 0.01 (settings docs).
+- M2-14 opus S: need 2.4, actual 0.75 (+0.25 review). Property/perf suite; reviewer approve, minors -> M2-14a.
+- M5-02 sonnet S: need 1.2, actual 0.3 (not reviewed per Q4). Highlighting; e2e 26 passed.
+Spend about $2 of $10. Stopped early, cautious. Next up: M2-14a, M5-03, M7-03, M3-02.

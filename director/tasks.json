@@ -979,7 +979,7 @@
         "Each highlight kind has a distinct non-color cue documented in styles.css",
         "Works in both themes at 390px and 1440px"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
