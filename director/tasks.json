@@ -1004,8 +1004,8 @@
         "Finished digits are dimmed and struck through, still focusable, and announced as complete",
         "Touch targets at least 44px"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
