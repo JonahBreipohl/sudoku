@@ -6,5 +6,6 @@ export * from "./candidates";
 export * from "./step";
 export * from "./codec";
 export * from "./generate";
+export * from "./grade";
 export * from "./human/registry";
 export * from "./human/driver";
