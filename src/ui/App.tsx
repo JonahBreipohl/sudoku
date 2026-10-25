@@ -16,6 +16,7 @@ import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { actionForKey } from "./keyboard";
+import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { cellCommitCounts } from "./renderProbe";
 import { moveSelection } from "./selection";
 import { useSettings } from "./useSettings";
@@ -112,6 +113,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   const [selected, setSelected] = useState<number | null>(null);
   const [notesMode, setNotesMode] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
   const noting = notesMode || shiftHeld;
@@ -133,6 +135,20 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
       // Input is ignored while a new puzzle generates: the swap would discard it.
       if (pending && action.type !== "move") return;
+      if (action.type === "help") {
+        setHelpOpen(true);
+        return;
+      }
+      if (action.type === "pause") {
+        if (pausedRef.current) onResume();
+        else onPause();
+        return;
+      }
+      if (action.type === "hint") return; // hints arrive in M7; the key is reserved
+      if (action.type === "undo" || action.type === "redo") {
+        dispatch({ type: action.type });
+        return;
+      }
       if (action.type === "move") {
         setSelected((cell) => moveSelection(cell ?? 0, action.direction));
         return;
@@ -152,7 +168,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         dispatch({ type: "place", cell: selected, digit: action.digit, input });
       else dispatch({ type: "erase", cell: selected });
     },
-    [selected, dispatch, noting, board, notes, pending],
+    [selected, dispatch, noting, board, notes, pending, onPause, onResume],
   );
 
   useEffect(() => {
@@ -160,20 +176,17 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, textarea, select, dialog")) return;
       if (e.key === "Shift") setShiftHeld(true);
-      if (!e.ctrlKey && !e.metaKey && !e.altKey && (e.key === "p" || e.key === "P")) {
-        e.preventDefault();
-        if (pausedRef.current) onResume();
-        else onPause();
-        return;
-      }
+      const action = actionForKey(e);
       if (pausedRef.current) {
         if (e.key === "Enter") {
           e.preventDefault();
           onResume();
+        } else if (action?.type === "pause" || action?.type === "help") {
+          e.preventDefault();
+          act(action);
         }
         return;
       }
-      const action = actionForKey(e);
       if (!action) return;
       e.preventDefault();
       act(action);
@@ -191,7 +204,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
       window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener("blur", onBlur);
     };
-  }, [act, onPause, onResume]);
+  }, [act, onResume]);
 
   // Hand focus back to the board once the overlay (and the focused Resume button) is gone.
   useEffect(() => {
@@ -226,6 +239,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
       <header className="app-header">
         <h1>Sudoku</h1>
         <NewGame pending={pending} inProgress={hasProgress(game.record)} onNewGame={onNewGame} />
+        <button type="button" className="ctl" onClick={() => setHelpOpen(true)} aria-keyshortcuts="?">
+          Shortcuts
+        </button>
         <ThemeToggle />
       </header>
       <main className="play">
@@ -255,6 +271,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} />}
         </div>
       </main>
+      {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}
     </div>
   );
 }
