@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import type { Digit } from "../engine";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
+import { checkBoard } from "../state/check";
 import { hasProgress } from "../state/progress";
 import { isPaused } from "../state/timer";
 import type { GameRecord } from "../state/events";
@@ -275,6 +276,21 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     if (autoCandidates) dispatch({ type: "auto-notes" });
   }, [settings.autoCandidates, update, dispatch, pending]);
 
+  const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
+  const [checked, setChecked] = useState<{ key: string; mistakes: number; wrong: number[] } | null>(null);
+  const onCheck = useCallback(() => {
+    if (pending) return;
+    const { mistakes, wrong } = checkBoard(game.record, board);
+    dispatch({ type: "check", mistakes });
+    setChecked({ key: checkKey, mistakes, wrong });
+  }, [pending, game.record, board, dispatch, checkKey]);
+  // A result describes one board position; any edit, undo or rewind makes it stale.
+  const checkResult = checked && checked.key === checkKey ? checked : null;
+  const wrongSet = useMemo(
+    () => (settings.checkHighlighting && checkResult ? new Set(checkResult.wrong) : undefined),
+    [settings.checkHighlighting, checkResult],
+  );
+
   return (
     <div className="app">
       <header className="app-header">
@@ -297,6 +313,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             notes={notes}
             selected={selected}
             conflicts={conflicts}
+            wrong={wrongSet}
             onSelect={onSelectCell}
             lockedDigit={entry.locked}
           />
@@ -318,6 +335,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             paused={paused}
             digitFirst={digitFirst}
             onToggleEntry={onToggleEntry}
+            onCheck={onCheck}
+            checkResult={checkResult}
           />
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
         </div>

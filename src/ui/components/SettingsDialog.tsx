@@ -10,7 +10,7 @@ type BoolKey = {
 
 const TOGGLES: { key: BoolKey; label: string; hint: string }[] = [
   { key: "autoCandidates", label: "Auto candidates", hint: "Fill pencil notes automatically." },
-  { key: "checkHighlighting", label: "Highlight conflicts", hint: "Mark cells that repeat a digit." },
+  { key: "checkHighlighting", label: "Highlight wrong cells on Check", hint: "Check marks each wrong entry with a cross and frame." },
   { key: "showTimer", label: "Show timer", hint: "Display the solve clock while playing." },
   { key: "wallClock", label: "Wall clock in Display mode", hint: "Show the time of day." },
   { key: "leftHanded", label: "Left-handed layout", hint: "Move the number pad to the left." },
