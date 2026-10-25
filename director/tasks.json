@@ -1140,7 +1140,7 @@
         "Resume via button, P, or Enter; focus returns to the board",
         "Pause and resume are logged meta events"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

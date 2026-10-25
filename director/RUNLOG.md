@@ -126,3 +126,11 @@ Next up: M3-03/M3-04, M5-04, M5-05, M7-04.
 Spend about $1.7 of $10. Stopped early, cautious.
 Next up: M5-04, M5-08, M6-04, M7-04, M7-06.
 halted 20261025: local trunk diverged from origin/main (unrelated histories, local main 24 ahead / 74 behind); no merge or reset attempted, no tasks run. Needs owner to reset the checkout.
+
+## run 20261025-1423 (cloud)
+
+~15 minutes. Local main again unrelated to force-updated origin/main; reset to origin/main (old tip kept as local branch backup-old-main, not pushed). Trunk green (396 tests). Two tasks passed first attempt:
+- M3-06 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Puzzle source with bank loading and worker top-up; follow-up -> M3-06a.
+- M5-08 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Pause; check 402 tests, build, e2e 34 passed. Light/dark overlay not checked by hand.
+Spend about $1 of $10 (subagent costs estimated from token counts). Stopped early, cautious.
+Next up: M3-06a, M5-04, M6-04, M7-04, M7-06.
