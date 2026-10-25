@@ -117,3 +117,11 @@ Spend about $2 of $10. Stopped early, cautious. Next up: M2-14a, M5-03, M7-03, M
 - M3-02 opus M: need 8.0, actual ~2.0 (+0.25 review). generate() into a band; Hard is slow (~0.4s median), reviewer minors -> M3-02a.
 Spend about $3.6 of $10. Costs for subagents are estimates from token counts. Stopped after four tasks to keep the run short.
 Next up: M3-03/M3-04, M5-04, M5-05, M7-04.
+
+## run 20261025-1223 (cloud)
+
+~25 minutes. Local main again unrelated to force-updated origin/main; reset to origin/main (stale tip discarded, nothing unique). Trunk green (381 tests). Two tasks passed first attempt:
+- M3-04 sonnet M: need 4.0, actual ~0.9 (+0.3 review). Bank script and initial bank (172 KB, 200/200/150/100/50); reviewer approve, minors -> M3-04a.
+- M5-05 sonnet S: need 1.2, actual ~0.3 (not reviewed per Q4). Notes mode and auto-candidates; subagent report was just "pending", so verified directly: check 396 tests, build, e2e 32 passed.
+Spend about $1.7 of $10. Stopped early, cautious.
+Next up: M5-04, M5-08, M6-04, M7-04, M7-06.

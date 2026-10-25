@@ -1060,7 +1060,7 @@
         "Placing a digit removes it from peers' notes (reducer) and the UI reflects it immediately",
         "Auto-candidates setting and button log an assist; undo removes the auto-filled notes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
