@@ -2,7 +2,7 @@
 // (docs/ARCHITECTURE.md, "Mistake analysis", step 1).
 //
 // Analysis may import state *types* only, so the board semantics are restated here. They must
-// match src/state/reducer.ts exactly; replay.test.ts cross-checks the two on random paths.
+// match src/state/reducer.ts exactly; mistakes.test.ts cross-checks the two on random paths.
 
 import {
   PEERS,
