@@ -1195,9 +1195,9 @@
         "844x390 landscape: grid and pad side by side, no scrolling",
         "Never scrolls horizontally from 320px up"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Followup: .app padding-bottom inside own @container never applies (styles.css ~381,417)."
     },
     {
       "id": "M6-02",
@@ -2551,6 +2551,29 @@
       "status": "done",
       "attempts": 1,
       "notes": "Followup from M5-10."
+    },
+    {
+      "id": "M6-08",
+      "title": "Fix inert .app padding in phone container queries",
+      "milestone": 6,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "chore-dev",
+      "deps": [
+        "M6-01"
+      ],
+      "files": [
+        "src/ui/styles.css"
+      ],
+      "description": "`.app` is the size container, so `.app { padding-bottom: 8px }` inside its own @container rules never applies (styles.css ~381 and ~417). Move the padding to an inner element or drop it.",
+      "acceptance": [
+        "No inert declarations on the container itself",
+        "check, build and e2e pass"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Followup from M6-01 review."
     }
   ]
 }
