@@ -1488,8 +1488,8 @@
         "Cascade follows the rules in docs/ARCHITECTURE.md and is tested on a record with a 3-move cascade",
         "MistakeReport is serializable (crosses the worker boundary)"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
