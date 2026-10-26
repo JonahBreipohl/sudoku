@@ -133,7 +133,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     dispatch({ type: "resume" });
   }, [dispatch]);
   const act = useCallback(
-    (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard") => {
+    (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard", code?: string) => {
       // Input is ignored while a new puzzle generates: the swap would discard it.
       if (pending && action.type !== "move") return;
       if (action.type === "help") {
@@ -175,7 +175,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         const on = (notes[selected]! & (1 << (digit - 1))) === 0;
         dispatch({ type: "note", cell: selected, digit, on });
       } else if (action.type === "place")
-        dispatch({ type: "place", cell: selected, digit: action.digit, input });
+        dispatch({ type: "place", cell: selected, digit: action.digit, input, ...(code ? { key: code } : {}) });
       else dispatch({ type: "erase", cell: selected });
     },
     [selected, dispatch, noting, board, notes, pending, onPause, onResume, digitFirst],
@@ -200,7 +200,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
       if (!action) return;
       // Escape also closes dialogs natively; blocking its default could swallow that.
       if (action.type !== "escape") e.preventDefault();
-      act(action);
+      act(action, "keyboard", e.code);
     }
     function onKeyUp(e: KeyboardEvent) {
       if (e.key === "Shift") setShiftHeld(false);
