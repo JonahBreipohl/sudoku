@@ -5,7 +5,8 @@
  */
 import type { CellValue, Grid, Level } from "../engine";
 import { dispatch } from "./protocol";
-import type { GeneratedResult, Handlers, Method, Request, Response } from "./protocol";
+import type { GameRecord } from "../state/events";
+import type { AnalysisResult, GeneratedResult, Handlers, Method, Request, Response } from "./protocol";
 
 export class CancelledError extends Error {
   constructor() {
@@ -24,6 +25,7 @@ export interface EngineClient {
   solve(grid: Grid): Promise<CellValue[] | null>;
   countSolutions(grid: Grid, limit?: number): Promise<number>;
   generate(level: Level, seed: number | string): Promise<GeneratedResult>;
+  analyze(record: GameRecord): Promise<AnalysisResult>;
   /** Rejects every pending call with CancelledError and stops any running computation. */
   cancel(): void;
   dispose(): void;
@@ -84,6 +86,7 @@ export function createEngineClient(opts: { inThread?: boolean } = {}): EngineCli
     solve: (grid) => call("solve", grid),
     countSolutions: (grid, limit) => call("countSolutions", grid, limit),
     generate: (level, seed) => call("generate", level, seed),
+    analyze: (record) => call("analyze", record),
     cancel,
     dispose: () => {
       cancel();
