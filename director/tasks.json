@@ -1461,9 +1461,9 @@
         "Deduction names the technique, cells and explanation of the eliminating step and how many steps preceded it",
         "Runs under 100 ms for a 300-event record"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Merged. Fix after first verification: overwritten correct value stayed in solver start state."
     },
     {
       "id": "M7-05",
@@ -2624,6 +2624,31 @@
       "status": "todo",
       "attempts": 0,
       "notes": "Followup from M7-02 review."
+    },
+    {
+      "id": "M7-04b",
+      "title": "Record key (e.code) on place events",
+      "milestone": 7,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "effort": "default",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-04"
+      ],
+      "files": [
+        "src/ui/App.tsx"
+      ],
+      "description": "App.tsx dispatches place events with input only; also record key (e.code) so diagnose() can detect numpad typos. Update ARCHITECTURE.md diagnosis notes: guess also covers logic stalling before the cell settles; diagnosis ignores notes, drops wrong values and empties the mistaken cell; removed solution note is refuted by the placing step.",
+      "acceptance": [
+        "Place events carry key",
+        "Unit/e2e still pass",
+        "ARCHITECTURE.md notes updated"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Follow-up from M7-04"
     }
   ]
 }

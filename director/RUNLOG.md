@@ -217,3 +217,7 @@ run 20261026-0624 (~30 min): local main was shallow/unrelated; `git fetch --unsh
 - M6-08 (chore-dev, sonnet S): pass, need 0.6, actual 0.12. Dropped inert padding.
 - M7-02 (feature-dev, sonnet S): pass, reviewed (approve, 3 minors), need 0.6, actual 0.26, review 0.26. Added M7-02c for the minors.
 Stopped after 3 tasks to keep the run short; ~$8.8 of budget unused. Next up: M7-02b, M7-02c, M7-04, M7-06, M9-01.
+
+run 20261026-0723 (~20 min): local main shallow/unrelated; unshallow + ff worked. Trunk green (548 tests).
+- M7-04 (engine-dev, opus M): pass after one in-session fix (property test failure verified by Director), reviewed (approve), need 4.0, actual 1.52, review 0.08. Added M7-04b follow-up.
+Stopped after one task to keep the run short; ~$7.5 of budget unused. Next up: M7-02b, M7-02c, M7-04b, M7-06, M9-01.

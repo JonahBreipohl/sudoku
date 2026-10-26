@@ -1,4 +1,4 @@
-# Status (run 20261026-0624)
+# Status (run 20261026-0723)
 
 ## Progress
 - M1: 8/8
@@ -7,13 +7,12 @@
 - M4: 12/12
 - M5: 9/9
 - M6: 8/8
-- M7: 4/14
+- M7: 5/15
 - M8: 0/2
 - M9: 0/9
 - M10: 0/9
 
 ## Next 5 ready
-- M7-04 opus M need ~1.22
 - M7-02b sonnet S need ~0.22
 - M7-02c sonnet S need ~0.22
 - M7-06 opus S need ~0.73
