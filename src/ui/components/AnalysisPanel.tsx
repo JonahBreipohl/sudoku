@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 import { cellName } from "../../engine";
 import type { BoardEvent } from "../../state/events";
 import type { AnalysisState } from "../useAnalysis";
+import { clampStep } from "../timeline";
 import { Timeline } from "./Timeline";
 import {
   describeAlternative,
@@ -20,11 +21,13 @@ interface AnalysisPanelProps {
   path?: readonly BoardEvent[];
   step?: number;
   onStep?: (step: number) => void;
+  /** Rewinds the game to `step` (a count of path events) and resumes play from there. */
+  onRewind?: (step: number) => void;
 }
 
 /** Report for a submitted game: the root mistake and its context, or the solve breakdown. */
 export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(function AnalysisPanel(
-  { state, onClose, onRetry, path, step, onStep },
+  { state, onClose, onRetry, path, step, onStep, onRewind },
   ref,
 ) {
   return (
@@ -45,11 +48,53 @@ export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(functio
             rootIndex={state.result.mistakes.root?.mistake.index ?? null}
             onStep={onStep}
           />
+          {onRewind && (
+            <RewindActions
+              length={path.length}
+              step={step ?? path.length}
+              rootIndex={state.result.mistakes.root?.mistake.index ?? null}
+              onRewind={onRewind}
+            />
+          )}
         </>
       )}
     </section>
   );
 });
+
+function RewindActions({
+  length,
+  step,
+  rootIndex,
+  onRewind,
+}: {
+  length: number;
+  step: number;
+  rootIndex: number | null;
+  onRewind: (step: number) => void;
+}) {
+  const s = clampStep(step, length);
+  // Just before the root mistake is the step that leaves the mistaken move out.
+  const before = rootIndex !== null && rootIndex >= 0 && rootIndex < length ? rootIndex : null;
+  return (
+    <div className="timeline-row" role="group" aria-label="Rewind and keep playing">
+      {before !== null && (
+        <button type="button" className="ctl" data-testid="rewind-before-mistake" onClick={() => onRewind(before)}>
+          Rewind to before the mistake
+        </button>
+      )}
+      <button
+        type="button"
+        className="ctl"
+        data-testid="rewind-here"
+        disabled={s >= length}
+        onClick={() => onRewind(s)}
+      >
+        Rewind to this move and play on
+      </button>
+    </div>
+  );
+}
 
 function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }) {
   if (state.status === "idle" || state.status === "loading")

@@ -13,6 +13,20 @@ export interface HistoryEntry {
   undone: boolean;
   /** The node the cursor sits on. */
   current: boolean;
+  /** Another branch also grows from this node: a rewind (or undo) led away from it. */
+  branchPoint: boolean;
+}
+
+/** Number of nodes whose parent is `parent` (-1 = the starting position). */
+function childCount(nodes: readonly BoardEvent[], parent: number): number {
+  let n = 0;
+  for (const e of nodes) if (e.parent === parent) n++;
+  return n;
+}
+
+/** True when more than one line of play starts from the empty starting position. */
+export function branchesAtStart(nodes: readonly BoardEvent[]): boolean {
+  return childCount(nodes, -1) > 1;
 }
 
 export function cellName(cell: number): string {
@@ -53,6 +67,7 @@ export function historyEntries(nodes: readonly BoardEvent[], cursor: number): Hi
       text: describeEvent(event),
       undone,
       current: event.id === cursor,
+      branchPoint: childCount(nodes, event.id) > 1,
     }))
     .reverse();
 }

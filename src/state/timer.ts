@@ -39,6 +39,10 @@ export function foldTimer(log: readonly MetaEvent[]): TimerState & { running: bo
       case "submit":
         done = true;
         break;
+      case "rewind":
+        // Rewinding a submitted game reopens it, so the clock runs again.
+        done = false;
+        break;
       default:
         continue;
     }

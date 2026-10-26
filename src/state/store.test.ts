@@ -212,6 +212,30 @@ describe("submit", () => {
     expect(s.getSnapshot().record.nodes).toHaveLength(blanks.length);
   });
 
+  it("rewind reopens a submitted game on a new branch, keeping old nodes", () => {
+    const s = make();
+    fill(s, -1, blanks[0]);
+    s.dispatch({ type: "submit" });
+    const before = s.getSnapshot().record.nodes.length;
+    s.dispatch({ type: "rewind", to: -1 });
+    let { record } = s.getSnapshot();
+    expect(record.status).toBe("playing");
+    expect(record.cursor).toBe(-1);
+    expect(record.log.at(-1)).toMatchObject({ type: "rewind", to: -1 });
+    place(s, blanks[0]!, Number(solution[blanks[0]!]));
+    record = s.getSnapshot().record;
+    expect(record.nodes).toHaveLength(before + 1);
+    expect(record.nodes.at(-1)!.parent).toBe(-1);
+    expect(isGameRecord(record)).toBe(true);
+  });
+
+  it("rewind to the current node still reopens a submitted game", () => {
+    const s = make();
+    s.dispatch({ type: "submit" });
+    s.dispatch({ type: "rewind", to: -1 });
+    expect(s.getSnapshot().record.status).toBe("playing");
+  });
+
   it("manual submit of a partial grid is incorrect", () => {
     const s = make();
     s.dispatch({ type: "submit" });

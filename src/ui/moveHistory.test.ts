@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { BoardEvent } from "../state/events";
 import { append, undo, type Tree } from "../state/tree";
-import { cellName, describeEvent, historyEntries } from "./moveHistory";
+import { branchesAtStart, cellName, describeEvent, historyEntries } from "./moveHistory";
 import { formatElapsed, formatWallClock } from "./clock";
 
 const base = { at: 0, elapsed: 0 };
@@ -87,5 +87,20 @@ describe("clock formatting", () => {
     const at = new Date(2026, 0, 1, 15, 5).getTime();
     expect(formatWallClock(at, "en-GB")).toBe("15:05");
     expect(formatWallClock(at, "en-US").replace(/\s/g, " ")).toBe("3:05 PM");
+  });
+});
+
+describe("branch points", () => {
+  it("marks the node a second branch grows from, and the start", () => {
+    let t: Tree = { nodes: [], cursor: -1 };
+    t = append(t, place(0, 1));
+    t = append(t, place(1, 2));
+    t = { nodes: t.nodes, cursor: 0 };
+    t = append(t, place(1, 3));
+    const e = historyEntries(t.nodes, t.cursor);
+    expect(e.filter((x) => x.branchPoint).map((x) => x.id)).toEqual([0]);
+    expect(branchesAtStart(t.nodes)).toBe(false);
+    const s = append({ nodes: t.nodes, cursor: -1 }, place(5, 5));
+    expect(branchesAtStart(s.nodes)).toBe(true);
   });
 });

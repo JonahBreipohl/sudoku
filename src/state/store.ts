@@ -172,7 +172,9 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
     dispatch(command) {
       const record = snapshot.record;
       // A submitted game is final; this also makes auto-submit and a manual submit race-free.
-      if (record.status === "submitted") return;
+      // The one exception is rewind: analysis reopens a submitted game on a new branch.
+      const reopening = record.status === "submitted" && command.type === "rewind";
+      if (record.status === "submitted" && !reopening) return;
       const at = now();
       if (command.type === "submit") {
         submit(record, at);
@@ -199,11 +201,13 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
       // Cursor moves that go nowhere are not history.
       if (
         (meta.type === "undo" || meta.type === "redo" || meta.type === "rewind") &&
-        tree.cursor === record.cursor
+        tree.cursor === record.cursor &&
+        !reopening
       )
         return;
       commit({
         ...record,
+        status: reopening ? "playing" : record.status,
         cursor: tree.cursor,
         log: [...record.log, { ...meta, at } as MetaEvent],
       });
