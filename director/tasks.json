@@ -1325,8 +1325,8 @@
         "All dialogs trap and restore focus; prefers-reduced-motion disables transitions",
         "axe: zero serious or critical violations on every screen in both themes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
