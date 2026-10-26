@@ -1404,7 +1404,7 @@
         "A full and correct grid submits automatically once",
         "Submitting an incorrect grid shows the error count and offers analysis (wired in M7-07)"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2598,6 +2598,32 @@
       "status": "todo",
       "attempts": 0,
       "notes": ""
+    },
+    {
+      "id": "M7-02c",
+      "title": "Submit dialog followups: focus return, timer test, dark-theme axe",
+      "milestone": 7,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-02"
+      ],
+      "files": [
+        "src/ui/App.tsx",
+        "src/state/store.test.ts",
+        "e2e/submit.spec.ts"
+      ],
+      "description": "Followups from M7-02 review: (1) after closing the result dialog, return focus somewhere visible and let the result be reopened; (2) assert in store.test.ts that activeMs stops growing after submit; (3) run axe on the result dialog in both themes. Also: disable undo/place visually after submit if cheap; Submit is hidden while paused.",
+      "acceptance": [
+        "Focus is visible after closing the result dialog and the result can be reopened by keyboard",
+        "A test asserts the timer stops after submit",
+        "Axe clean on the result dialog in light and dark"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Followup from M7-02 review."
     }
   ]
 }
