@@ -206,3 +206,5 @@ Stopped: max_tasks_per_run (6) reached. Budget left ~$6.9 of the run. Next up: M
 run 20261026-0322 (~25 min): local main had diverged again (shallow-clone artifact); old tip saved on backup/local-main-20261026c, reset to origin/main. Trunk green.
 - M6-06 (feature-dev, sonnet M): pass, check/build/e2e (146) verified, need 4.0, actual 0.55. Added M7-02b follow-up.
 Stopped after one task to keep the run short. Next up: M6-08, M7-02, M7-04, M7-06, M9-01.
+
+run 20261026-0423: stopped: local main is unrelated to origin/main (ahead 24, behind 66, no common history; shallow-clone artifact seen before). Per rules did not reset; needs owner decision. Nothing dispatched.
