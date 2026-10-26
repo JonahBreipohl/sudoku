@@ -1195,8 +1195,8 @@
         "844x390 landscape: grid and pad side by side, no scrolling",
         "Never scrolls horizontally from 320px up"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
