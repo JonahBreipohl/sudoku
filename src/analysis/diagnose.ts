@@ -106,6 +106,7 @@ function findRuling(
 ): { step: Step; stepsBefore: number; outcome: "eliminated" | "placed" } | { stalledAfter: number } {
   const bit = digitBit(digit);
   let state = start;
+  if (state.values[cell] !== 0) throw new Error(`findRuling: ${cellName(cell)} must start empty`);
   for (let n = 0; ; n++) {
     const step = nextStep(state, level, registry);
     if (!step) return { stalledAfter: n };
@@ -149,7 +150,11 @@ export function diagnose(
   const event = path[index]!;
   const peers = PEERS[cell]!;
 
-  const start = fromGrid(correctOnly(board, solution));
+  // The cell itself starts empty: a placement can overwrite a correct value there, and leaving it
+  // in would make the cell look settled before any step ran.
+  const known = correctOnly(board, solution);
+  known[cell] = 0;
+  const start = fromGrid(known);
   const available = nextStep(start, level, registry);
   const result = (diagnosis: Diagnosis): MistakeDiagnosis => ({
     mistake,

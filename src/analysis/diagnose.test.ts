@@ -171,6 +171,19 @@ describe("diagnose: one case per diagnosis", () => {
     if (d.diagnosis.kind === "deduction") expect(d.diagnosis.step.explanation).toBe(`${cellName(R5C2)} can only hold 2`);
   });
 
+  it("deduction: overwriting a correct value searches from the cell emptied", () => {
+    // Regression (fast-check seed 853577506): r1c3 holds its true 4, then 1 replaces it. The
+    // ruling step must actually settle r1c3, not be whatever step comes first.
+    const d = only(SAMPLE_EASY, [place(R1C3, 4), place(R1C3, 1)]);
+    expect(d.diagnosis.kind).toBe("deduction");
+    if (d.diagnosis.kind !== "deduction") return;
+    const { step } = d.diagnosis;
+    const settles =
+      step.placements.some((p) => p.cell === R1C3 || (p.digit === 1 && PEERS[R1C3]!.includes(p.cell))) ||
+      step.eliminations.some((e) => e.cell === R1C3 && e.digit === 1);
+    expect(settles).toBe(true);
+  });
+
   it("does not modify the record or the report", () => {
     const r = recordOf(SAMPLE_EASY, [place(R5C3, 2), place(R5C2, 5), place(R1C3, 3)], "easy");
     const copy = structuredClone(r);
