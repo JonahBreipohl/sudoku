@@ -236,3 +236,7 @@ diverged 20261026-1425: local main (24 commits) shares no history with origin/ma
 run 20261026-1723 (~25 min): shallow clone again; unshallow + ff worked. Trunk green (579 tests).
 - M7-02c (feature-dev, sonnet S): pass, need 0.6, actual ~0.6 (estimate, 63.8k tokens). e2e 170 pass. Not reviewed (not engine/state/opus, not every third).
 Stopped after one task to keep the run short. Next up: M7-04b, M7-06, M7-05b, M9-01.
+
+run 20261026-1823 (~15 min): shallow clone again; unshallow + ff worked. Trunk green (580 tests).
+- M7-04b (feature-dev, sonnet S): pass, need 0.6, actual ~0.6 (estimate, 52k tokens). e2e 170 pass. Not reviewed (not engine/state/opus, not every third).
+Stopped after one task to keep the run short. Next up: M7-06, M7-05b, M8-01, M9-01.

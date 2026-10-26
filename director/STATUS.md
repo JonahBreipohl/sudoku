@@ -1,6 +1,6 @@
-# Status (run 20261026-1723)
+# Status (run 20261026-1823)
 
-M7-02c done this run; M7 now 7/16 (see RUNLOG).
+M7-04b done this run; M7 now 8/16 (see RUNLOG).
 
 ## Progress
 - M1: 8/8
@@ -9,16 +9,16 @@ M7-02c done this run; M7 now 7/16 (see RUNLOG).
 - M4: 12/12
 - M5: 9/9
 - M6: 8/8
-- M7: 6/16
+- M7: 8/16
 - M8: 0/2
 - M9: 0/9
 - M10: 0/9
 
 ## Next 5 ready
-- M7-02b sonnet S need ~0.22
-- M7-02c sonnet S need ~0.22
-- M7-06 opus S need ~0.73
-- M7-02b/M7-04b/M7-05b small follow-ups
+- M8-01 opus S need ~0.73
+- M7-05b haiku S need ~0.05
+- M8-01 opus S need ~0.73
+- M10-03 sonnet S, M10-04 sonnet S
 - M9-01 sonnet M need ~0.41
 
 ## Blocked
