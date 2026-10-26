@@ -234,9 +234,12 @@ All analysis runs in the worker on a `GameRecord` and the path ending at its cur
    3. *Likely typo*: e came less than 1.5 s after the previous board event and d is adjacent to the
       solution digit on the pad's 3x3 layout or the number row of the keyboard (`input` and `key`
       are recorded on the event).
-   4. *Guess*: the human solver limited to the puzzle's level finds no step at S.
+   4. *Guess*: the human solver limited to the puzzle's level finds no step at S, or logic stalls
+      before the cell settles (the solver gets stuck before placing c).
    5. *Ruled out by a deduction*: run the human solver from S (level-limited) until the candidate
       (c, d) is eliminated or c is placed; report that step's technique, cells, and explanation.
+   Diagnosis ignores notes, drops wrong values from the replayed state and empties the mistaken
+   cell before solving. A removed solution note is refuted by the placing step.
 4. **What was available instead**: the first step `nextStep(S, level)` returns.
 5. **Cascade**: walk later events keeping a set of wrong cells (starting with the root). A later
    mistake belongs to the cascade if its diagnosis is "consequence"; a later placement belongs if
