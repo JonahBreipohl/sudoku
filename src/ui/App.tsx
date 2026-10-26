@@ -12,6 +12,8 @@ import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
 import { newGame, resetGame } from "../state/newGame";
 import { Board } from "./components/Board";
+import { SubmitDialog } from "./components/SubmitDialog";
+import { submitErrors } from "../state/store";
 import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
@@ -288,6 +290,14 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     if (msg) setAnnouncement(msg);
   }, [board, conflicts, game.record.solution]);
 
+  const submitted = game.record.status === "submitted";
+  const [resultDismissed, setResultDismissed] = useState(false);
+  const onSubmit = useCallback(() => {
+    if (!pending) dispatch({ type: "submit" });
+  }, [pending, dispatch]);
+  const submitResult = [...game.record.log].reverse().find((e) => e.type === "submit");
+  const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
+
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
   const [checked, setChecked] = useState<{ key: string; mistakes: number; wrong: number[] } | null>(null);
   const onCheck = useCallback(() => {
@@ -349,6 +359,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             digitFirst={digitFirst}
             onToggleEntry={onToggleEntry}
             onCheck={onCheck}
+            onSubmit={onSubmit}
+            submitted={submitted}
             checkResult={checkResult}
           />
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
@@ -365,6 +377,14 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
           onToggleEntry={onToggleEntry}
           onToggleAuto={onToggleAuto}
           onClose={() => setSettingsOpen(false)}
+        />
+      )}
+      {submitted && !resultDismissed && submitResult?.type === "submit" && (
+        <SubmitDialog
+          result={submitResult.result}
+          wrong={errors.wrong}
+          blank={errors.blank}
+          onClose={() => setResultDismissed(true)}
         />
       )}
       {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}
