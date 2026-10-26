@@ -1352,8 +1352,8 @@
         "axe clean in both themes at every size",
         "Keyboard-only flow: select, place, note, undo, open and close dialogs"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
