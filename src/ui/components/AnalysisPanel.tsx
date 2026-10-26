@@ -1,6 +1,8 @@
 import { forwardRef } from "react";
 import { cellName } from "../../engine";
+import type { BoardEvent } from "../../state/events";
 import type { AnalysisState } from "../useAnalysis";
+import { Timeline } from "./Timeline";
 import {
   describeAlternative,
   describeCascade,
@@ -14,11 +16,15 @@ interface AnalysisPanelProps {
   state: AnalysisState;
   onClose: () => void;
   onRetry?: () => void;
+  /** The path to step through; the timeline is hidden without one. */
+  path?: readonly BoardEvent[];
+  step?: number;
+  onStep?: (step: number) => void;
 }
 
 /** Report for a submitted game: the root mistake and its context, or the solve breakdown. */
 export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(function AnalysisPanel(
-  { state, onClose, onRetry },
+  { state, onClose, onRetry, path, step, onStep },
   ref,
 ) {
   return (
@@ -30,6 +36,17 @@ export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(functio
         </button>
       </div>
       <Body state={state} onRetry={onRetry} />
+      {state.status === "ready" && path && path.length > 0 && onStep && (
+        <>
+          <h3 className="analysis-sub">Timeline</h3>
+          <Timeline
+            path={path}
+            step={step ?? path.length}
+            rootIndex={state.result.mistakes.root?.mistake.index ?? null}
+            onStep={onStep}
+          />
+        </>
+      )}
     </section>
   );
 });

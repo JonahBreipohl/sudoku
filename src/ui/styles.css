@@ -916,3 +916,31 @@ button {
   outline: 2px dashed var(--mark-support);
   outline-offset: -3px;
 }
+
+/* Analysis timeline */
+.timeline {
+  display: grid;
+  gap: 8px;
+}
+.timeline-label {
+  margin: 0;
+  font-weight: 600;
+}
+.timeline-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.timeline-slider {
+  width: 100%;
+  min-height: 44px;
+  accent-color: var(--accent, currentColor);
+}
+.timeline-slider:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.board[data-preview] {
+  outline: 2px dashed var(--line);
+  outline-offset: 3px;
+}

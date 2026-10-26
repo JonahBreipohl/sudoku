@@ -15,15 +15,18 @@ interface BoardProps {
   onSelect: (cell: number) => void;
   /** Digit locked in digit-first entry; highlighted wherever it appears. */
   lockedDigit?: number | null;
+  /** Marks the grid as a read-only preview of another position. */
+  preview?: boolean;
 }
 
 const ROWS = Array.from({ length: 9 }, (_, i) => i);
 
-export function Board({ givens, board, notes, selected, conflicts, wrong, marks, onSelect, lockedDigit = null }: BoardProps) {
+export function Board({ givens, board, notes, selected, conflicts, wrong, marks, onSelect, lockedDigit = null, preview = false }: BoardProps) {
   const highlights = highlightsFor({ board, notes, conflicts }, selected, lockedDigit);
 
   return (
-    <div className="board" role="grid" aria-label="Sudoku board">
+    <div className="board" role="grid" aria-label={preview ? "Sudoku board, preview of an earlier move" : "Sudoku board"}
+      data-preview={preview ? "" : undefined}>
       {ROWS.map((r) => (
         <div className="board-row" role="row" key={r}>
           {ROWS.map((c) => {
