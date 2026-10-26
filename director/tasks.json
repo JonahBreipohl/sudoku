@@ -1569,7 +1569,7 @@
         "Every diagnosis type renders readable copy",
         "Works in all layouts and both themes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2720,6 +2720,31 @@
       "status": "todo",
       "attempts": 0,
       "notes": ""
+    },
+    {
+      "id": "M7-08b",
+      "title": "Analysis panel retry wiring and visual check",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-08"
+      ],
+      "files": [
+        "src/ui/useAnalysis.ts",
+        "src/ui/App.tsx",
+        "src/ui/components/AnalysisPanel.tsx"
+      ],
+      "description": "Add refetch to useAnalysis and pass onRetry to AnalysisPanel; remove the dead coming-soon branch in SubmitDialog; screenshot-check the panel at 390px and 1440px in both themes.",
+      "acceptance": [
+        "Retry from the error state re-runs analysis",
+        "Panel visually checked at 390px and 1440px, light and dark"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Follow-up from M7-08 report."
     }
   ]
 }

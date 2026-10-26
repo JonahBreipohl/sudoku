@@ -248,3 +248,7 @@ Stopped after one task to keep the run short. Next up: M7-05b, M7-06b, M7-07, M8
 run 20261026-2029 (~8 min): shallow clone but in sync with origin/main. Trunk green.
 - M7-07 (feature-dev, sonnet S): pass, need 0.6, actual ~0.4. Not reviewed. Added M7-07b follow-up (UI wiring).
 Stopped after one task to keep the run short. Next up: M7-05b, M7-06b, M7-08, M8-01, M9-01.
+
+run 20261026-2123 (~25 min): shallow clone, unshallowed; trunk green (595 tests).
+- M7-08 (feature-dev, sonnet M): pass, need 0.9, actual 0.87. check 623 tests, build, e2e 174 pass. Not reviewed (not engine/state/opus). Added M7-08b follow-up.
+Stopped after one task to keep the run short. Next up: M7-05b, M7-06b, M7-07b, M7-08b, M8-01, M9-01.
