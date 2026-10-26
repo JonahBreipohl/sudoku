@@ -9,17 +9,24 @@ test.beforeEach(async ({ page }) => {
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 });
 
-test("submitting an incomplete grid shows the count and a disabled analysis offer", async ({ page }) => {
-  await page.getByRole("button", { name: /Submit/ }).click();
-  await page.getByRole("dialog", { name: "Submit this puzzle?" }).getByRole("button", { name: "Submit" }).click();
-  const result = page.getByRole("dialog", { name: /Not solved yet/ });
-  await expect(result).toContainText(`${blanks.length} empty cells`);
-  await expect(result.getByRole("button", { name: /Analyze mistakes/ })).toBeDisabled();
-  expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
-  await page.keyboard.press("Escape");
-  await expect(result).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /Submit/ })).toBeDisabled();
-});
+for (const theme of ["light", "dark"] as const) {
+  test(`result dialog is accessible, closes to a focused View result button and reopens (${theme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    await page.getByRole("button", { name: /Submit/ }).click();
+    await page.getByRole("dialog", { name: "Submit this puzzle?" }).getByRole("button", { name: "Submit" }).click();
+    const result = page.getByRole("dialog", { name: /Not solved yet/ });
+    await expect(result).toContainText(`${blanks.length} empty cells`);
+    await expect(result.getByRole("button", { name: /Analyze mistakes/ })).toBeDisabled();
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await page.keyboard.press("Escape");
+    await expect(result).toHaveCount(0);
+    const view = page.getByRole("button", { name: /View result/ });
+    await expect(view).toBeFocused();
+    await expect(page.getByRole("button", { name: /Undo/ })).toBeDisabled();
+    await page.keyboard.press("Enter");
+    await expect(result).toBeVisible();
+  });
+}
 
 test("filling the last cell correctly submits automatically", async ({ page }) => {
   await page.evaluate(

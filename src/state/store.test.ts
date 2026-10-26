@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { SAMPLE_EASY } from "../engine/samples";
 import { isGameRecord } from "./events";
+import { activeMs } from "./timer";
 import { createGameStore, newGameRecord, submitErrors, type GameStore } from "./store";
 
 const blank = SAMPLE_EASY.puzzle.indexOf(".");
@@ -222,5 +223,19 @@ describe("submit", () => {
     fill(s, blanks[1], blanks[0]);
     const snap = s.getSnapshot();
     expect(submitErrors(snap.record, snap.board)).toEqual({ wrong: 1, blank: 1 });
+  });
+
+  it("stops the timer at submit", () => {
+    let t = 1000;
+    const store = createGameStore(
+      newGameRecord({ id: "t", puzzle: SAMPLE_EASY.puzzle, solution: SAMPLE_EASY.solution, level: "easy", createdAt: 0 }),
+      { now: () => t },
+    );
+    store.dispatch({ type: "start" });
+    t = 3000;
+    store.dispatch({ type: "submit" });
+    const at = (ms: number) => activeMs(store.getSnapshot().record, ms);
+    expect(at(3000)).toBe(2000);
+    expect(at(60000)).toBe(2000);
   });
 });

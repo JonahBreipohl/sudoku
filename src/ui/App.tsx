@@ -303,6 +303,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     setSeenSubmit(submitResult);
     if (submitResult?.type === "submit") setAnnouncement(describeSubmit(submitResult.result));
   }
+  const resultOpen = submitted && !resultDismissed;
   const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
 
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
@@ -368,6 +369,8 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             onCheck={onCheck}
             onSubmit={onSubmit}
             submitted={submitted}
+            onViewResult={() => setResultDismissed(false)}
+            resultOpen={resultOpen}
             checkResult={checkResult}
           />
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
@@ -386,7 +389,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
           onClose={() => setSettingsOpen(false)}
         />
       )}
-      {submitted && !resultDismissed && submitResult?.type === "submit" && (
+      {resultOpen && submitResult?.type === "submit" && (
         <SubmitDialog
           result={submitResult.result}
           wrong={errors.wrong}
