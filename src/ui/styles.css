@@ -19,6 +19,10 @@
   --pad-bg: #ffffff;
   --pad-done: #767c87;
   --scrim: rgb(29 31 36 / 0.55);
+  --mark-root: #9a4a00;
+  --mark-root-bg: #fbe0c4;
+  --mark-support: #6a3fa0;
+  --mark-support-bg: #e9dff7;
 
   --gutter: 16px;
   --radius: 8px;
@@ -49,6 +53,10 @@
     --pad-bg: #23262c;
     --pad-done: #6b707a;
     --scrim: rgb(0 0 0 / 0.65);
+    --mark-root: #ffb066;
+    --mark-root-bg: #5a3412;
+    --mark-support: #c9a8ff;
+    --mark-support-bg: #3d2f5c;
     color-scheme: dark;
   }
 }
@@ -73,6 +81,10 @@
   --pad-bg: #23262c;
   --pad-done: #6b707a;
   --scrim: rgb(0 0 0 / 0.65);
+  --mark-root: #ffb066;
+  --mark-root-bg: #5a3412;
+  --mark-support: #c9a8ff;
+  --mark-support-bg: #3d2f5c;
   color-scheme: dark;
 }
 
@@ -253,6 +265,38 @@ button {
   color: var(--conflict);
   box-shadow: inset 0 0 0 3px var(--conflict);
   position: relative;
+}
+/* Analysis marks. Root: solid frame, tint and a "!" badge. Reason cells: dashed frame, tint
+   and a diamond badge. The shapes differ so the two read apart without color. */
+.cell--mark-root,
+.cell--mark-support {
+  position: relative;
+}
+.cell--mark-root {
+  background: var(--mark-root-bg);
+  box-shadow: inset 0 0 0 4px var(--mark-root);
+}
+.cell--mark-support {
+  background: var(--mark-support-bg);
+  outline: 3px dashed var(--mark-support);
+  outline-offset: -4px;
+}
+.cell--mark-root::before,
+.cell--mark-support::before {
+  position: absolute;
+  top: 1px;
+  left: 3px;
+  font-size: 0.55em;
+  font-weight: 800;
+  line-height: 1;
+}
+.cell--mark-root::before {
+  content: "!";
+  color: var(--mark-root);
+}
+.cell--mark-support::before {
+  content: "\25C6";
+  color: var(--mark-support);
 }
 .cell--wrong::after {
   content: "\2715";
@@ -792,4 +836,83 @@ button {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Analysis report */
+.analysis {
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  overflow-wrap: anywhere;
+}
+.analysis:focus-visible,
+.analysis-title:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.analysis-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.analysis-title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.analysis-lead {
+  font-weight: 700;
+  margin: 8px 0 4px;
+}
+.analysis p {
+  margin: 4px 0;
+}
+.analysis-sub {
+  margin: 12px 0 2px;
+  font-size: 0.95rem;
+}
+.analysis-note {
+  color: var(--text-muted);
+}
+.analysis-list {
+  margin: 4px 0;
+  padding-left: 1.4rem;
+}
+.analysis-list li {
+  margin: 4px 0;
+}
+.analysis-facts {
+  display: grid;
+  gap: 4px;
+  margin: 8px 0;
+}
+.analysis-facts div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+}
+.analysis-facts dt {
+  color: var(--text-muted);
+  min-width: 8rem;
+}
+.analysis-facts dd {
+  margin: 0;
+  font-weight: 600;
+}
+.key-swatch {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.12em;
+}
+.key-swatch--root {
+  background: var(--mark-root-bg);
+  box-shadow: inset 0 0 0 3px var(--mark-root);
+}
+.key-swatch--support {
+  background: var(--mark-support-bg);
+  outline: 2px dashed var(--mark-support);
+  outline-offset: -3px;
 }

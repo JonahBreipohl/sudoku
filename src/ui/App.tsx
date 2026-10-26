@@ -18,6 +18,8 @@ import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
+import { AnalysisPanel } from "./components/AnalysisPanel";
+import { useAnalysis } from "./useAnalysis";
 import { SidePanel } from "./components/SidePanel";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { actionForKey } from "./keyboard";
@@ -304,6 +306,24 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     if (submitResult?.type === "submit") setAnnouncement(describeSubmit(submitResult.result));
   }
   const resultOpen = submitted && !resultDismissed;
+  // A correct solve shows its analysis once the result dialog is dismissed; an incorrect one on request.
+  const solvedGame = submitResult?.type === "submit" && submitResult.result === "solved";
+  const [analysisRequested, setAnalysisRequested] = useState(false);
+  const [analysisClosed, setAnalysisClosed] = useState(false);
+  const showAnalysis = submitted && !resultOpen && !analysisClosed && (analysisRequested || solvedGame);
+  const analysis = useAnalysis(showAnalysis ? game.record : null);
+  const analysisRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (showAnalysis) analysisRef.current?.focus();
+  }, [showAnalysis]);
+  const marks = useMemo(() => {
+    if (!showAnalysis || analysis.status !== "ready") return undefined;
+    const [root, ...rest] = analysis.result.mistakes.highlight;
+    if (root === undefined) return undefined;
+    const m = new Map<number, "root" | "support">(rest.map((c) => [c, "support"]));
+    m.set(root, "root");
+    return m;
+  }, [showAnalysis, analysis]);
   const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
 
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
@@ -345,6 +365,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             selected={selected}
             conflicts={conflicts}
             wrong={wrongSet}
+            marks={marks}
             onSelect={onSelectCell}
             lockedDigit={entry.locked}
           />
@@ -373,6 +394,16 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             resultOpen={resultOpen}
             checkResult={checkResult}
           />
+          {showAnalysis && (
+            <AnalysisPanel
+              ref={analysisRef}
+              state={analysis}
+              onClose={() => {
+                setAnalysisClosed(true);
+                setAnalysisRequested(false);
+              }}
+            />
+          )}
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
           <SidePanel record={game.record} showTimer={settings.showTimer} wallClock={settings.wallClock} />
         </div>
@@ -395,6 +426,11 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
           wrong={errors.wrong}
           blank={errors.blank}
           onClose={() => setResultDismissed(true)}
+          onAnalyze={() => {
+            setAnalysisClosed(false);
+            setAnalysisRequested(true);
+            setResultDismissed(true);
+          }}
         />
       )}
       {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}

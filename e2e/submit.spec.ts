@@ -16,7 +16,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.getByRole("dialog", { name: "Submit this puzzle?" }).getByRole("button", { name: "Submit" }).click();
     const result = page.getByRole("dialog", { name: /Not solved yet/ });
     await expect(result).toContainText(`${blanks.length} empty cells`);
-    await expect(result.getByRole("button", { name: /Analyze mistakes/ })).toBeDisabled();
+    await expect(result.getByRole("button", { name: /Analyze mistakes/ })).toBeEnabled();
     expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
     await page.keyboard.press("Escape");
     await expect(result).toHaveCount(0);
@@ -42,3 +42,24 @@ test("filling the last cell correctly submits automatically", async ({ page }) =
   await page.keyboard.press(SAMPLE_EASY.solution[last]!);
   await expect(page.getByRole("dialog", { name: /Solved/ })).toBeVisible();
 });
+
+for (const theme of ["light", "dark"] as const) {
+  test(`analysis marks the root mistake and passes axe (${theme})`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: theme });
+    const cell = blanks[0]!;
+    const wrong = (Number(SAMPLE_EASY.solution[cell]) % 9) + 1;
+    await page.locator(`[data-cell="${cell}"]`).click();
+    await page.keyboard.press(String(wrong));
+    await page.getByRole("button", { name: /Submit/ }).click();
+    await page.getByRole("dialog", { name: "Submit this puzzle?" }).getByRole("button", { name: "Submit" }).click();
+    await page.getByRole("dialog", { name: /Not solved yet/ }).getByRole("button", { name: /Analyze mistakes/ }).click();
+    const panel = page.getByRole("region", { name: "Analysis" });
+    await expect(panel).toContainText("First mistake");
+    await expect(panel).toBeFocused();
+    await expect(page.locator(`[data-cell="${cell}"]`)).toHaveClass(/cell--mark-root/);
+    await expect(page.locator(`[data-cell="${cell}"]`)).toHaveAttribute("aria-label", /mistake/);
+    expect((await new AxeBuilder({ page }).analyze()).violations).toEqual([]);
+    await panel.getByRole("button", { name: "Close analysis" }).click();
+    await expect(panel).toHaveCount(0);
+  });
+}

@@ -14,11 +14,13 @@ export interface CellProps {
   conflict: boolean;
   /** Marked wrong by the last Check (only passed when the setting is on). */
   wrong?: boolean;
+  /** Analysis highlight: the root mistake or a cell that justifies its diagnosis. */
+  mark?: "root" | "support";
   tabbable: boolean;
   onSelect: (cell: number) => void;
 }
 
-export function cellLabel(cell: number, value: number, given: boolean, notes: CandidateMask, conflict: boolean, wrong = false): string {
+export function cellLabel(cell: number, value: number, given: boolean, notes: CandidateMask, conflict: boolean, wrong = false, mark?: "root" | "support"): string {
   const where = `Row ${rowOf(cell) + 1}, column ${colOf(cell) + 1}`;
   let what: string;
   if (value !== 0) what = `${value}${given ? ", given" : ""}`;
@@ -26,7 +28,7 @@ export function cellLabel(cell: number, value: number, given: boolean, notes: Ca
     const digits = maskDigits(notes);
     what = digits.length > 0 ? `empty, notes ${digits.join(" ")}` : "empty";
   }
-  return `${where}, ${what}${conflict ? ", conflict" : ""}${wrong ? ", wrong" : ""}`;
+  return `${where}, ${what}${conflict ? ", conflict" : ""}${wrong ? ", wrong" : ""}${mark === "root" ? ", mistake" : mark === "support" ? ", reason for mistake" : ""}`;
 }
 
 const NOTE_SLOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -42,6 +44,7 @@ export const Cell = memo(function Cell(p: CellProps) {
     p.sameDigit && "cell--same",
     p.conflict && "cell--conflict",
     p.wrong && "cell--wrong",
+    p.mark && `cell--mark-${p.mark}`,
   ]
     .filter(Boolean)
     .join(" ");
@@ -50,7 +53,7 @@ export const Cell = memo(function Cell(p: CellProps) {
       type="button"
       className={classes}
       data-cell={p.cell}
-      aria-label={cellLabel(p.cell, p.value, p.given, p.notes, p.conflict, p.wrong)}
+      aria-label={cellLabel(p.cell, p.value, p.given, p.notes, p.conflict, p.wrong, p.mark)}
       tabIndex={p.tabbable ? 0 : -1}
       onClick={() => p.onSelect(p.cell)}
     >
