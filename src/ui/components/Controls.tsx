@@ -20,6 +20,8 @@ interface ControlsProps {
   digitFirst: boolean;
   onToggleEntry: () => void;
   onCheck: () => void;
+  onSubmit: () => void;
+  submitted: boolean;
   /** Result of the last Check while the board is unchanged, else null. */
   checkResult: { mistakes: number } | null;
 }
@@ -41,10 +43,13 @@ export function Controls({
   digitFirst,
   onToggleEntry,
   onCheck,
+  onSubmit,
+  submitted,
   checkResult,
 }: ControlsProps) {
   const active = notesMode || shiftHeld;
   const [confirming, setConfirming] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const resetButton = useRef<HTMLButtonElement>(null);
   const wasConfirming = useRef(false);
   // The modal keeps the page inert until unmounted, so focus returns only after it closes.
@@ -89,9 +94,25 @@ export function Controls({
       <button type="button" className="ctl" onClick={onCheck}>
         <span aria-hidden="true">?</span> Check
       </button>
+      <button type="button" className="ctl" disabled={submitted} aria-haspopup="dialog" onClick={() => setSubmitting(true)}>
+        <span aria-hidden="true">✓</span> Submit
+      </button>
       <div role="status" className={checkResult ? (checkResult.mistakes === 0 ? "check-status check-status--ok" : "check-status check-status--bad") : "check-status"}>
         {checkResult ? checkMessage(checkResult.mistakes) : ""}
       </div>
+      {submitting && (
+        <ConfirmDialog
+          title="Submit this puzzle?"
+          message="Submitting is final: the clock stops and the board is locked."
+          confirmLabel="Submit"
+          cancelLabel="Keep playing"
+          onCancel={() => setSubmitting(false)}
+          onConfirm={() => {
+            setSubmitting(false);
+            onSubmit();
+          }}
+        />
+      )}
       {confirming && (
         <ConfirmDialog
           title="Reset this puzzle?"

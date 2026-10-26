@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { SAMPLE_EASY } from "../engine/samples";
 import { isGameRecord } from "./events";
-import { createGameStore, newGameRecord, type GameStore } from "./store";
+import { createGameStore, newGameRecord, submitErrors, type GameStore } from "./store";
 
 const blank = SAMPLE_EASY.puzzle.indexOf(".");
 const given = SAMPLE_EASY.puzzle.search(/[1-9]/);
@@ -168,5 +168,59 @@ describe("store timer", () => {
     const cell = blank;
     store.dispatch({ type: "place", cell, digit: Number(SAMPLE_EASY.solution[cell]), input: "keyboard" });
     expect(store.getSnapshot().record.nodes[0]?.elapsed).toBe(600);
+  });
+});
+
+describe("submit", () => {
+  const solution = SAMPLE_EASY.solution;
+  const blanks = [...SAMPLE_EASY.puzzle].flatMap((c, i) => (c === "." ? [i] : []));
+  const fill = (s: GameStore, except = -1, wrongAt = -1) => {
+    for (const i of blanks) {
+      if (i === except) continue;
+      const d = i === wrongAt ? (Number(solution[i]) % 9) + 1 : Number(solution[i]);
+      s.dispatch({ type: "place", cell: i, digit: d, input: "keyboard" });
+    }
+  };
+  const submits = (s: GameStore) => s.getSnapshot().record.log.filter((e) => e.type === "submit");
+
+  it("auto-submits once when the grid becomes full and correct, stopping the timer", () => {
+    const s = make();
+    fill(s);
+    const { record } = s.getSnapshot();
+    expect(record.status).toBe("submitted");
+    expect(submits(s)).toEqual([expect.objectContaining({ result: "solved" })]);
+    s.dispatch({ type: "submit" });
+    s.dispatch({ type: "erase", cell: blanks[0]! });
+    expect(submits(s)).toHaveLength(1);
+    expect(s.getSnapshot().record.nodes).toHaveLength(blanks.length);
+  });
+
+  it("does not auto-submit a full but wrong grid", () => {
+    const s = make();
+    fill(s, -1, blanks[0]);
+    expect(s.getSnapshot().record.status).toBe("playing");
+  });
+
+  it("manual submit of an incorrect grid records incorrect and locks the game", () => {
+    const s = make();
+    fill(s, -1, blanks[0]);
+    s.dispatch({ type: "submit" });
+    expect(s.getSnapshot().record.status).toBe("submitted");
+    expect(submits(s)).toEqual([expect.objectContaining({ result: "incorrect" })]);
+    place(s, blanks[1]!, 1);
+    expect(s.getSnapshot().record.nodes).toHaveLength(blanks.length);
+  });
+
+  it("manual submit of a partial grid is incorrect", () => {
+    const s = make();
+    s.dispatch({ type: "submit" });
+    expect(submits(s)).toEqual([expect.objectContaining({ result: "incorrect" })]);
+  });
+
+  it("counts wrong and blank cells", () => {
+    const s = make();
+    fill(s, blanks[1], blanks[0]);
+    const snap = s.getSnapshot();
+    expect(submitErrors(snap.record, snap.board)).toEqual({ wrong: 1, blank: 1 });
   });
 });

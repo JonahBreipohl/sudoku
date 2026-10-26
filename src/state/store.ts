@@ -13,6 +13,7 @@ import {
 } from "./events";
 import type { PersistenceAdapter } from "./persistence";
 import { activeMs } from "./timer";
+import { wrongCells } from "./check";
 import { createReplayer, type BoardState } from "./reducer";
 import { append, redo, rewind, undo, type NewBoardEvent, type Tree } from "./tree";
 
@@ -22,7 +23,8 @@ type DistributiveOmit<T, K extends PropertyKey> = T extends unknown ? Omit<T, K>
 export type BoardCommand = DistributiveOmit<NewBoardEvent, "at" | "elapsed">;
 /** Meta events as callers write them: the store stamps `at`. */
 export type MetaCommand = DistributiveOmit<MetaEvent, "at">;
-export type GameCommand = BoardCommand | MetaCommand;
+/** Submit carries no result: the store compares the board with the solution itself. */
+export type GameCommand = BoardCommand | Exclude<MetaCommand, { type: "submit" }> | { type: "submit" };
 
 export interface GameSnapshot {
   record: GameRecord;
@@ -81,6 +83,11 @@ export function newGameRecord(args: {
     log: [],
     status: "playing",
   };
+}
+
+/** Wrong entries and blanks, for the "incorrect" result screen. */
+export function submitErrors(record: Pick<GameRecord, "puzzle" | "solution">, board: readonly CellValue[]) {
+  return { wrong: wrongCells(record.puzzle, record.solution, board).length, blank: board.filter((v) => v === 0).length };
 }
 
 export function createGameStore(initial: GameRecord, options: StoreOptions = {}): GameStore {
@@ -144,6 +151,18 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
     }
   };
 
+  const isSolved = (board: readonly CellValue[]) =>
+    board.every((v, i) => String(v) === initial.solution[i]);
+
+  const submit = (record: GameRecord, at: number) => {
+    const result = isSolved(snapshot.board) ? "solved" : "incorrect";
+    commit({
+      ...record,
+      status: "submitted",
+      log: [...record.log, { type: "submit", result, at }],
+    });
+  };
+
   return {
     getSnapshot: () => snapshot,
     subscribe(listener) {
@@ -152,15 +171,23 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
     },
     dispatch(command) {
       const record = snapshot.record;
+      // A submitted game is final; this also makes auto-submit and a manual submit race-free.
+      if (record.status === "submitted") return;
       const at = now();
+      if (command.type === "submit") {
+        submit(record, at);
+        return;
+      }
       if (BOARD_TYPES.has(command.type)) {
         const c = command as BoardCommand;
         if (isNoop(c)) return;
         const tree = append(record, { ...c, at, elapsed: elapsed() } as NewBoardEvent);
         commit({ ...record, nodes: tree.nodes as BoardEvent[], cursor: tree.cursor });
+        // A full, correct grid submits itself, once: the status guard above blocks repeats.
+        if (isSolved(snapshot.board)) submit(snapshot.record, at);
         return;
       }
-      const meta = command as MetaCommand;
+      const meta = command as Exclude<MetaCommand, { type: "submit" }>;
       let tree: Tree = record;
       if (meta.type === "undo") tree = undo(record);
       else if (meta.type === "redo") tree = redo(record);

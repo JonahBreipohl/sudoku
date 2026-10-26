@@ -125,8 +125,8 @@ describe("store autosave", () => {
 
   it("archives and clears a submitted game", () => {
     const { p } = make();
-    const s = createGameStore({ ...rec("a"), status: "submitted" }, { persistence: p });
-    s.dispatch({ type: "pause" });
+    const s = createGameStore(rec("a"), { persistence: p });
+    s.dispatch({ type: "submit" });
     expect(p.loadCurrent()).toBeNull();
     expect(p.list().map((r) => r.id)).toEqual(["a"]);
   });
