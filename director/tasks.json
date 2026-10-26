@@ -2595,8 +2595,8 @@
         "Completion announced from the submit event",
         "Test covers it"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
