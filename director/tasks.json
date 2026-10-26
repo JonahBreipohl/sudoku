@@ -1619,7 +1619,7 @@
         "Old nodes remain; move history shows the branch point",
         "e2e-ready test ids for the rewind button"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2765,6 +2765,31 @@
       "acceptance": [
         "Preview shows conflicts for the previewed position",
         "Mistake marks appear only from the root mistake step onward"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-10b",
+      "title": "Rewind follow-ups",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "effort": "default",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-10"
+      ],
+      "files": [
+        "src/state/store.ts",
+        "src/ui/components/MoveHistory.tsx"
+      ],
+      "description": "(1) Update the archived record when a submitted game is reopened by rewind. (2) Show abandoned branches in move history beyond the branch-point tag. (3) Consider offering rewind at the now step of a solved game.",
+      "acceptance": [
+        "Archive reflects reopened game",
+        "Abandoned branches visible or documented as out of scope"
       ],
       "status": "todo",
       "attempts": 0,
