@@ -1222,8 +1222,8 @@
         "Move history lists path events newest first and marks undone branches as not current",
         "Side panel is keyboard reachable in a logical tab order"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
