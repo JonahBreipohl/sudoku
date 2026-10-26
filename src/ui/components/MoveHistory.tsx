@@ -1,9 +1,10 @@
 import { useMemo } from "react";
 import type { BoardEvent } from "../../state/events";
-import { historyEntries } from "../moveHistory";
+import { branchesAtStart, historyEntries } from "../moveHistory";
 
 export function MoveHistory({ nodes, cursor }: { nodes: readonly BoardEvent[]; cursor: number }) {
   const entries = useMemo(() => historyEntries(nodes, cursor), [nodes, cursor]);
+  const atStart = useMemo(() => branchesAtStart(nodes), [nodes]);
   return (
     <section className="history" aria-labelledby="history-title">
       <h2 id="history-title" className="panel-title">
@@ -25,8 +26,21 @@ export function MoveHistory({ nodes, cursor }: { nodes: readonly BoardEvent[]; c
                 <span className="history-text">{e.text}</span>
                 {e.undone && <span className="history-tag">undone</span>}
                 {e.current && <span className="history-tag">now</span>}
+                {e.branchPoint && (
+                  <span className="history-tag" data-testid="branch-point">
+                    branch point
+                  </span>
+                )}
               </li>
             ))}
+            {atStart && (
+              <li className="history-item">
+                <span className="history-text">Start</span>
+                <span className="history-tag" data-testid="branch-point">
+                  branch point
+                </span>
+              </li>
+            )}
           </ol>
         )}
       </div>

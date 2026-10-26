@@ -331,7 +331,19 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   // Timeline preview: a step short of the end shows an earlier position, read-only and local to
   // the UI; the store is never touched.
   const [previewStep, setPreviewStep] = useState<number | null>(null);
-  const timeline = useMemo(
+  // Step k keeps the first k path events; the store reopens the submitted game on that node.
+  const onRewind = useCallback(
+    (step: number) => {
+      const path = replayRecord(game.record).path;
+      if (step < 0 || step > path.length) return;
+      dispatch({ type: "rewind", to: step === 0 ? -1 : path[step - 1]!.id });
+      setPreviewStep(null);
+      setAnalysisRequested(false);
+      setAnalysisClosed(false);
+      setResultDismissed(false);
+    },
+    [game.record, dispatch],
+  );  const timeline = useMemo(
     () => (showAnalysis && analysis.status === "ready" ? replayRecord(game.record) : null),
     [showAnalysis, analysis.status, game.record],
   );
@@ -417,6 +429,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
               path={timeline?.path}
               step={previewStep ?? undefined}
               onStep={setPreviewStep}
+              onRewind={onRewind}
               onClose={() => {
                 setAnalysisClosed(true);
                 setAnalysisRequested(false);

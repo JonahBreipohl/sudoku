@@ -90,3 +90,24 @@ test("timeline previews earlier moves read-only and returns to now", async ({ pa
   await panel.getByRole("button", { name: "Back to now" }).click();
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 });
+
+test("rewinding before the mistake reopens play on a new branch", async ({ page }) => {
+  const [a, b] = [blanks[0]!, blanks[1]!];
+  const right = (c: number) => String(SAMPLE_EASY.solution[c]);
+  const wrong = (c: number) => String((Number(SAMPLE_EASY.solution[c]) % 9) + 1);
+  await page.locator(`[data-cell="${a}"]`).click();
+  await page.keyboard.press(right(a));
+  await page.locator(`[data-cell="${b}"]`).click();
+  await page.keyboard.press(wrong(b));
+  await page.getByRole("button", { name: /Submit/ }).click();
+  await page.getByRole("dialog", { name: "Submit this puzzle?" }).getByRole("button", { name: "Submit" }).click();
+  await page.getByRole("dialog", { name: /Not solved yet/ }).getByRole("button", { name: /Analyze mistakes/ }).click();
+  const panel = page.getByRole("region", { name: "Analysis" });
+  await panel.getByTestId("rewind-before-mistake").click();
+  await expect(panel).toHaveCount(0);
+  await expect(page.getByRole("button", { name: /Submit/ })).toBeEnabled();
+  await expect(page.locator(`[data-cell="${b}"]`)).toHaveAttribute("aria-label", /empty/);
+  await page.locator(`[data-cell="${b}"]`).click();
+  await page.keyboard.press(right(b));
+  await expect(page.getByTestId("branch-point")).toHaveCount(1);
+});

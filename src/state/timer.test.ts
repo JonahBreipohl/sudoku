@@ -60,3 +60,15 @@ describe("isPaused", () => {
     expect(isPaused(log(["start", 0], ["pause", 1], ["resume", 2]))).toBe(false);
   });
 });
+
+describe("rewind after submit", () => {
+  it("restarts the clock", () => {
+    const l = { log: [
+      { at: 0, type: "start" },
+      { at: 1000, type: "submit", result: "incorrect" },
+      { at: 5000, type: "rewind", to: -1 },
+    ] as MetaEvent[] };
+    expect(activeMs(l, 9000)).toBe(5000);
+    expect(isRunning(l)).toBe(true);
+  });
+});
