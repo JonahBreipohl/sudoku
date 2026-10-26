@@ -83,7 +83,9 @@ describe("clock formatting", () => {
     expect(formatElapsed(3_661_000)).toBe("1:01:01");
     expect(formatElapsed(-5)).toBe("0:00");
   });
-  it("formats wall time as HH:MM", () => {
-    expect(formatWallClock(new Date(2026, 0, 1, 7, 5).getTime())).toBe("07:05");
+  it("formats wall time in the locale's format", () => {
+    const at = new Date(2026, 0, 1, 15, 5).getTime();
+    expect(formatWallClock(at, "en-GB")).toBe("15:05");
+    expect(formatWallClock(at, "en-US").replace(/\s/g, " ")).toBe("3:05 PM");
   });
 });
