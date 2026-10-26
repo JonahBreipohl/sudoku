@@ -26,7 +26,8 @@ export interface Mistake {
   before: ReplayState;
 }
 
-export interface MistakeReport {
+/** The raw mistake list; report.ts assembles it with diagnoses into the MistakeReport. */
+export interface MistakeScan {
   replay: Replay;
   /** In play order. */
   mistakes: Mistake[];
@@ -34,7 +35,7 @@ export interface MistakeReport {
   root: Mistake | null;
 }
 
-export function findMistakes(record: GameRecord): MistakeReport {
+export function findMistakes(record: GameRecord): MistakeScan {
   const replay = replayRecord(record);
   const { givens, solution, path, states } = replay;
   const mistakes: Mistake[] = [];
