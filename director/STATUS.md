@@ -1,4 +1,6 @@
-# Status (run 20261026-0823)
+# Status (run 20261026-1723)
+
+M7-02c done this run; M7 now 7/16 (see RUNLOG).
 
 ## Progress
 - M1: 8/8

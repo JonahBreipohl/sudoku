@@ -2621,7 +2621,7 @@
         "A test asserts the timer stops after submit",
         "Axe clean on the result dialog in light and dark"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": "Followup from M7-02 review."
     },
