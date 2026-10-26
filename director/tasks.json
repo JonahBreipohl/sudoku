@@ -1404,8 +1404,8 @@
         "A full and correct grid submits automatically once",
         "Submitting an incorrect grid shows the error count and offers analysis (wired in M7-07)"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2571,7 +2571,7 @@
         "No inert declarations on the container itself",
         "check, build and e2e pass"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": "Followup from M6-01 review."
     },
