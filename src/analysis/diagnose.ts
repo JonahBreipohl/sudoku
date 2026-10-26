@@ -17,7 +17,7 @@ import {
   type TechniqueRegistry,
 } from "../engine";
 import type { BoardEvent, GameRecord } from "../state/events";
-import { findMistakes, type Mistake, type MistakeReport } from "./mistakes";
+import { findMistakes, type Mistake, type MistakeScan } from "./mistakes";
 
 /** A placement this soon after the previous board event can be a slip of the finger. */
 export const TYPO_WINDOW_MS = 1500;
@@ -137,14 +137,14 @@ function summarize(m: Mistake, d: Diagnosis): string {
   }
 }
 
-/** Diagnoses one mistake from `report` at the puzzle's level. Does not modify its inputs. */
+/** Diagnoses one mistake from `scan` at the puzzle's level. Does not modify its inputs. */
 export function diagnose(
-  report: MistakeReport,
+  scan: MistakeScan,
   mistake: Mistake,
   level: Level,
   registry: TechniqueRegistry = defaultRegistry,
 ): MistakeDiagnosis {
-  const { solution, path } = report.replay;
+  const { solution, path } = scan.replay;
   const { cell, digit, solutionDigit, before, index } = mistake;
   const board = before.board;
   const event = path[index]!;
@@ -196,8 +196,8 @@ export function diagnose(
 export function diagnoseRecord(
   record: GameRecord,
   registry: TechniqueRegistry = defaultRegistry,
-): { report: MistakeReport; diagnoses: MistakeDiagnosis[] } {
-  const report = findMistakes(record);
-  const diagnoses = report.mistakes.map((m) => diagnose(report, m, record.level, registry));
-  return { report, diagnoses };
+): { scan: MistakeScan; diagnoses: MistakeDiagnosis[] } {
+  const scan = findMistakes(record);
+  const diagnoses = scan.mistakes.map((m) => diagnose(scan, m, record.level, registry));
+  return { scan, diagnoses };
 }
