@@ -225,3 +225,5 @@ Stopped after one task to keep the run short; ~$7.5 of budget unused. Next up: M
 run 20261026-0823 (~30 min): local main shallow/unrelated; backed up on backup-local-main-20261026 and reset to origin/main (no merge-base). Trunk green (566 tests).
 - M7-05 (engine-dev, opus S): pass, reviewed (approve), need 2.4, actual 0.45, review 0.07. Added M7-05b doc follow-up.
 Stopped after one task to keep the run short. Next up: M7-02b, M7-02c, M7-04b, M7-06, M9-01.
+
+skipped 20261026-diverged: local main (24 commits, last be0b8b2 of 2026-10-23) shares no history with origin/main (65 commits ahead); fast-forward impossible, stopped without changes. Needs the owner to reset the stale local checkout.
