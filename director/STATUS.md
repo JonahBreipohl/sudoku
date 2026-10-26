@@ -1,4 +1,4 @@
-# Status (run 20261026-0723)
+# Status (run 20261026-0823)
 
 ## Progress
 - M1: 8/8
@@ -7,7 +7,7 @@
 - M4: 12/12
 - M5: 9/9
 - M6: 8/8
-- M7: 5/15
+- M7: 6/16
 - M8: 0/2
 - M9: 0/9
 - M10: 0/9
@@ -16,6 +16,7 @@
 - M7-02b sonnet S need ~0.22
 - M7-02c sonnet S need ~0.22
 - M7-06 opus S need ~0.73
+- M7-02b/M7-04b/M7-05b small follow-ups
 - M9-01 sonnet M need ~0.41
 
 ## Blocked

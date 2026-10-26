@@ -1488,9 +1488,9 @@
         "Cascade follows the rules in docs/ARCHITECTURE.md and is tested on a record with a 3-move cascade",
         "MistakeReport is serializable (crosses the worker boundary)"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Cascade narrowed: consequence joins only if a wrong peer traces to the root; wrong placement in a note-removal root cell joins."
     },
     {
       "id": "M7-06",
@@ -2649,6 +2649,29 @@
       "status": "todo",
       "attempts": 0,
       "notes": "Follow-up from M7-04"
+    },
+    {
+      "id": "M7-05b",
+      "title": "Document cascade rule in ARCHITECTURE.md",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "effort": "low",
+      "agent": "chore-dev",
+      "deps": [
+        "M7-05"
+      ],
+      "files": [
+        "docs/ARCHITECTURE.md"
+      ],
+      "description": "Update the cascade step (around line 241) to match src/analysis/cascade.ts: a later consequence joins the cascade only when a wrong peer in the root's descendant set holds its cell's solution digit; a wrong placement in the cell of a note-removal root also joins; cells leave the set when erased, corrected, reset or overwritten outside the cascade.",
+      "acceptance": [
+        "ARCHITECTURE.md describes the implemented rule"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }

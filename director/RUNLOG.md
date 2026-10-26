@@ -221,3 +221,7 @@ Stopped after 3 tasks to keep the run short; ~$8.8 of budget unused. Next up: M7
 run 20261026-0723 (~20 min): local main shallow/unrelated; unshallow + ff worked. Trunk green (548 tests).
 - M7-04 (engine-dev, opus M): pass after one in-session fix (property test failure verified by Director), reviewed (approve), need 4.0, actual 1.52, review 0.08. Added M7-04b follow-up.
 Stopped after one task to keep the run short; ~$7.5 of budget unused. Next up: M7-02b, M7-02c, M7-04b, M7-06, M9-01.
+
+run 20261026-0823 (~30 min): local main shallow/unrelated; backed up on backup-local-main-20261026 and reset to origin/main (no merge-base). Trunk green (566 tests).
+- M7-05 (engine-dev, opus S): pass, reviewed (approve), need 2.4, actual 0.45, review 0.07. Added M7-05b doc follow-up.
+Stopped after one task to keep the run short. Next up: M7-02b, M7-02c, M7-04b, M7-06, M9-01.
