@@ -1542,7 +1542,7 @@
         "Analysis never blocks the main thread; results are cached per record version",
         "Errors show a friendly message and are logged once"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2694,6 +2694,28 @@
       "acceptance": [
         "Thirds use real placements only, tested",
         "ARCHITECTURE.md documents the four choices"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-07b",
+      "title": "Wire useAnalysis into the analysis panel",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-07"
+      ],
+      "files": [
+        "src/ui/useAnalysis.ts"
+      ],
+      "description": "Consume useAnalysis in the analysis UI (loading and error states). Cancel/dispose on unmount if long analyses need aborting.",
+      "acceptance": [
+        "Analysis UI shows loading and friendly error states"
       ],
       "status": "todo",
       "attempts": 0,
