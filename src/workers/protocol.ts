@@ -6,6 +6,9 @@
  */
 import { countSolutions, generate, solve } from "../engine";
 import type { CellValue, Grid, Level } from "../engine";
+import { analyzeMistakes, type MistakeReport } from "../analysis/report";
+import { analyzeSolve, type SolveReport } from "../analysis/solve";
+import type { GameRecord } from "../state/events";
 
 export interface GeneratedResult {
   puzzle: string;
@@ -14,9 +17,19 @@ export interface GeneratedResult {
   level: Level;
 }
 
+/** Both reports for one record; plain data, so it crosses the worker boundary. */
+export interface AnalysisResult {
+  mistakes: MistakeReport;
+  solve: SolveReport;
+}
+
 export const handlers = {
   solve: (grid: Grid): CellValue[] | null => solve(grid),
   countSolutions: (grid: Grid, limit?: number): number => countSolutions(grid, limit),
+  analyze: (record: GameRecord): AnalysisResult => ({
+    mistakes: analyzeMistakes(record),
+    solve: analyzeSolve(record),
+  }),
   generate: (level: Level, seed: number | string): GeneratedResult => {
     const p = generate({ level, seed });
     return { puzzle: p.puzzle.join(""), solution: p.solution.join(""), score: p.score, level: p.level };
