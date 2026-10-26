@@ -1515,8 +1515,8 @@
         "Each part tested on a scripted record with a fake clock",
         "Hardest technique uses the per-placement method from docs/ARCHITECTURE.md"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
