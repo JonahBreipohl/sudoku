@@ -293,7 +293,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   );
 
   return (
-    <div className="app">
+    <div className="app" data-left-handed={settings.leftHanded ? "" : undefined}>
       <header className="app-header">
         <h1>Sudoku</h1>
         <NewGame pending={pending} inProgress={hasProgress(game.record)} onNewGame={onNewGame} />
