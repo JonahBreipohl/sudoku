@@ -14,4 +14,8 @@ describe("cellLabel", () => {
     expect(cellLabel(80, 5, true, 0, false)).toBe("Row 9, column 9, 5, given");
     expect(cellLabel(80, 5, false, 0, true)).toBe("Row 9, column 9, 5, conflict");
   });
+  it("announces analysis marks", () => {
+    expect(cellLabel(0, 5, false, 0, false, false, "root")).toBe("Row 1, column 1, 5, mistake");
+    expect(cellLabel(0, 5, false, 0, false, false, "support")).toContain("reason for mistake");
+  });
 });
