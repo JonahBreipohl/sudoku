@@ -1,7 +1,7 @@
 {
   "trunk": "main",
   "run_budget_usd": 10,
-  "weekly_budget_usd": 40,
+  "weekly_budget_usd": 100,
   "wrapup_reserve_usd": 0.5,
   "director_overhead_usd": 0.5,
   "min_finish_probability": 0.8,
