@@ -110,7 +110,14 @@ button {
 }
 
 .app {
-  container-type: inline-size;
+  /* Size containment lets queries see height too (phone landscape); the app owns the viewport
+     height, so the page itself never scrolls and the pad can sit at the bottom in portrait. */
+  container-type: size;
+  height: 100dvh;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--gutter) var(--gutter);
@@ -129,9 +136,12 @@ button {
 }
 
 .play {
-  display: grid;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   gap: var(--gutter);
-  justify-items: center;
+  align-items: center;
+  min-width: 0;
 }
 
 /* Board */
@@ -305,6 +315,8 @@ button {
   display: grid;
   gap: 8px;
   justify-items: center;
+  /* Portrait phones: controls and pad hug the bottom edge, in the thumb zone. */
+  margin-top: auto;
 }
 
 .controls {
@@ -347,6 +359,7 @@ button {
 /* Wide containers: pad beside the grid. */
 @container (min-width: 900px) {
   .play {
+    display: grid;
     grid-template-columns: auto 280px;
     align-items: start;
     justify-content: center;
@@ -360,6 +373,77 @@ button {
   .pad {
     width: 280px;
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Phone portrait: compact controls so they and the pad fit the thumb zone (bottom third);
+   targets stay at least 44px tall. */
+@container (max-width: 599px) {
+  .app {
+    padding-bottom: 8px;
+  }
+  .app-header {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 0 8px;
+  }
+  .app-header h1 {
+    margin: 4px 0;
+  }
+  .play {
+    gap: 8px;
+  }
+  .play-side,
+  .controls,
+  .pad {
+    gap: 4px;
+  }
+  .ctl {
+    padding: 0 8px;
+    font-size: 0.8125rem;
+  }
+  .check-status {
+    padding-inline: 0.25rem;
+  }
+  .pad-key {
+    min-height: var(--touch);
+    padding: 0;
+  }
+  .pad-digit {
+    font-size: 1.25rem;
+    line-height: 1.1;
+  }
+}
+
+/* Phone landscape: grid left, controls and pad right; everything fits the short viewport. */
+@container (min-width: 560px) and (max-height: 520px) {
+  .app {
+    padding-bottom: 8px;
+  }
+  .app-header h1 {
+    margin: 0;
+    font-size: 1.1rem;
+  }
+  .play {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    justify-content: stretch;
+    gap: var(--gutter);
+  }
+  .board,
+  .pause-overlay {
+    --size: min(calc(100cqb - 56px), 50cqi);
+  }
+  .play-side {
+    margin-top: 0;
+    width: 100%;
+    max-width: 480px;
+    justify-self: center;
+  }
+  .controls,
+  .pad {
+    width: 100%;
   }
 }
 
