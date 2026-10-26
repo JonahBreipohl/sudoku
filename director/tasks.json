@@ -1594,7 +1594,7 @@
         "Keyboard operable with labels like 'Move 37 of 112: r4c2 = 6'",
         "Jump-to-mistake and back-to-now buttons"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2745,6 +2745,30 @@
       "status": "todo",
       "attempts": 0,
       "notes": "Follow-up from M7-08 report."
+    },
+    {
+      "id": "M7-09b",
+      "title": "Timeline preview: conflicts and mistake marks per step",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-09"
+      ],
+      "files": [
+        "src/ui/components/Board.tsx",
+        "src/ui/timeline.ts"
+      ],
+      "description": "Follow-up from M7-09: preview board shows no conflicts/Check highlights, and mistake marks show at all steps rather than only from the root mistake onward.",
+      "acceptance": [
+        "Preview shows conflicts for the previewed position",
+        "Mistake marks appear only from the root mistake step onward"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }

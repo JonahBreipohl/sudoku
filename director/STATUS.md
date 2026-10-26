@@ -46,3 +46,5 @@ M7-06 done this run; M7 now 9/17 (M7-06b follow-up added).
 _Run 20261026-1338: M7-02b done (74/103 tasks done). Next: M7-02c, M7-04b, M7-06, M7-05b, M9-01. Blocked: M10-09 (Q1)._
 
 _Run 20261026-2123: M7-08 done (actual 0.87, run spend about 1.08). Next: M7-05b, M7-06b, M7-07b, M7-08b, M8-01, M9-01. Open questions: Q1 (hosting), Q6 hint key / unshallow (non-blocking)._
+
+_Update 20261026-2223: M7-09 done; next M7-10, M7-05b, M7-06b, M7-07b, M7-08b, M8-01._
