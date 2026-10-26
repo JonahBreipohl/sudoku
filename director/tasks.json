@@ -2530,6 +2530,27 @@
       "status": "done",
       "attempts": 1,
       "notes": ""
+    },
+    {
+      "id": "M2-14",
+      "title": "Stabilize chains property test timeout",
+      "milestone": 2,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "chore-dev",
+      "deps": [],
+      "files": [
+        "src/engine/human/chains.test.ts"
+      ],
+      "description": "The X-/XY-chains property test in chains.test.ts exceeds the 5000ms default timeout under load. Give it an explicit timeout (or fewer runs) without weakening the property.",
+      "acceptance": [
+        "npm run check passes repeatedly, including while e2e runs",
+        "Property still asserts no solution digit is eliminated"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Followup from M5-10."
     }
   ]
 }
