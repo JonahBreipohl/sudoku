@@ -1169,9 +1169,9 @@
         "Pause hides the grid; reload resumes board, notes and timer",
         "No console errors; axe clean in both themes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Followups: no visible timer rendered (Show timer setting); chains.test.ts property test 5s timeout under load (see M-followup)."
     },
     {
       "id": "M6-01",
