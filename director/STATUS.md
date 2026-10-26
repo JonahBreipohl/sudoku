@@ -1,6 +1,6 @@
-# Status (run 20261026-1823)
+# Status (run 20261026-1923)
 
-M7-04b done this run; M7 now 8/16 (see RUNLOG).
+M7-06 done this run; M7 now 9/17 (M7-06b follow-up added).
 
 ## Progress
 - M1: 8/8
@@ -9,7 +9,7 @@ M7-04b done this run; M7 now 8/16 (see RUNLOG).
 - M4: 12/12
 - M5: 9/9
 - M6: 8/8
-- M7: 8/16
+- M7: 9/17
 - M8: 0/2
 - M9: 0/9
 - M10: 0/9
