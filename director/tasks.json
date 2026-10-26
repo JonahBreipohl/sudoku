@@ -1352,7 +1352,7 @@
         "axe clean in both themes at every size",
         "Keyboard-only flow: select, place, note, undo, open and close dialogs"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2571,8 +2571,8 @@
         "No inert declarations on the container itself",
         "check, build and e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": "Followup from M6-01 review."
     },
     {
