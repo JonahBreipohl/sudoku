@@ -1169,8 +1169,8 @@
         "Pause hides the grid; reload resumes board, notes and timer",
         "No console errors; axe clean in both themes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
