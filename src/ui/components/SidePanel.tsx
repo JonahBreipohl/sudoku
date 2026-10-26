@@ -1,8 +1,9 @@
 import { activeMs } from "../../state/timer";
 import type { GameRecord } from "../../state/events";
-import { formatElapsed, formatWallClock } from "../clock";
-import { useTick } from "../useTick";
+import { formatElapsed } from "../clock";
+import { useSecondTick } from "../useSecondTick";
 import { MoveHistory } from "./MoveHistory";
+import { WallClock } from "./WallClock";
 
 interface SidePanelProps {
   record: GameRecord;
@@ -12,7 +13,7 @@ interface SidePanelProps {
 
 /** Tablet and desktop only (CSS hides it on phones, which also removes it from the tab order). */
 export function SidePanel({ record, showTimer, wallClock }: SidePanelProps) {
-  const now = useTick(showTimer || wallClock);
+  const now = useSecondTick(showTimer);
   return (
     <aside className="side-panel" aria-label="Game info">
       {(showTimer || wallClock) && (
@@ -25,12 +26,7 @@ export function SidePanel({ record, showTimer, wallClock }: SidePanelProps) {
               </span>
             </p>
           )}
-          {wallClock && (
-            <p className="panel-clock">
-              <span className="panel-label">Clock</span>
-              <span className="panel-time">{formatWallClock(now)}</span>
-            </p>
-          )}
+          {wallClock && <WallClock />}
         </div>
       )}
       <MoveHistory nodes={record.nodes} cursor={record.cursor} />
