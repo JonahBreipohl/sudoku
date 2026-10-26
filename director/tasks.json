@@ -1542,8 +1542,8 @@
         "Analysis never blocks the main thread; results are cached per record version",
         "Errors show a friendly message and are logged once"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
