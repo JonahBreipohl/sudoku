@@ -79,5 +79,12 @@ Director and subagents, and how long the run took.
 
 ## Tooling repairs
 
-(none yet)
+- 2026-10-26: "trunk diverged / unrelated histories" was a shallow-clone artifact, not a real
+  divergence. The cloud checkout was stale and shallow, so `git fetch` brought in origin/main
+  with a shallow boundary and git found no merge base. Before judging divergence, run
+  `git rev-parse --is-shallow-repository`; if true, `git fetch --unshallow origin`. Then
+  `git merge-base main origin/main` equals local main when it is merely behind, and
+  `git merge --ff-only origin/main` works. Resetting local main (runs 0223 and 0322) was never
+  needed; real divergence is only when the merge base is neither tip. Fixed on 2026-10-26: local
+  main fast-forwarded 251 commits, nothing lost.
 - 2026-10-25: cloud clones are shallow, which made local main look unrelated to origin/main. Added scripts/retry-unshallow.sh (runs a command; on failure in a shallow repo runs `git fetch --unshallow` and retries once) and scripts/sync-trunk.sh, run by a SessionStart hook in .claude/settings.json.

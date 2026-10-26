@@ -208,3 +208,6 @@ run 20261026-0322 (~25 min): local main had diverged again (shallow-clone artifa
 Stopped after one task to keep the run short. Next up: M6-08, M7-02, M7-04, M7-06, M9-01.
 
 run 20261026-0423: stopped: local main is unrelated to origin/main (ahead 24, behind 66, no common history; shallow-clone artifact seen before). Per rules did not reset; needs owner decision. Nothing dispatched.
+
+
+2026-10-26 (owner-requested fix, no run): the 0423 stop was a shallow-clone artifact. After `git fetch --unshallow`, local main was an ancestor of origin/main (0 ahead, 251 behind) and fast-forwarded cleanly. Nothing dispatched. See ENVIRONMENT.md Tooling repairs and QUESTIONS.md Q6.

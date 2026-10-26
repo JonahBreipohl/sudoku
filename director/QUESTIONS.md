@@ -60,3 +60,13 @@ Answer: i like that idea, go for it. see if it is possible to make it auto gener
 M5-06: the spec lists h as move-left (vim) and H as hint. Implemented plain h = move left, Shift+H = hint (documented in the shortcuts dialog; hint is a no-op until M7). Say if you want a different hint key.
 
 Answer:
+
+## Q6: Unshallow before the divergence check (non-blocking)
+
+The repeated "trunk diverged" stops were a shallow-clone artifact (director/ENVIRONMENT.md,
+Tooling repairs). Proposal for Starting Prompt.txt step 1: before checking for divergence, if
+`git rev-parse --is-shallow-repository` prints true, run `git fetch --unshallow origin`. Until
+this is changed, runs that see "unrelated histories" should do that by hand under the existing
+tooling-repair rule.
+
+Answer:
