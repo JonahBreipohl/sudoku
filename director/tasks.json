@@ -2595,7 +2595,7 @@
         "Completion announced from the submit event",
         "Test covers it"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
