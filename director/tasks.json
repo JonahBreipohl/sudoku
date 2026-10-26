@@ -1461,8 +1461,8 @@
         "Deduction names the technique, cells and explanation of the eliminating step and how many steps preceded it",
         "Runs under 100 ms for a 300-event record"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
