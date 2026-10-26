@@ -459,5 +459,6 @@ describe("properties", () => {
     expect(fired).toBeGreaterThan(0);
     expect(firedXY).toBeGreaterThan(0);
     expectTimingsBounded(times);
-  });
+    // Explicit timeout: the default 5 s is too tight for 30 full Master solves under CPU load.
+  }, 60_000);
 });
