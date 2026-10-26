@@ -1594,8 +1594,8 @@
         "Keyboard operable with labels like 'Move 37 of 112: r4c2 = 6'",
         "Jump-to-mistake and back-to-now buttons"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
