@@ -23,6 +23,7 @@ import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { cellCommitCounts } from "./renderProbe";
 import { initialInputMode, inputModeReducer, tapForLockedDigit } from "./inputMode";
 import { moveSelection } from "./selection";
+import { describeChange, describeCheck } from "./announce";
 import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
@@ -277,6 +278,16 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     if (autoCandidates) dispatch({ type: "auto-notes" });
   }, [settings.autoCandidates, update, dispatch, pending]);
 
+  // Polite live region: placements, conflicts and completion are diffed from the board; Check
+  // results are announced by their own handler. Resume/new-game remounts start with a fresh baseline.
+  const [announcement, setAnnouncement] = useState("");
+  const prevView = useRef({ board, conflicts });
+  useEffect(() => {
+    const msg = describeChange(prevView.current, { board, conflicts }, game.record.solution);
+    prevView.current = { board, conflicts };
+    if (msg) setAnnouncement(msg);
+  }, [board, conflicts, game.record.solution]);
+
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
   const [checked, setChecked] = useState<{ key: string; mistakes: number; wrong: number[] } | null>(null);
   const onCheck = useCallback(() => {
@@ -284,6 +295,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     const { mistakes, wrong } = checkBoard(game.record, board);
     dispatch({ type: "check", mistakes });
     setChecked({ key: checkKey, mistakes, wrong });
+    setAnnouncement(describeCheck(mistakes));
   }, [pending, game.record, board, dispatch, checkKey]);
   // A result describes one board position; any edit, undo or rewind makes it stale.
   const checkResult = checked && checked.key === checkKey ? checked : null;
@@ -343,6 +355,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
           <SidePanel record={game.record} showTimer={settings.showTimer} wallClock={settings.wallClock} />
         </div>
       </main>
+      <div className="sr-only" aria-live="polite" aria-atomic="true">
+        {announcement}
+      </div>
       {settingsOpen && (
         <SettingsDialog
           settings={settings}
