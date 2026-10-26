@@ -1222,9 +1222,9 @@
         "Move history lists path events newest first and marks undone branches as not current",
         "Side panel is keyboard reachable in a logical tab order"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Followups: gate useTick when panel hidden; cap/virtualize long history; timer ignores ?test=1 clock."
     },
     {
       "id": "M6-03",
@@ -1248,8 +1248,8 @@
         "Respects the wall clock setting; hidden below the phone breakpoint",
         "Uses the locale's time format"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
