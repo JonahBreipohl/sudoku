@@ -1569,8 +1569,8 @@
         "Every diagnosis type renders readable copy",
         "Works in all layouts and both themes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
