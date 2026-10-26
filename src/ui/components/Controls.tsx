@@ -22,6 +22,9 @@ interface ControlsProps {
   onCheck: () => void;
   onSubmit: () => void;
   submitted: boolean;
+  /** Reopens the result dialog after it was dismissed. */
+  onViewResult: () => void;
+  resultOpen: boolean;
   /** Result of the last Check while the board is unchanged, else null. */
   checkResult: { mistakes: number } | null;
 }
@@ -45,6 +48,8 @@ export function Controls({
   onCheck,
   onSubmit,
   submitted,
+  onViewResult,
+  resultOpen,
   checkResult,
 }: ControlsProps) {
   const active = notesMode || shiftHeld;
@@ -57,16 +62,23 @@ export function Controls({
     if (wasConfirming.current && !confirming) resetButton.current?.focus();
     wasConfirming.current = confirming;
   }, [confirming]);
+  const resultButton = useRef<HTMLButtonElement>(null);
+  const wasResultOpen = useRef(resultOpen);
+  // The result dialog is modal, so focus would otherwise fall to <body> on close.
+  useEffect(() => {
+    if (wasResultOpen.current && !resultOpen) resultButton.current?.focus();
+    wasResultOpen.current = resultOpen;
+  }, [resultOpen]);
   if (paused) return null;
   return (
     <div className="controls" role="group" aria-label="Game controls">
-      <button type="button" className="ctl" disabled={!canUndo} onClick={onUndo} aria-keyshortcuts="Control+Z">
+      <button type="button" className="ctl" disabled={!canUndo || submitted} onClick={onUndo} aria-keyshortcuts="Control+Z">
         <span aria-hidden="true">↶</span> Undo
       </button>
-      <button type="button" className="ctl" disabled={!canRedo} onClick={onRedo} aria-keyshortcuts="Control+Shift+Z">
+      <button type="button" className="ctl" disabled={!canRedo || submitted} onClick={onRedo} aria-keyshortcuts="Control+Shift+Z">
         <span aria-hidden="true">↷</span> Redo
       </button>
-      <button ref={resetButton} type="button" className="ctl" disabled={!canUndo} aria-haspopup="dialog" onClick={() => setConfirming(true)}>
+      <button ref={resetButton} type="button" className="ctl" disabled={!canUndo || submitted} aria-haspopup="dialog" onClick={() => setConfirming(true)}>
         <span aria-hidden="true">⟲</span> Reset
       </button>
       <button type="button" className="ctl" onClick={onPause} aria-keyshortcuts="P">
@@ -94,9 +106,15 @@ export function Controls({
       <button type="button" className="ctl" onClick={onCheck}>
         <span aria-hidden="true">?</span> Check
       </button>
-      <button type="button" className="ctl" disabled={submitted} aria-haspopup="dialog" onClick={() => setSubmitting(true)}>
-        <span aria-hidden="true">✓</span> Submit
-      </button>
+      {submitted ? (
+        <button ref={resultButton} type="button" className="ctl" aria-haspopup="dialog" onClick={onViewResult}>
+          <span aria-hidden="true">✓</span> View result
+        </button>
+      ) : (
+        <button type="button" className="ctl" aria-haspopup="dialog" onClick={() => setSubmitting(true)}>
+          <span aria-hidden="true">✓</span> Submit
+        </button>
+      )}
       <div role="status" className={checkResult ? (checkResult.mistakes === 0 ? "check-status check-status--ok" : "check-status check-status--bad") : "check-status"}>
         {checkResult ? checkMessage(checkResult.mistakes) : ""}
       </div>
