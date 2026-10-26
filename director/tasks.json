@@ -1248,7 +1248,7 @@
         "Respects the wall clock setting; hidden below the phone breakpoint",
         "Uses the locale's time format"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -1299,8 +1299,8 @@
         "No change in portrait layouts",
         "Persisted with settings"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
