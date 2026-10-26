@@ -63,3 +63,30 @@ for (const theme of ["light", "dark"] as const) {
     await expect(panel).toHaveCount(0);
   });
 }
+
+test("timeline previews earlier moves read-only and returns to now", async ({ page }) => {
+  const [a, b] = [blanks[0]!, blanks[1]!];
+  for (const cell of [a, b]) {
+    await page.locator(`[data-cell="${cell}"]`).click();
+    await page.keyboard.press(String(((Number(SAMPLE_EASY.solution[cell]) + (cell === a ? 0 : 1)) % 9) + 1));
+  }
+  await page.getByRole("button", { name: /Submit/ }).click();
+  await page.getByRole("dialog", { name: "Submit this puzzle?" }).getByRole("button", { name: "Submit" }).click();
+  await page.getByRole("dialog", { name: /Not solved yet/ }).getByRole("button", { name: /Analyze mistakes/ }).click();
+  const panel = page.getByRole("region", { name: "Analysis" });
+  const label = panel.getByTestId("timeline-label");
+  await expect(label).toContainText("Move 2 of 2");
+  await panel.getByRole("button", { name: "Jump to mistake" }).click();
+  await expect(label).toContainText("Move 1 of 2");
+  await expect(page.getByRole("grid", { name: /preview/ })).toBeVisible();
+  await expect(page.locator(`[data-cell="${b}"]`)).toHaveAttribute("aria-label", /empty/);
+  const slider = panel.getByRole("slider", { name: "Move" });
+  await slider.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(label).toContainText("Move 2 of 2");
+  await expect(panel.getByRole("button", { name: "Back to now" })).toBeDisabled();
+  await page.keyboard.press("Home");
+  await expect(label).toContainText("Starting position");
+  await panel.getByRole("button", { name: "Back to now" }).click();
+  await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
+});

@@ -20,6 +20,7 @@ import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
 import { AnalysisPanel } from "./components/AnalysisPanel";
 import { useAnalysis } from "./useAnalysis";
+import { replayRecord } from "../analysis/replay";
 import { SidePanel } from "./components/SidePanel";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { actionForKey } from "./keyboard";
@@ -33,6 +34,9 @@ import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
+const NO_CELLS: ReadonlySet<number> = new Set();
+const noop = () => {};
+
 const testMode = new URLSearchParams(window.location.search).has("test");
 let clockOffset = 0;
 const persistence = createLocalStoragePersistence();
@@ -324,6 +328,17 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     m.set(root, "root");
     return m;
   }, [showAnalysis, analysis]);
+  // Timeline preview: a step short of the end shows an earlier position, read-only and local to
+  // the UI; the store is never touched.
+  const [previewStep, setPreviewStep] = useState<number | null>(null);
+  const timeline = useMemo(
+    () => (showAnalysis && analysis.status === "ready" ? replayRecord(game.record) : null),
+    [showAnalysis, analysis.status, game.record],
+  );
+  const preview =
+    timeline && previewStep !== null && previewStep < timeline.path.length
+      ? (timeline.states[previewStep] ?? null)
+      : null;
   const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
 
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
@@ -360,13 +375,14 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         ) : (
           <Board
             givens={givens}
-            board={board}
-            notes={notes}
-            selected={selected}
-            conflicts={conflicts}
-            wrong={wrongSet}
+            board={preview ? [...preview.board] : board}
+            notes={preview ? preview.notes : notes}
+            selected={preview ? null : selected}
+            conflicts={preview ? NO_CELLS : conflicts}
+            wrong={preview ? undefined : wrongSet}
             marks={marks}
-            onSelect={onSelectCell}
+            preview={preview !== null}
+            onSelect={preview ? noop : onSelectCell}
             lockedDigit={entry.locked}
           />
         )}
@@ -398,9 +414,13 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             <AnalysisPanel
               ref={analysisRef}
               state={analysis}
+              path={timeline?.path}
+              step={previewStep ?? undefined}
+              onStep={setPreviewStep}
               onClose={() => {
                 setAnalysisClosed(true);
                 setAnalysisRequested(false);
+                setPreviewStep(null);
               }}
             />
           )}
