@@ -191,3 +191,5 @@ skipped 20261025-2223: weekly budget (7-day spend ~$38.86 of $40; remaining afte
 skipped 20261025-2323: weekly budget (7-day spend $38.86 of $40; nothing new since 20261025-2223). Local main diverged again (shallow-clone artifact); reset to origin/main, old tip on local backup/local-main-20261025b.
 
 skipped 20261026-0023: weekly budget (7-day spend $38.86 of $40; nothing new since 20261025-2323). Local main diverged again (shallow-clone artifact); reset to origin/main, old tip on local backup/local-main-20261026.
+
+skipped 20261026-0123: weekly budget (7-day spend $38.86 of $40; nothing new since 20261026-0023). Local main diverged (shallow-clone artifact); unshallow + ff worked.
