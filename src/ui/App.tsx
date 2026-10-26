@@ -16,6 +16,7 @@ import { Controls } from "./components/Controls";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
+import { SidePanel } from "./components/SidePanel";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { actionForKey } from "./keyboard";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
@@ -339,6 +340,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             checkResult={checkResult}
           />
           {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
+          <SidePanel record={game.record} showTimer={settings.showTimer} wallClock={settings.wallClock} />
         </div>
       </main>
       {settingsOpen && (
