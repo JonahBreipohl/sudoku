@@ -1325,7 +1325,7 @@
         "All dialogs trap and restore focus; prefers-reduced-motion disables transitions",
         "axe: zero serious or critical violations on every screen in both themes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2574,6 +2574,30 @@
       "status": "todo",
       "attempts": 0,
       "notes": "Followup from M6-01 review."
+    },
+    {
+      "id": "M7-02b",
+      "title": "Wire completion announcement to submit event",
+      "milestone": 7,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M6-06",
+        "M7-02"
+      ],
+      "files": [
+        "src/ui/**"
+      ],
+      "description": "Completion is announced by diffing board vs solution (M6-06); wire to the submit event once M7-02 lands.",
+      "acceptance": [
+        "Completion announced from the submit event",
+        "Test covers it"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }
