@@ -211,3 +211,9 @@ run 20261026-0423: stopped: local main is unrelated to origin/main (ahead 24, be
 
 
 2026-10-26 (owner-requested fix, no run): the 0423 stop was a shallow-clone artifact. After `git fetch --unshallow`, local main was an ancestor of origin/main (0 ahead, 251 behind) and fast-forwarded cleanly. Nothing dispatched. See ENVIRONMENT.md Tooling repairs and QUESTIONS.md Q6.
+
+run 20261026-0624 (~30 min): local main was shallow/unrelated; `git fetch --unshallow` + ff worked (per ENVIRONMENT.md). Trunk green (543 tests, build ok).
+- M6-07 (qa-e2e, sonnet S): pass, need 0.6, actual 0.20. Layout/keyboard e2e (164 e2e).
+- M6-08 (chore-dev, sonnet S): pass, need 0.6, actual 0.12. Dropped inert padding.
+- M7-02 (feature-dev, sonnet S): pass, reviewed (approve, 3 minors), need 0.6, actual 0.26, review 0.26. Added M7-02c for the minors.
+Stopped after 3 tasks to keep the run short; ~$8.8 of budget unused. Next up: M7-02b, M7-02c, M7-04, M7-06, M9-01.
