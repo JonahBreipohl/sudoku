@@ -193,3 +193,12 @@ skipped 20261025-2323: weekly budget (7-day spend $38.86 of $40; nothing new sin
 skipped 20261026-0023: weekly budget (7-day spend $38.86 of $40; nothing new since 20261025-2323). Local main diverged again (shallow-clone artifact); reset to origin/main, old tip on local backup/local-main-20261026.
 
 skipped 20261026-0123: weekly budget (7-day spend $38.86 of $40; nothing new since 20261026-0023). Local main diverged (shallow-clone artifact); unshallow + ff worked.
+
+run 20261026-0223 (~65 min): local main had diverged from origin (unrelated histories, shallow-clone artifact); old tip saved on local backup/local-main-20261026b, reset to origin/main. Weekly budget now $100, so work resumed. Trunk green at start.
+- M5-10 (qa-e2e, sonnet M): pass, need 4.0, actual 0.46. Followups: no visible timer; chains test timeout.
+- M2-14 (chore-dev, sonnet S, new followup): pass, reviewed, need 1.2, actual 0.08.
+- M6-01 (feature-dev, sonnet M): pass, reviewed, need 4.0, actual 0.31. Added M6-08 for inert .app padding.
+- M6-02 (feature-dev, sonnet M): pass, need 4.0, actual 0.35.
+- M6-03 (feature-dev, sonnet S): pass, need 0.6, actual 0.31.
+- M6-05 (feature-dev, sonnet S): pass, reviewed, need 0.6, actual 0.19.
+Stopped: max_tasks_per_run (6) reached. Budget left ~$6.9 of the run. Next up: M6-06, M6-08, M7-02, M7-04, M7-06.
