@@ -227,3 +227,7 @@ run 20261026-0823 (~30 min): local main shallow/unrelated; backed up on backup-l
 Stopped after one task to keep the run short. Next up: M7-02b, M7-02c, M7-04b, M7-06, M9-01.
 
 skipped 20261026-diverged: local main (24 commits, last be0b8b2 of 2026-10-23) shares no history with origin/main (65 commits ahead); fast-forward impossible, stopped without changes. Needs the owner to reset the stale local checkout.
+
+run 20261026-1338 (~40 min): local main was shallow/unrelated; unshallow + ff worked. Trunk green (577 tests).
+- M7-02b (feature-dev, sonnet S): pass, need 0.6, actual ~0.65 (approx; usage.mjs overall 0.75 incl. Director). Not reviewed (not engine/state/opus, not every third). e2e 168 pass on a clean run (overlapping e2e runs gave a spurious partial result).
+Stopped after one task to keep the run short. Next up: M7-02c, M7-04b, M7-06, M7-05b, M9-01.

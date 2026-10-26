@@ -39,3 +39,6 @@
 
 ## Projection
 - 30 tasks left; est $18.6 to finish at medians + overhead/review => ~1.9 runs at $10/run (task cap of 6 per run makes it ~5 runs).
+
+
+_Run 20261026-1338: M7-02b done (74/103 tasks done). Next: M7-02c, M7-04b, M7-06, M7-05b, M9-01. Blocked: M10-09 (Q1)._
