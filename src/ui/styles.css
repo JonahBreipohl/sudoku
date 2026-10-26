@@ -400,6 +400,19 @@ button {
   .history {
     flex: 1 1 8rem;
   }
+  /* Left-handed: mirror by grid placement only, so DOM and tab order are unchanged. */
+  .app[data-left-handed] .play {
+    grid-template-columns: minmax(260px, 300px) auto;
+  }
+  .app[data-left-handed] .play > .board,
+  .app[data-left-handed] .play > .pause-overlay {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .app[data-left-handed] .play-side {
+    grid-column: 1;
+    grid-row: 1;
+  }
 }
 
 .panel-clocks {
@@ -553,6 +566,18 @@ button {
   .controls,
   .pad {
     width: 100%;
+  }
+  .app[data-left-handed] .play {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+  .app[data-left-handed] .play > .board,
+  .app[data-left-handed] .play > .pause-overlay {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .app[data-left-handed] .play-side {
+    grid-column: 1;
+    grid-row: 1;
   }
 }
 

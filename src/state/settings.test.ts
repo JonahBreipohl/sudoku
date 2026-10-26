@@ -47,6 +47,15 @@ describe("settings store", () => {
     expect(createSettingsStore(persistence).getSnapshot().idleMinutes).toBe(10);
   });
 
+  it("persists leftHanded (default off) across reloads", () => {
+    const { data, persistence } = setup();
+    const store = createSettingsStore(persistence);
+    expect(store.getSnapshot().leftHanded).toBe(false);
+    store.update({ leftHanded: true });
+    expect(JSON.parse(data.get(KEYS.settings)!).leftHanded).toBe(true);
+    expect(createSettingsStore(persistence).getSnapshot().leftHanded).toBe(true);
+  });
+
   it("migrates an old stored shape: keeps known, drops unknown, fills missing", () => {
     const { persistence } = setup({ theme: "light", oldFlag: true });
     expect(createSettingsStore(persistence).getSnapshot()).toEqual({

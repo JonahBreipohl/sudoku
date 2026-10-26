@@ -13,7 +13,7 @@ const TOGGLES: { key: BoolKey; label: string; hint: string }[] = [
   { key: "checkHighlighting", label: "Highlight wrong cells on Check", hint: "Check marks each wrong entry with a cross and frame." },
   { key: "showTimer", label: "Show timer", hint: "Display the solve clock while playing." },
   { key: "wallClock", label: "Wall clock in Display mode", hint: "Show the time of day." },
-  { key: "leftHanded", label: "Left-handed layout", hint: "Move the number pad to the left." },
+  { key: "leftHanded", label: "Left-handed layout", hint: "Mirror the pad and side panel to the left in landscape and desktop layouts." },
 ];
 
 interface Props {

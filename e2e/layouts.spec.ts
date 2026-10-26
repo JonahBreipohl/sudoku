@@ -77,3 +77,53 @@ test.describe("narrow 320px", () => {
     });
   }
 });
+
+async function enableLeftHanded(page: Page) {
+  await page.getByRole("button", { name: "Settings" }).click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await dialog.getByRole("checkbox", { name: /Left-handed layout/ }).check();
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+}
+
+const sizes = [
+  { name: "phone landscape", width: 844, height: 390 },
+  { name: "desktop", width: 1440, height: 900 },
+] as const;
+
+for (const size of sizes) {
+  test.describe(`left-handed ${size.name} ${size.width}x${size.height}`, () => {
+    test.use({ viewport: { width: size.width, height: size.height } });
+
+    for (const scheme of ["light", "dark"] as const) {
+      test(`pad and panel mirror to the left and persist (${scheme})`, async ({ page }) => {
+        await open(page, scheme);
+        let board = await box(page, ".board");
+        let pad = await box(page, ".pad");
+        expect(pad.x).toBeGreaterThanOrEqual(board.x + board.width);
+        await enableLeftHanded(page);
+        board = await box(page, ".board");
+        pad = await box(page, ".pad");
+        expect(pad.x + pad.width).toBeLessThanOrEqual(board.x);
+        expect(await noHScroll(page)).toBe(true);
+        const results = await new AxeBuilder({ page }).analyze();
+        expect(results.violations).toEqual([]);
+        await page.reload();
+        await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
+        expect((await box(page, ".pad")).x).toBeLessThan((await box(page, ".board")).x);
+      });
+    }
+  });
+}
+
+test.describe("left-handed portrait 390x844", () => {
+  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
+
+  test("layout is unchanged", async ({ page }) => {
+    await open(page, "light");
+    const before = [await box(page, ".board"), await box(page, ".pad"), await box(page, ".controls")];
+    await enableLeftHanded(page);
+    const after = [await box(page, ".board"), await box(page, ".pad"), await box(page, ".controls")];
+    expect(after).toEqual(before);
+  });
+});
