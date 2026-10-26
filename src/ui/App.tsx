@@ -25,7 +25,7 @@ import { ShortcutsDialog } from "./components/ShortcutsDialog";
 import { cellCommitCounts } from "./renderProbe";
 import { initialInputMode, inputModeReducer, tapForLockedDigit } from "./inputMode";
 import { moveSelection } from "./selection";
-import { describeChange, describeCheck } from "./announce";
+import { describeChange, describeCheck, describeSubmit } from "./announce";
 import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
@@ -280,15 +280,15 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     if (autoCandidates) dispatch({ type: "auto-notes" });
   }, [settings.autoCandidates, update, dispatch, pending]);
 
-  // Polite live region: placements, conflicts and completion are diffed from the board; Check
+  // Polite live region: placements and conflicts are diffed from the board, completion comes from the submit event; Check
   // results are announced by their own handler. Resume/new-game remounts start with a fresh baseline.
   const [announcement, setAnnouncement] = useState("");
   const prevView = useRef({ board, conflicts });
   useEffect(() => {
-    const msg = describeChange(prevView.current, { board, conflicts }, game.record.solution);
+    const msg = describeChange(prevView.current, { board, conflicts });
     prevView.current = { board, conflicts };
     if (msg) setAnnouncement(msg);
-  }, [board, conflicts, game.record.solution]);
+  }, [board, conflicts]);
 
   const submitted = game.record.status === "submitted";
   const [resultDismissed, setResultDismissed] = useState(false);
@@ -296,6 +296,13 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     if (!pending) dispatch({ type: "submit" });
   }, [pending, dispatch]);
   const submitResult = [...game.record.log].reverse().find((e) => e.type === "submit");
+  // Baseline is the submit already in the log at mount, so resuming a submitted game stays silent.
+  // Adjusting state during render (not in an effect) keeps it to one render pass.
+  const [seenSubmit, setSeenSubmit] = useState(submitResult);
+  if (submitResult !== seenSubmit) {
+    setSeenSubmit(submitResult);
+    if (submitResult?.type === "submit") setAnnouncement(describeSubmit(submitResult.result));
+  }
   const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
 
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
