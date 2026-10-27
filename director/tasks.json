@@ -1799,8 +1799,8 @@
         "todayStats(archive, now) is pure and tested across midnight",
         "Shown in both display orientations"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
