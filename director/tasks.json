@@ -2815,8 +2815,8 @@
         "?puzzle= loads the given grid",
         "analysis.spec uses it"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
