@@ -311,3 +311,4 @@ Stopped after one task to keep the run short. Next up: M9-04, M9-01b, M9-06, M9-
 run 20261027-1355 (~20 min): local clone was shallow/unrelated again; `git fetch --unshallow` + ff to origin/main (Q6 repair). Trunk green (665 tests).
 - M9-04 (feature-dev, sonnet S): pass, need 1.2, actual ~0.35, not reviewed (Q4). check 672 tests, build, full e2e 212 pass.
 Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-01b, M9-06, M9-07, M9-08, M10-01.
+diverged 20261027-1537: local main shares no history with origin/main (66 vs 67 commits, no merge-base); fast-forward impossible, stopped without dispatching. Needs owner attention.
