@@ -1930,7 +1930,7 @@
         "Display mode renders clock, board or watch puzzle, and stats; axe clean in both themes",
         "Offline reload serves the app and a bank puzzle"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2953,6 +2953,30 @@
       "description": "Follow-up from M9-03: inspect the watch view at 390px and 1440px in light and dark; optionally expose the step interval in settings.",
       "acceptance": [
         "No layout or contrast issues in either theme at both widths"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M9-09a",
+      "title": "Fix watch-mode notes cells axe label-content-name-mismatch",
+      "milestone": 9,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-09"
+      ],
+      "files": [
+        "src/ui/display/DisplayBoard.tsx",
+        "e2e/display.spec.ts"
+      ],
+      "description": "In watch mode, Display cells with pencil notes fail axe label-content-name-mismatch because .dnotes digits are aria-hidden while aria-label spells out notes. Make visible text part of the accessible name (or another axe-accepted pattern).",
+      "acceptance": [
+        "Rule exclusion removed from watch variants in e2e/display.spec.ts",
+        "fixme test watch puzzle noted cells pass label-content-name-mismatch is un-fixmed and passes"
       ],
       "status": "todo",
       "attempts": 0,

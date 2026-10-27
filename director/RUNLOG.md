@@ -331,3 +331,7 @@ Spend ~0.5 of $10. Stopped after one task to keep the run short. Next up: M9-07,
 run 20261027-1923 (~20 min): shallow clone, unshallowed, in sync. Trunk green (689 tests).
 - M9-08 (feature-dev, sonnet M): pass, need 1.0, actual 0.43, overhead ~0.18, not reviewed (Q4). check 692 tests, build, full e2e 224 pass. No new dependency (hand-written SW + small build plugin). Follow-ups: optional update-ready prompt, Lighthouse CI.
 Spend ~0.62 of $10. Stopped after one task to keep the run short. Next up: M9-07, M10-01, M10-03, M10-04, M9-03a.
+
+run 20261027-2023 (~20 min): shallow clone, in sync. Trunk green (692 tests).
+- M9-09 (qa-e2e, sonnet S): pass, need 0.6, actual 0.33, overhead ~0.26, not reviewed (Q4). check 692 tests, build, full e2e 244 pass + 2 fixme. Found real app bug (watch-mode notes cells fail axe label-content-name-mismatch); added follow-up M9-09a.
+Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-09a, M9-03a, M9-07, M10-01, M10-03.
