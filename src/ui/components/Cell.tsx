@@ -2,6 +2,8 @@ import { memo, useEffect } from "react";
 import { maskDigits, colOf, rowOf, type CandidateMask } from "../../engine";
 import { recordCellCommit } from "../renderProbe";
 
+export type CellMark = "root" | "support" | "hint" | "hint-unit";
+
 export interface CellProps {
   cell: number;
   value: number;
@@ -15,12 +17,12 @@ export interface CellProps {
   /** Marked wrong by the last Check (only passed when the setting is on). */
   wrong?: boolean;
   /** Analysis highlight: the root mistake or a cell that justifies its diagnosis. */
-  mark?: "root" | "support";
+  mark?: CellMark;
   tabbable: boolean;
   onSelect: (cell: number) => void;
 }
 
-export function cellLabel(cell: number, value: number, given: boolean, notes: CandidateMask, conflict: boolean, wrong = false, mark?: "root" | "support"): string {
+export function cellLabel(cell: number, value: number, given: boolean, notes: CandidateMask, conflict: boolean, wrong = false, mark?: CellMark): string {
   const where = `Row ${rowOf(cell) + 1}, column ${colOf(cell) + 1}`;
   let what: string;
   if (value !== 0) what = `${value}${given ? ", given" : ""}`;

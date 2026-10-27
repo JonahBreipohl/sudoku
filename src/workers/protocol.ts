@@ -7,8 +7,9 @@
 import { countSolutions, generate, solve } from "../engine";
 import type { CellValue, Grid, Level } from "../engine";
 import { analyzeMistakes, type MistakeReport } from "../analysis/report";
+import { hint, type Hint } from "../analysis/hints";
 import { analyzeSolve, type SolveReport } from "../analysis/solve";
-import type { GameRecord } from "../state/events";
+import type { GameRecord, HintTier } from "../state/events";
 
 export interface GeneratedResult {
   puzzle: string;
@@ -30,6 +31,7 @@ export const handlers = {
     mistakes: analyzeMistakes(record),
     solve: analyzeSolve(record),
   }),
+  hint: (record: GameRecord, tier: HintTier): Hint => hint(record, tier),
   generate: (level: Level, seed: number | string): GeneratedResult => {
     const p = generate({ level, seed });
     return { puzzle: p.puzzle.join(""), solution: p.solution.join(""), score: p.score, level: p.level };
