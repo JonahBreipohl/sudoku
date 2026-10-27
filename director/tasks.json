@@ -1930,8 +1930,8 @@
         "Display mode renders clock, board or watch puzzle, and stats; axe clean in both themes",
         "Offline reload serves the app and a bank puzzle"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
