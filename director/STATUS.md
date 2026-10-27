@@ -1,20 +1,20 @@
-# Status (run 20261027-0023)
+# Status (run 20261027-0323)
 
-M7-11 done this run; follow-ups M7-11a (?puzzle= hook) and M7-11b (Check e2e) added.
+M7-07b and M7-08b done this run (analysis panel loading/error states and retry). Follow-up M7-08c added.
 
 ## Progress
 - M1-M6: complete
-- M7: 11/19 base+follow-ups (M7-05b, M7-06b..M7-10b, M7-11a, M7-11b open)
-- M8: 0/2, M9: 0/9, M10: 0/9
+- M7: base tasks done; open follow-ups M7-08c, M7-09b, M7-10b, M7-11a, M7-11b
+- M8: 0/2, M9: 0/9, M10: 0/9 (M10-09 blocked on Q1 hosting)
 
 ## Next ready
-M7-05b (haiku S), M7-06b, M7-07b, M7-08b, M7-09b, M7-10b (sonnet S, ~0.6 each), M8-01 (opus S)
+M7-08c, M7-09b, M7-10b, M7-11a, M7-11b (sonnet S, ~0.6 each), M8-01 (opus S, ~2.4)
 
 ## Blocked
-M10-09 (Q1: host chosen later)
-
-## Open questions
-Q6 hint key (Shift+H in use); Q6 unshallow proposal for Starting Prompt.txt
+M10-09 (Q1: user will connect an existing site later).
 
 ## Spend
-This run ~$0.64 of $10. Sonnet S tasks run ~$0.4 actual vs 0.6 prior; roughly 40 tasks remain, about 4 runs at one task per run's pace is far slower than the budget allows.
+This run about $1.5 (estimates); budget $10/run, $40/week. Sonnet S tasks cost about $0.3-0.45 each, well under the $0.6 prior.
+
+## Projection
+About 25 tasks left, mostly sonnet S at ~$0.45 and a few M at ~$1: roughly $15 to finish, about 2 runs at $10 if run to the task cap (6 per run).

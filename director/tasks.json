@@ -2742,7 +2742,7 @@
         "Retry from the error state re-runs analysis",
         "Panel visually checked at 390px and 1440px, light and dark"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": "Follow-up from M7-08 report."
     },
@@ -2840,6 +2840,30 @@
       "status": "todo",
       "attempts": 0,
       "notes": ""
+    },
+    {
+      "id": "M7-08c",
+      "title": "Check analysis panel clipping at viewport height",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-08b"
+      ],
+      "files": [
+        "src/ui/components/AnalysisPanel.tsx",
+        "src/ui/styles.css"
+      ],
+      "description": "M7-08b report: panel appears to clip at viewport height (Timeline slider cut at bottom on 1440; Close/'What you could have done' at 390). Confirm it scrolls internally or fix; add an e2e for the Retry button if a test hook is cheap.",
+      "acceptance": [
+        "Panel content fully reachable at 390x844 and 1440x900 without clipping",
+        "No horizontal scroll"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Follow-up from M7-08b report."
     }
   ]
 }
