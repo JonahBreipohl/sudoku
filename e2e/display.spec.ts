@@ -108,3 +108,16 @@ test("Display pauses the game and keeps the selection across a round trip", asyn
   await resume.click();
   await expect(page.locator('[data-cell="40"]')).toHaveClass(/cell--selected/);
 });
+
+test("watch puzzle self-solves with a technique caption", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.goto("/?mode=display&watch&seed=e2e&interval=1");
+  const board = page.getByRole("grid", { name: "Watch puzzle, solving itself" });
+  await expect(board).toBeVisible();
+  const caption = page.locator(".watch-caption strong");
+  await expect(caption).toBeVisible({ timeout: 6000 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+  await expect(page.getByRole("button", { name: "Watch puzzle" })).toHaveAttribute("aria-pressed", "true");
+  expect(errors).toEqual([]);
+});
