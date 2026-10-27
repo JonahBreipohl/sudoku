@@ -1824,8 +1824,8 @@
         "A Playwright trace or performance check shows no animation frames between ticks",
         "Reduced motion disables drift transitions (position still changes)"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
