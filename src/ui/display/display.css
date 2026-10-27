@@ -279,3 +279,18 @@
   min-height: var(--touch);
   min-width: var(--touch);
 }
+
+/* Bottom corner controls; pressed state gets a heavy border and weight in addition to the label text. */
+.display-controls {
+  position: absolute;
+  bottom: var(--gutter);
+  left: var(--gutter);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.display-controls .ctl[aria-pressed="true"] {
+  border: 3px solid var(--line-strong);
+  font-weight: 700;
+}

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
 import { useDrift } from "./useDrift";
+import { DisplayControls } from "./DisplayControls";
 import { DisplayBoard } from "./DisplayBoard";
 import { TodayStats } from "./TodayStats";
 import { WatchPuzzle } from "./WatchPuzzle";
@@ -55,6 +56,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
       <button type="button" className="ctl display-watch-toggle" aria-pressed={watching} onClick={() => setWatching((w) => !w)}>
         Watch puzzle
       </button>
+      <DisplayControls />
       <button ref={buttonRef} type="button" className="ctl display-exit" onClick={onExit} aria-keyshortcuts="Escape">
         Exit Display
       </button>
