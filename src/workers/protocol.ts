@@ -4,8 +4,8 @@
  * Arguments and results must be structured-cloneable. Add a convenience method to the client
  * in client.ts only if you want a nicer signature than `client.call("name", ...args)`.
  */
-import { countSolutions, generate, solve } from "../engine";
-import type { CellValue, Grid, Level } from "../engine";
+import { countSolutions, generate, nextStep, solve } from "../engine";
+import type { CandidateState, CellValue, Grid, Level, Step } from "../engine";
 import { analyzeMistakes, type MistakeReport } from "../analysis/report";
 import { hint, type Hint } from "../analysis/hints";
 import { analyzeSolve, type SolveReport } from "../analysis/solve";
@@ -32,6 +32,8 @@ export const handlers = {
     solve: analyzeSolve(record),
   }),
   hint: (record: GameRecord, tier: HintTier): Hint => hint(record, tier),
+  /** One logical step from a candidate state (the Display watch puzzle); null when stuck or solved. */
+  nextStep: (state: CandidateState, maxLevel: Level): Step | null => nextStep(state, maxLevel),
   generate: (level: Level, seed: number | string): GeneratedResult => {
     const p = generate({ level, seed });
     return { puzzle: p.puzzle.join(""), solution: p.solution.join(""), score: p.score, level: p.level };

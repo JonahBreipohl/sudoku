@@ -3,7 +3,7 @@
  * protocol.ts (one entry per method). Uses a module Worker when available, otherwise runs the
  * same handlers in-thread (tests, environments without workers).
  */
-import type { CellValue, Grid, Level } from "../engine";
+import type { CandidateState, CellValue, Grid, Level, Step } from "../engine";
 import { dispatch } from "./protocol";
 import type { Hint } from "../analysis/hints";
 import type { GameRecord, HintTier } from "../state/events";
@@ -28,6 +28,7 @@ export interface EngineClient {
   generate(level: Level, seed: number | string): Promise<GeneratedResult>;
   analyze(record: GameRecord): Promise<AnalysisResult>;
   hint(record: GameRecord, tier: HintTier): Promise<Hint>;
+  nextStep(state: CandidateState, maxLevel: Level): Promise<Step | null>;
   /** Rejects every pending call with CancelledError and stops any running computation. */
   cancel(): void;
   dispose(): void;
@@ -90,6 +91,7 @@ export function createEngineClient(opts: { inThread?: boolean } = {}): EngineCli
     generate: (level, seed) => call("generate", level, seed),
     analyze: (record) => call("analyze", record),
     hint: (record, tier) => call("hint", record, tier),
+    nextStep: (state, maxLevel) => call("nextStep", state, maxLevel),
     cancel,
     dispose: () => {
       cancel();

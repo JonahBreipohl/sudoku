@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { fromGrid, parseGrid } from "../engine";
 import { SAMPLE_EASY } from "../engine/samples";
 import { newGameRecord } from "../state/store";
 import { CancelledError, createEngineClient } from "./client";
@@ -56,5 +57,14 @@ describe("engine client generate", () => {
     const g = await c.generate("easy", "t");
     expect(g.puzzle).toHaveLength(81);
     expect(g.level).toBe("easy");
+  });
+
+  it("returns the next logical step, null once solved", async () => {
+    const c = createEngineClient({ inThread: true });
+    const grid = parseGrid(SAMPLE_EASY.puzzle.replace(/\./g, "0"));
+    const step = await c.nextStep(fromGrid(grid), "master");
+    expect(step?.explanation).toBeTruthy();
+    const solved = parseGrid(SAMPLE_EASY.solution);
+    expect(await c.nextStep(fromGrid(solved), "master")).toBeNull();
   });
 });

@@ -9,16 +9,38 @@ const NOTE_SLOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
 export function DisplayBoard() {
   const { game } = useGame();
   return (
-    <div className="dboard" role="grid" aria-label="Current game, read only" aria-readonly="true">
+    <BoardView
+      label="Current game, read only"
+      board={game.board}
+      givens={game.givens}
+      notes={game.notes}
+      conflicts={game.conflicts}
+    />
+  );
+}
+
+export interface BoardViewProps {
+  label: string;
+  board: readonly number[];
+  givens: readonly number[];
+  notes: readonly number[];
+  conflicts?: ReadonlySet<number>;
+  /** Cells to outline (the watch puzzle's current step). */
+  marked?: ReadonlySet<number>;
+}
+
+export function BoardView({ label, board, givens, notes: allNotes, conflicts, marked }: BoardViewProps) {
+  return (
+    <div className="dboard" role="grid" aria-label={label} aria-readonly="true">
       {IDX.map((r) => (
         <div className="dboard-row" role="row" key={r}>
           {IDX.map((c) => {
             const cell = r * 9 + c;
-            const value = game.board[cell]!;
-            const given = game.givens[cell] !== 0;
-            const notes = game.notes[cell] ?? 0;
-            const conflict = game.conflicts.has(cell);
-            const cls = ["dcell", given ? "dcell--given" : value !== 0 ? "dcell--entry" : "", conflict && "dcell--conflict"]
+            const value = board[cell]!;
+            const given = givens[cell] !== 0;
+            const notes = allNotes[cell] ?? 0;
+            const conflict = conflicts?.has(cell) ?? false;
+            const cls = ["dcell", given ? "dcell--given" : value !== 0 ? "dcell--entry" : "", conflict && "dcell--conflict", marked?.has(cell) && "dcell--step"]
               .filter(Boolean)
               .join(" ");
             return (
