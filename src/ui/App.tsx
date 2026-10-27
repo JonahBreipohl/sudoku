@@ -315,7 +315,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
   const [analysisRequested, setAnalysisRequested] = useState(false);
   const [analysisClosed, setAnalysisClosed] = useState(false);
   const showAnalysis = submitted && !resultOpen && !analysisClosed && (analysisRequested || solvedGame);
-  const analysis = useAnalysis(showAnalysis ? game.record : null);
+  const { state: analysis, refetch: refetchAnalysis } = useAnalysis(showAnalysis ? game.record : null);
   const analysisRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (showAnalysis) analysisRef.current?.focus();
@@ -426,6 +426,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             <AnalysisPanel
               ref={analysisRef}
               state={analysis}
+              onRetry={refetchAnalysis}
               path={timeline?.path}
               step={previewStep ?? undefined}
               onStep={setPreviewStep}

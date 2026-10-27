@@ -31,6 +31,17 @@ describe("worker analyze", () => {
 });
 
 describe("analysis controller", () => {
+  it("re-runs a failed version on the next request (what refetch relies on)", async () => {
+    const client = createEngineClient({ inThread: true });
+    const real = client.analyze.bind(client);
+    const spy = vi.spyOn(client, "analyze").mockRejectedValueOnce(new Error("boom"));
+    const ctl = createAnalysisController(client, () => {});
+    await expect(ctl.analyze(record())).rejects.toThrow(ANALYSIS_ERROR_MESSAGE);
+    spy.mockImplementation(real);
+    expect((await ctl.analyze(record())).mistakes.recordId).toBe("r1");
+    expect(spy).toHaveBeenCalledTimes(2);
+  });
+
   it("caches per record version and recomputes when the version changes", async () => {
     const client = createEngineClient({ inThread: true });
     const spy = vi.spyOn(client, "analyze");

@@ -52,7 +52,7 @@ export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze }: Submi
       <div className="dialog-actions">
         {!solved && (
           <button type="button" className="ctl" disabled={!onAnalyze} onClick={onAnalyze}>
-            {onAnalyze ? "Analyze mistakes" : "Analyze mistakes (coming soon)"}
+            Analyze mistakes
           </button>
         )}
         <button ref={closeRef} type="button" className="ctl dialog-confirm" onClick={onClose}>

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { GameRecord } from "../state/events";
 import { getEngineClient, type EngineClient } from "../workers/client";
 import type { AnalysisResult } from "../workers/protocol";
@@ -60,7 +60,11 @@ export type AnalysisState =
   | { status: "error"; message: string };
 
 /** Analyses the record off the main thread; pass null to stay idle. */
-export function useAnalysis(record: GameRecord | null, controller?: AnalysisController): AnalysisState {
+export function useAnalysis(
+  record: GameRecord | null,
+  controller?: AnalysisController,
+): { state: AnalysisState; refetch: () => void } {
+  const [nonce, setNonce] = useState(0);
   const [state, setState] = useState<{ key: string; value: AnalysisState }>({
     key: "",
     value: { status: "idle" },
@@ -80,7 +84,12 @@ export function useAnalysis(record: GameRecord | null, controller?: AnalysisCont
     };
     // The key stands in for the record's identity and contents.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key, controller]);
-  if (!record) return { status: "idle" };
-  return state.key === key ? state.value : { status: "loading" };
+  }, [key, controller, nonce]);
+  const refetch = useCallback(() => {
+    // Drop the stale error so the panel shows loading while the retry runs.
+    setState({ key: "", value: { status: "idle" } });
+    setNonce((n) => n + 1);
+  }, []);
+  if (!record) return { state: { status: "idle" }, refetch };
+  return { state: state.key === key ? state.value : { status: "loading" }, refetch };
 }
