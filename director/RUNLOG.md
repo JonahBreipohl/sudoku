@@ -281,3 +281,7 @@ Next up: M7-08c, M7-09b, M7-10b, M7-11a, M7-11b, M8-01.
 run 20261027-0423 (~12 min): shallow clone, ff worked. Trunk green (634 tests).
 - M7-08c (feature-dev, sonnet S): pass, need 0.6, actual ~0.45 (estimate, 58k tokens). check 634 tests, build, e2e 188 pass. Not reviewed. No clipping found; e2e added.
 Stopped after one task to keep the run short. Next up: M7-09b, M7-10b, M7-11a, M7-11b, M8-01.
+
+run 20261027-0623 (~20 min): shallow clone, ff worked. Trunk green (637 tests).
+- M7-11a (feature-dev, sonnet S): pass, need 0.6, actual 0.40, overhead ~0.28. check 641 tests, build, e2e 188 pass. Not reviewed (Q4). Added M7-11c follow-up (docs).
+Stopped after one task to keep the run short. Next up: M7-11b, M7-11c, M8-01, M9-01.

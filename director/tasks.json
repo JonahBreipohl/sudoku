@@ -2815,9 +2815,9 @@
         "?puzzle= loads the given grid",
         "analysis.spec uses it"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Added optional &level= param; not yet documented in docs/ARCHITECTURE.md (see M7-11c)."
     },
     {
       "id": "M7-11b",
@@ -2864,6 +2864,28 @@
       "status": "done",
       "attempts": 1,
       "notes": "No clipping found (panel scrolls via .app); e2e added. Follow-ups optional: Retry-button test hook; inner scroll region on desktop."
+    },
+    {
+      "id": "M7-11c",
+      "title": "Document ?puzzle=&level= test hook in ARCHITECTURE.md",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M7-11a"
+      ],
+      "files": [
+        "docs/ARCHITECTURE.md"
+      ],
+      "description": "The Testing hooks section documents ?puzzle= but not the optional &level=<easy|medium|hard|expert|master> param (default easy).",
+      "acceptance": [
+        "ARCHITECTURE.md Testing hooks mentions &level="
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }

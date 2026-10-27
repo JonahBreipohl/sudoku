@@ -1,14 +1,14 @@
-# Status (run 20261027-0323)
+# Status (run 20261027-0623)
 
 M7-07b and M7-08b done this run (analysis panel loading/error states and retry). Follow-up M7-08c added.
 
 ## Progress
 - M1-M6: complete
-- M7: base tasks done; open follow-ups M7-08c, M7-09b, M7-10b, M7-11a, M7-11b
+- M7: base tasks done; open follow-ups M7-11b, M7-11c
 - M8: 0/2, M9: 0/9, M10: 0/9 (M10-09 blocked on Q1 hosting)
 
 ## Next ready
-M7-08c, M7-09b, M7-10b, M7-11a, M7-11b (sonnet S, ~0.6 each), M8-01 (opus S, ~2.4)
+M7-11b (sonnet S, ~0.6), M7-11c (haiku S, ~0.1), M8-01 (opus S, ~2.4), M9-01 (sonnet M)
 
 ## Blocked
 M10-09 (Q1: user will connect an existing site later).
