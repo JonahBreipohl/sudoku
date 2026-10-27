@@ -11,6 +11,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}`,
     trace: "retain-on-failure",
+    // Specs stub network routes; a service worker would answer from cache and bypass them. pwa.spec.ts opts in.
+    serviceWorkers: "block",
   },
   projects: [
     {
