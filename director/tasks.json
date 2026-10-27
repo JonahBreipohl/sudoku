@@ -1875,7 +1875,7 @@
         "useIdle tested with fake timers",
         "Returning to Play keeps the game paused until resumed"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
