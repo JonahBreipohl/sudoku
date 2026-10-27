@@ -1904,9 +1904,9 @@
         "Update flow: a new version activates on next load without breaking a game in progress",
         "If a new dependency (e.g. vite-plugin-pwa) is added, the report says why"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-ups: optional in-app update-ready prompt; optional Lighthouse CI; no test for update takeover."
     },
     {
       "id": "M9-09",

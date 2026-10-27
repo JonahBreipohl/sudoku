@@ -327,3 +327,7 @@ Spend ~0.7 of $10. Stopped after one task to keep the run short. Next up: M9-06,
 run 20261027-1823 (~25 min): shallow clone, in sync. Trunk green (682 tests).
 - M9-06 (feature-dev, sonnet S): pass, need 1.2, actual ~0.37, not reviewed (Q4). check 689 tests, build, full e2e 220 pass.
 Spend ~0.5 of $10. Stopped after one task to keep the run short. Next up: M9-07, M9-08, M10-01, M10-03, M10-04.
+
+run 20261027-1923 (~20 min): shallow clone, unshallowed, in sync. Trunk green (689 tests).
+- M9-08 (feature-dev, sonnet M): pass, need 1.0, actual 0.43, overhead ~0.18, not reviewed (Q4). check 692 tests, build, full e2e 224 pass. No new dependency (hand-written SW + small build plugin). Follow-ups: optional update-ready prompt, Lighthouse CI.
+Spend ~0.62 of $10. Stopped after one task to keep the run short. Next up: M9-07, M10-01, M10-03, M10-04, M9-03a.
