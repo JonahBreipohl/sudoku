@@ -127,3 +127,43 @@ test("a correct solve reports its longest stalls and hardest technique", async (
   await expect(stalls.first()).toContainText("40 s before your move");
   await noAxeViolations(page);
 });
+
+test("the analysis panel's last element can be scrolled into view without horizontal scroll", async ({ page }) => {
+  await open(page, easy);
+  await play(page, 3, sol(easy, 3), 3000);
+  await play(page, 2, 1, 3000);
+  const panel = await submitAndAnalyze(page);
+  const last = panel.getByRole("heading", { name: "What you could have done" });
+  await panel.getByRole("button", { name: "Close analysis" }).focus();
+  // Last content block of the panel: its final child.
+  const tail = panel.locator(":scope > :last-child");
+  await tail.scrollIntoViewIfNeeded();
+  await expect(last).toBeVisible();
+  const vh = page.viewportSize()!.height;
+  const box = (await tail.boundingBox())!;
+  expect(box.y).toBeGreaterThanOrEqual(0);
+  expect(box.y + box.height).toBeLessThanOrEqual(vh + 1);
+  // Hit-test: the tail must be what a user sees at its position, not clipped by an ancestor.
+  const hit = await tail.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const top = document.elementFromPoint(r.left + r.width / 2, r.bottom - 2);
+    return top !== null && el.contains(top);
+  });
+  expect(hit).toBe(true);
+  // The panel itself must be fully inside the viewport or scroll internally.
+  const m = await panel.evaluate((el) => ({
+    clipped: el.scrollHeight > el.clientHeight && getComputedStyle(el).overflowY === "visible",
+    page: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    right: el.getBoundingClientRect().right - window.innerWidth,
+  }));
+  expect(m.clipped).toBe(false);
+  expect(m.page).toBeLessThanOrEqual(0);
+  expect(m.right).toBeLessThanOrEqual(0);
+  // Timeline slider (the other end of the panel) is reachable too.
+  const slider = panel.getByRole("slider");
+  if (await slider.count()) {
+    await slider.scrollIntoViewIfNeeded();
+    const sb = (await slider.boundingBox())!;
+    expect(sb.y + sb.height).toBeLessThanOrEqual(vh + 1);
+  }
+});
