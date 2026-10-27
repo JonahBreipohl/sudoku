@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
 import { DisplayBoard } from "./DisplayBoard";
+import { TodayStats } from "./TodayStats";
 import "./display.css";
 
 function pageVisible(): boolean {
@@ -39,6 +40,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
         <div className="display-clock">
           <p className="display-time">{formatClockSeconds(now)}</p>
           <p className="display-date">{formatLongDate(now)}</p>
+          <TodayStats now={now} />
         </div>
         <DisplayBoard />
       </main>
