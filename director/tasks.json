@@ -2766,8 +2766,8 @@
         "Preview shows conflicts for the previewed position",
         "Mistake marks appear only from the root mistake step onward"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
