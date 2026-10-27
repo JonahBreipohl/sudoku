@@ -2,10 +2,9 @@ import AxeBuilder from "@axe-core/playwright";
 import { readFileSync } from "node:fs";
 import type { Page } from "@playwright/test";
 import { SAMPLE_EASY } from "../src/engine/samples";
-import { newGameRecord } from "../src/state/store";
 import { expect, test } from "./fixtures";
 
-// Scripted games: the record is seeded into storage (the app resumes a saved game on load) and
+// Scripted games: loaded through the ?puzzle= hook (a saved game would otherwise resume) and
 // the test clock supplies move gaps, so every diagnosis is deterministic.
 interface Scripted {
   puzzle: string;
@@ -23,15 +22,7 @@ const blanksOf = (g: Scripted) => [...g.puzzle].flatMap((c, i) => (c === "0" ? [
 const sol = (g: Scripted, cell: number) => Number(g.solution[cell]);
 
 async function open(page: Page, g: Scripted) {
-  const record = newGameRecord({
-    id: "scripted",
-    puzzle: g.puzzle,
-    solution: g.solution,
-    level: g.level,
-    createdAt: 0,
-  });
-  await page.addInitScript((r) => localStorage.setItem("sudoku:v1:current", JSON.stringify(r)), record);
-  await page.goto("/?test=1");
+  await page.goto(`/?test=1&puzzle=${g.puzzle}&level=${g.level}`);
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 }
 
