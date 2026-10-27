@@ -39,7 +39,7 @@ import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { DisplayMode } from "./display/DisplayMode";
-import { modeFromSearch, searchForMode, type AppMode } from "./display/mode";
+import { modeFromSearch, pauseForDisplay, searchForMode, type AppMode } from "./display/mode";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
 const NO_CELLS: ReadonlySet<number> = new Set();
@@ -116,38 +116,45 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
   );
   useVisibility(store);
   const [mode, setModeState] = useState<AppMode>(() => modeFromSearch(window.location.search));
-  const setMode = useCallback((next: AppMode) => {
-    setModeState(next);
+  const setMode = useCallback(
+    (next: AppMode) => {
+      // Display is a glance view, so the game clock must not run behind it; coming back leaves it
+      // paused (the Resume overlay) rather than silently restarting.
+      if (next === "display") pauseForDisplay(store);
+      setModeState(next);
     window.history.replaceState(null, "", searchForMode(window.location.search, next) || window.location.pathname);
     // Unmounting the toggle drops focus to body; hand it to the control that replaces it.
     requestAnimationFrame(() =>
       document.querySelector<HTMLElement>(next === "display" ? ".display-exit" : "[data-display-toggle]")?.focus(),
     );
-  }, []);
-  if (mode === "display") {
-    return (
-      <GameProvider store={store}>
-        <DisplayMode onExit={() => setMode("play")} />
-      </GameProvider>
-    );
-  }
+    },
+    [store],
+  );
+  const display = mode === "display";
+  // Game stays mounted (hidden) in Display so selection, notes mode and other local UI state survive the round trip.
   return (
     <GameProvider store={store}>
-      <Game
-        key={store.getSnapshot().record.id}
-        pending={pending}
-        onNewGame={onNewGame}
-        onDisplay={() => setMode("display")}
-      />
+      <div hidden={display}>
+        <Game
+          key={store.getSnapshot().record.id}
+          active={!display}
+          pending={pending}
+          onNewGame={onNewGame}
+          onDisplay={() => setMode("display")}
+        />
+      </div>
+      {display && <DisplayMode onExit={() => setMode("play")} />}
     </GameProvider>
   );
 }
 
 function Game({
+  active,
   pending,
   onNewGame,
   onDisplay,
 }: {
+  active: boolean;
   pending: boolean;
   onNewGame: (level: Level) => void;
   onDisplay: () => void;
@@ -232,6 +239,8 @@ function Game({
   );
 
   useEffect(() => {
+    // Hidden behind Display: keys there must not edit the board.
+    if (!active) return;
     function onKey(e: KeyboardEvent) {
       const target = e.target as HTMLElement | null;
       if (target?.closest("input, textarea, select, dialog")) return;
@@ -265,7 +274,7 @@ function Game({
       window.removeEventListener("keyup", onKeyUp);
       window.removeEventListener("blur", onBlur);
     };
-  }, [act, onResume]);
+  }, [active, act, onResume]);
 
   // Hand focus back to the board once the overlay (and the focused Resume button) is gone.
   useEffect(() => {

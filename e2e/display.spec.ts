@@ -30,6 +30,8 @@ test("toggle in Play enters Display and the button exits", async ({ page }) => {
   await page.getByRole("button", { name: "Display", exact: true }).click();
   await expect(page.locator(".display-time")).toBeVisible();
   await page.getByRole("button", { name: "Exit Display" }).click();
+  // Entering Display paused the game; Resume brings the board back.
+  await page.getByRole("button", { name: "Resume" }).click();
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 });
 
@@ -89,4 +91,20 @@ test("reduced motion removes the drift transition but keeps the offset", async (
   const dur = await body.evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
   expect(dur).toBeLessThan(0.001);
   expect(await body.evaluate((el) => el.style.getPropertyValue("--drift-x"))).toMatch(/^-?\d+px$/);
+});
+
+test("Display pauses the game and keeps the selection across a round trip", async ({ page }) => {
+  await page.goto("/");
+  const cell = page.locator('[data-cell="40"]');
+  await cell.click();
+  await expect(cell).toHaveClass(/cell--selected/);
+  await page.getByRole("button", { name: "Display", exact: true }).click();
+  await expect(page.locator(".display-time")).toBeVisible();
+  // Digits typed in Display must not reach the hidden board.
+  await page.keyboard.press("5");
+  await page.getByRole("button", { name: "Exit Display" }).click();
+  const resume = page.getByRole("button", { name: "Resume" });
+  await expect(resume).toBeVisible();
+  await resume.click();
+  await expect(page.locator('[data-cell="40"]')).toHaveClass(/cell--selected/);
 });

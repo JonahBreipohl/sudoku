@@ -1,3 +1,6 @@
+import { isPaused } from "../../state/timer";
+import type { GameStore } from "../../state/store";
+
 export type AppMode = "play" | "display";
 
 export function modeFromSearch(search: string): AppMode {
@@ -11,4 +14,10 @@ export function searchForMode(search: string, mode: AppMode): string {
   else p.delete("mode");
   const s = p.toString();
   return s ? `?${s}` : "";
+}
+
+/** Pauses a running, unsubmitted game on entering Display; a no-op when already paused or submitted. */
+export function pauseForDisplay(store: Pick<GameStore, "dispatch" | "getSnapshot">): void {
+  const { record } = store.getSnapshot();
+  if (record.status === "playing" && !isPaused(record)) store.dispatch({ type: "pause" });
 }
