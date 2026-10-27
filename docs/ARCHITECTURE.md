@@ -263,6 +263,17 @@ All analysis runs in the worker on a `GameRecord` and the path ending at its cur
   the maximum over all placements.
 - **Assists used**: counts of checks, hints by tier, auto-notes, and reveals, from the log.
 
+Choices the implementation makes (`src/analysis/solve.ts`):
+
+- Phases split on real placements only (correct, non-given place and hint-reveal events on the
+  path); wrong digits and clears do not move the thirds.
+- Hint reveals are excluded from the hardest technique: the hint, not the player, found them.
+- The opening gap (from 0 to the first board event) counts as a stall candidate like any other.
+- Paused time is every stretch the clock was stopped after the first start, so time with the tab
+  hidden is included as well as explicit pauses; it ends at submit.
+- Assists count every node and log entry, not just the path, so an assist that was later undone
+  still counts.
+
 ### Hints
 
 Tiered from `nextStep` at the current state: nudge (the unit or cell to look at), technique name,
