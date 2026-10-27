@@ -1,4 +1,4 @@
-# Director status (run 20261027-1023)
+# Director status (run 20261027-1628)
 
 ## Progress
 - M1: 8/8
@@ -9,31 +9,21 @@
 - M6: 8/8
 - M7: 25/25
 - M8: 3/3
-- M9: 2/10
+- M9: 5/10
 - M10: 0/9
 
-Totals: {'done': 96, 'todo': 17, 'blocked': 1}
-
 ## Next 5 ready
-- M9-02 sonnet S
-- M9-01b sonnet S
-- M9-04 sonnet S
+- M9-03 sonnet S
 - M9-06 sonnet S
+- M9-07 sonnet S
 - M9-08 sonnet M
+- M10-01 sonnet M
 
 ## Blocked
-- M10-09: Enable deployment
+- M10-09 (Q1: hosting; answer says local/own site later)
 
 ## Open questions
-- Q6 (unshallow before divergence check): awaiting answer; M10-09 host choice.
+- Q6 (hint key, unanswered default applied), Q6b (unshallow proposal)
 
 ## Spend
-- This run so far: ~1.0 of $10
-- All time (ledger): $61.85
-
-## Median actual cost
-- haiku S: $0.01 (n=9)
-- opus M: $1.44 (n=4)
-- opus S: $0.74 (n=19)
-- sonnet M: $0.43 (n=8)
-- sonnet S: $0.27 (n=56)
+- This run ~0.6; all time ~64.4 (API-equivalent, ledger)

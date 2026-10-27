@@ -2932,7 +2932,7 @@
         "Entering Display pauses the running game; returning resumes or keeps paused state sensibly",
         "Cell selection and local UI state survive a Display round trip"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }

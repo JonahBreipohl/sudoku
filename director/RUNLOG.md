@@ -316,3 +316,6 @@ diverged 20261027-1537: local main shares no history with origin/main (66 vs 67 
 run 20261027-1537 (~25 min): my first sync saw "unrelated histories" (shallow clone) and wrongly logged a "diverged" entry; unshallowed and ff'd per ENVIRONMENT.md. Trunk green (672 tests).
 - M9-05 (feature-dev, sonnet S): pass, need 1.2, actual ~0.35 (estimate, transcript not measured), not reviewed. check, build, full e2e 216 pass.
 Stopped after one task to keep the run short. Next up: M9-01b, M9-03, M9-06, M9-07, M9-08.
+run 20261027-1628 (~15 min): shallow clone, in sync. Trunk green (675 tests).
+- M9-01b (feature-dev, sonnet S): pass, need 1.2, actual ~0.45, not reviewed (Q4). check 677 tests, build, e2e 218 pass. Follow-up note: minor mis-indent in setMode in App.tsx (cosmetic).
+Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-03, M9-06, M9-07, M9-08, M10-01.
