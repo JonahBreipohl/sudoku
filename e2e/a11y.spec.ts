@@ -20,7 +20,7 @@ for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await expectNoSeriousViolations(page);
 
-    for (const name of ["Settings", "Shortcuts"]) {
+    for (const name of ["Settings", "Shortcuts", "Stats"]) {
       await page.getByRole("button", { name, exact: true }).click();
       await expect(page.getByRole("dialog")).toBeVisible();
       await expectNoSeriousViolations(page);

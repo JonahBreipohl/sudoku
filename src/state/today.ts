@@ -15,13 +15,13 @@ export interface TodayStats {
 }
 
 /** Day index in local time; built from calendar parts so DST days still step by exactly one. */
-function dayIndex(at: number): number {
+export function dayIndex(at: number): number {
   const d = new Date(at);
   return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 86_400_000);
 }
 
 /** Epoch ms a game was solved, or null if it is not a solved game. */
-function solvedAt(r: GameRecord): number | null {
+export function solvedAt(r: GameRecord): number | null {
   if (r.status !== "submitted") return null;
   for (let i = r.log.length - 1; i >= 0; i--) {
     const e = r.log[i]!;

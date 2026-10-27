@@ -991,3 +991,8 @@ button {
   outline: 2px dashed var(--line);
   outline-offset: 3px;
 }
+
+.stats-label {
+  min-width: 11rem;
+  font-weight: 600;
+}
