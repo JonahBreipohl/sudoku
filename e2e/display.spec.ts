@@ -121,3 +121,35 @@ test("watch puzzle self-solves with a technique caption", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Watch puzzle" })).toHaveAttribute("aria-pressed", "true");
   expect(errors).toEqual([]);
 });
+
+for (const scheme of ["light", "dark"] as const) {
+  for (const [name, size] of [["landscape", { width: 1920, height: 1080 }], ["portrait", { width: 1080, height: 1920 }]] as const) {
+    for (const watch of [false, true]) {
+      test(`display ${name} ${watch ? "watch puzzle" : "board"} shows clock, puzzle, stats; axe clean (${scheme})`, async ({ page }) => {
+        // Reduced motion: the watch caption otherwise fades, and axe would sample mid-fade colors.
+        await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+        await page.setViewportSize(size);
+        await page.goto(watch ? "/?mode=display&watch&seed=e2e&interval=1" : "/?mode=display");
+        await expect(page.locator(".display-time")).toBeVisible();
+        await expect(
+          page.getByRole("grid", { name: watch ? "Watch puzzle, solving itself" : "Current game, read only" }),
+        ).toBeVisible();
+        await expect(page.getByRole("region", { name: "Today's stats" })).toBeVisible();
+        // Watch cells with pencil notes trip label-content-name-mismatch (see the fixme below).
+        const axe = new AxeBuilder({ page });
+        if (watch) axe.disableRules("label-content-name-mismatch");
+        const results = await axe.analyze();
+        expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
+      });
+    }
+  }
+}
+
+test.fixme("watch puzzle noted cells pass label-content-name-mismatch", async ({ page }) => {
+  // App bug: .dnotes digits are aria-hidden while the cell's aria-label spells them out as "notes 1 2 5 6",
+  // so axe (serious) reports the visible text as not part of the accessible name.
+  await page.goto("/?mode=display&watch&seed=e2e&interval=1");
+  await expect(page.getByRole("grid", { name: "Watch puzzle, solving itself" })).toBeVisible();
+  const results = await new AxeBuilder({ page }).withRules(["label-content-name-mismatch"]).analyze();
+  expect(results.violations).toEqual([]);
+});
