@@ -11,3 +11,13 @@ export function formatElapsed(ms: number): string {
 export function formatWallClock(at: number, locale?: string): string {
   return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit" }).format(at);
 }
+
+/** Local time with seconds, for the big Display clock. */
+export function formatClockSeconds(at: number, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, { hour: "numeric", minute: "2-digit", second: "2-digit" }).format(at);
+}
+
+/** Long local date, e.g. "Tuesday, October 27, 2026". */
+export function formatLongDate(at: number, locale?: string): string {
+  return new Intl.DateTimeFormat(locale, { weekday: "long", year: "numeric", month: "long", day: "numeric" }).format(at);
+}

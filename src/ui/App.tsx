@@ -38,6 +38,8 @@ import { describeChange, describeCheck, describeSubmit } from "./announce";
 import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
+import { DisplayMode } from "./display/DisplayMode";
+import { modeFromSearch, searchForMode, type AppMode } from "./display/mode";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
 const NO_CELLS: ReadonlySet<number> = new Set();
@@ -113,14 +115,37 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
     [store],
   );
   useVisibility(store);
+  const [mode, setModeState] = useState<AppMode>(() => modeFromSearch(window.location.search));
+  const setMode = useCallback((next: AppMode) => {
+    setModeState(next);
+    window.history.replaceState(null, "", searchForMode(window.location.search, next) || window.location.pathname);
+    // Unmounting the toggle drops focus to body; hand it to the control that replaces it.
+    requestAnimationFrame(() =>
+      document.querySelector<HTMLElement>(next === "display" ? ".display-exit" : "[data-display-toggle]")?.focus(),
+    );
+  }, []);
+  if (mode === "display") return <DisplayMode onExit={() => setMode("play")} />;
   return (
     <GameProvider store={store}>
-      <Game key={store.getSnapshot().record.id} pending={pending} onNewGame={onNewGame} />
+      <Game
+        key={store.getSnapshot().record.id}
+        pending={pending}
+        onNewGame={onNewGame}
+        onDisplay={() => setMode("display")}
+      />
     </GameProvider>
   );
 }
 
-function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Level) => void }) {
+function Game({
+  pending,
+  onNewGame,
+  onDisplay,
+}: {
+  pending: boolean;
+  onNewGame: (level: Level) => void;
+  onDisplay: () => void;
+}) {
   const { game, dispatch } = useGame();
   // Selection is UI state; board state lives in the store.
   const [selected, setSelected] = useState<number | null>(null);
@@ -447,6 +472,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         </button>
         <button type="button" className="ctl" onClick={() => setSettingsOpen(true)}>
           Settings
+        </button>
+        <button type="button" className="ctl" data-display-toggle onClick={onDisplay}>
+          Display
         </button>
       </header>
       <main className="play">
