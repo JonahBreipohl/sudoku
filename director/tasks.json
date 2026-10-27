@@ -1643,8 +1643,8 @@
         "Rewind then finishing correctly auto-submits",
         "Correct solve shows stalls and hardest technique"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
