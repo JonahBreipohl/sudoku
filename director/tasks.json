@@ -2669,7 +2669,7 @@
       "acceptance": [
         "ARCHITECTURE.md describes the implemented rule"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

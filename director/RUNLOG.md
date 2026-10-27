@@ -264,3 +264,7 @@ Stopped after one task to keep the run short. Next up: M7-11, M7-05b, M7-06b, M7
 run 20261027-0023 (~15 min): shallow clone, in sync with origin/main. Trunk green (630 tests).
 - M7-11 (qa-e2e, sonnet S): pass, need 0.6, actual 0.42. check 630 tests, build, e2e 186 pass. Not reviewed (Q4). Added M7-11a, M7-11b follow-ups.
 Stopped after one task to keep the run short. Next up: M7-05b, M7-06b, M7-07b, M7-08b, M8-01.
+
+run 20261027-0123 (~10 min): shallow clone, ff worked. Trunk green (630 tests).
+- M7-05b (chore-dev, haiku S): pass, need 0.1, actual 0.01. Docs only; not reviewed.
+Stopped after one task to keep the run short. Next up: M7-06b, M7-07b, M7-08b, M7-09b, M8-01.
