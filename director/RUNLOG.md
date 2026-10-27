@@ -323,3 +323,7 @@ Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-03,
 run 20261027-1725 (~25 min): shallow clone, in sync. Trunk green (677 tests).
 - M9-03 (feature-dev, sonnet S): pass, need 0.35, actual 0.59, overhead ~0.07, not reviewed (Q4). check 682 tests, build, e2e 220 pass. Added M9-03a follow-up (visual check).
 Spend ~0.7 of $10. Stopped after one task to keep the run short. Next up: M9-06, M9-07, M9-08, M10-01, M10-03.
+
+run 20261027-1823 (~25 min): shallow clone, in sync. Trunk green (682 tests).
+- M9-06 (feature-dev, sonnet S): pass, need 1.2, actual ~0.37, not reviewed (Q4). check 689 tests, build, full e2e 220 pass.
+Spend ~0.5 of $10. Stopped after one task to keep the run short. Next up: M9-07, M9-08, M10-01, M10-03, M10-04.

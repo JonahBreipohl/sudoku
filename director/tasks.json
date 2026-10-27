@@ -1849,9 +1849,9 @@
         "Wake lock re-acquired after the tab becomes visible again",
         "Unit tests with a mocked API"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-up: no e2e covers the buttons (headless Chromium lacks wake lock)."
     },
     {
       "id": "M9-07",
