@@ -147,6 +147,37 @@ function mistakeHint(tier: HintTier, board: readonly CellValue[], m: Mistaken): 
   return { ...base, text: `${at} is ${m.truth}, not ${m.value}.`, cells: [m.cell], placement: { cell: m.cell, digit: m.truth } };
 }
 
+/** Longest reveal line the hint panel is meant to show; chain explanations are condensed to it. */
+export const MAX_REVEAL_TEXT = 160;
+
+/**
+ * The step's explanation as one panel line within `limit`. Short ones pass through. A long chain
+ * keeps its two end nodes (the reasoning hinges on them) and says how many links lie between;
+ * if the elimination list is still too long it is cut with a count of what was left out.
+ */
+export function condenseExplanation(explanation: string, limit: number = MAX_REVEAL_TEXT): string {
+  const room = limit - 1; // the trailing period added by the caller
+  if (explanation.length <= room) return explanation;
+  let text = explanation;
+  const m = /^([^:]+: )(.+?)(; .*)$/.exec(text);
+  if (m) {
+    const nodes = m[2]!.split(/ [-=] /);
+    if (nodes.length > 2) {
+      text = `${m[1]}${nodes[0]} ... ${nodes[nodes.length - 1]} (${nodes.length - 1} links)${m[3]}`;
+    }
+  }
+  if (text.length <= room) return text;
+  const at = text.lastIndexOf(" from ");
+  if (at < 0) return text.slice(0, room - 3) + "...";
+  const head = text.slice(0, at + 6);
+  const cells = text.slice(at + 6).split(", ");
+  for (let keep = cells.length - 1; keep >= 1; keep--) {
+    const out = `${head}${cells.slice(0, keep).join(", ")} and ${cells.length - keep} more`;
+    if (out.length <= room) return out;
+  }
+  return text.slice(0, room - 3) + "...";
+}
+
 function stepHint(tier: HintTier, step: Step): Hint {
   const name = techniqueInfo(step.technique).name;
   const focus = stepFocus(step);
@@ -159,7 +190,7 @@ function stepHint(tier: HintTier, step: Step): Hint {
   }
   return {
     ...base,
-    text: `${step.explanation}.`,
+    text: `${condenseExplanation(step.explanation)}.`,
     cells: step.cells,
     units: step.units ?? [],
     technique: step.technique,
