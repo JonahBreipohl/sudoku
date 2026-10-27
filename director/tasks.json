@@ -2791,9 +2791,9 @@
         "Archive reflects reopened game",
         "Abandoned branches visible or documented as out of scope"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Archive fix done; branch browsing and rewind-at-now for solved games deferred (documented in ARCHITECTURE.md)."
     },
     {
       "id": "M7-11a",
