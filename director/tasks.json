@@ -1957,8 +1957,8 @@
         "Mistake rate counts games with any mistake",
         "Dialog works in all layouts"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
