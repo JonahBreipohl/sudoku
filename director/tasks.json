@@ -2932,8 +2932,8 @@
         "Entering Display pauses the running game; returning resumes or keeps paused state sensibly",
         "Cell selection and local UI state survive a Display round trip"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
