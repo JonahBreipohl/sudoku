@@ -38,6 +38,7 @@ import { describeChange, describeCheck, describeSubmit } from "./announce";
 import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
+import { useIdle } from "./useIdle";
 import { DisplayMode } from "./display/DisplayMode";
 import { modeFromSearch, pauseForDisplay, searchForMode, type AppMode } from "./display/mode";
 
@@ -131,6 +132,10 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
     [store],
   );
   const display = mode === "display";
+  // Idle in Play pauses the game and shows Display; returning leaves it paused until resumed.
+  const { settings: appSettings } = useSettings();
+  const onIdle = useCallback(() => setMode("display"), [setMode]);
+  useIdle(appSettings.idleMinutes, !display, onIdle);
   // Game stays mounted (hidden) in Display so selection, notes mode and other local UI state survive the round trip.
   return (
     <GameProvider store={store}>
