@@ -115,11 +115,14 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
 
   let snapshot = snapshotOf(initial);
 
-  const commit = (record: GameRecord) => {
+  const commit = (record: GameRecord, reopened = false) => {
     current = record;
     snapshot = snapshotOf(record);
     const p = options.persistence;
     if (p) {
+      // A reopened game is no longer completed; drop its stale archived copy. It is archived
+      // again on the next submit, or by new-game if the player leaves it unfinished.
+      if (reopened) p.remove(record.id);
       if (record.status === "submitted") {
         p.archive(record);
         p.clearCurrent();
@@ -210,7 +213,7 @@ export function createGameStore(initial: GameRecord, options: StoreOptions = {})
         status: reopening ? "playing" : record.status,
         cursor: tree.cursor,
         log: [...record.log, { ...meta, at } as MetaEvent],
-      });
+      }, reopening);
     },
   };
 }
