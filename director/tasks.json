@@ -1724,7 +1724,7 @@
         "Clock ticks once per second with useSecondTick; no animation loops",
         "Exit back to Play by button or Escape"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2911,6 +2911,30 @@
       "status": "done",
       "attempts": 1,
       "notes": "Follow-up: Hard+ property tests use random boards so real chain text only tested via synthetic chains."
+    },
+    {
+      "id": "M9-01b",
+      "title": "Display mode: pause Game on entry, keep play state across Display",
+      "milestone": 9,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-01"
+      ],
+      "files": [
+        "src/ui/App.tsx",
+        "src/ui/display/DisplayMode.tsx"
+      ],
+      "description": "Follow-up from M9-01: Game unmounts in Display so selection/local UI state resets, and the game timer is not paused on entering Display. Pause on entry and preserve state on return.",
+      "acceptance": [
+        "Entering Display pauses the running game; returning resumes or keeps paused state sensibly",
+        "Cell selection and local UI state survive a Display round trip"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }
