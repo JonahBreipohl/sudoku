@@ -135,19 +135,14 @@ for (const scheme of ["light", "dark"] as const) {
           page.getByRole("grid", { name: watch ? "Watch puzzle, solving itself" : "Current game, read only" }),
         ).toBeVisible();
         await expect(page.getByRole("region", { name: "Today's stats" })).toBeVisible();
-        // Watch cells with pencil notes trip label-content-name-mismatch (see the fixme below).
-        const axe = new AxeBuilder({ page });
-        if (watch) axe.disableRules("label-content-name-mismatch");
-        const results = await axe.analyze();
+        const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
       });
     }
   }
 }
 
-test.fixme("watch puzzle noted cells pass label-content-name-mismatch", async ({ page }) => {
-  // App bug: .dnotes digits are aria-hidden while the cell's aria-label spells them out as "notes 1 2 5 6",
-  // so axe (serious) reports the visible text as not part of the accessible name.
+test("watch puzzle noted cells pass label-content-name-mismatch", async ({ page }) => {
   await page.goto("/?mode=display&watch&seed=e2e&interval=1");
   await expect(page.getByRole("grid", { name: "Watch puzzle, solving itself" })).toBeVisible();
   const results = await new AxeBuilder({ page }).withRules(["label-content-name-mismatch"]).analyze();
