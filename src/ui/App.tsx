@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import { findConflicts, UNITS, type Digit } from "../engine";
 import type { Hint } from "../analysis/hints";
 import type { HintTier } from "../state/events";
@@ -11,7 +18,11 @@ import { checkBoard } from "../state/check";
 import { hasProgress } from "../state/progress";
 import { isPaused } from "../state/timer";
 import type { GameRecord } from "../state/events";
-import { createPlayedStore, createPuzzleSource, type PuzzleSource } from "../state/puzzles";
+import {
+  createPlayedStore,
+  createPuzzleSource,
+  type PuzzleSource,
+} from "../state/puzzles";
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
 import { newGame, resetGame } from "../state/newGame";
@@ -31,8 +42,13 @@ import { SidePanel } from "./components/SidePanel";
 import { SettingsDialog } from "./components/SettingsDialog";
 import { actionForKey } from "./keyboard";
 import { ShortcutsDialog } from "./components/ShortcutsDialog";
+import { StatsDialog } from "./components/StatsDialog";
 import { cellCommitCounts } from "./renderProbe";
-import { initialInputMode, inputModeReducer, tapForLockedDigit } from "./inputMode";
+import {
+  initialInputMode,
+  inputModeReducer,
+  tapForLockedDigit,
+} from "./inputMode";
 import { moveSelection } from "./selection";
 import { describeChange, describeCheck, describeSubmit } from "./announce";
 import { useSettings } from "./useSettings";
@@ -40,7 +56,12 @@ import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { useIdle } from "./useIdle";
 import { DisplayMode } from "./display/DisplayMode";
-import { modeFromSearch, pauseForDisplay, searchForMode, type AppMode } from "./display/mode";
+import {
+  modeFromSearch,
+  pauseForDisplay,
+  searchForMode,
+  type AppMode,
+} from "./display/mode";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
 const NO_CELLS: ReadonlySet<number> = new Set();
@@ -53,7 +74,9 @@ const persistence = createLocalStoragePersistence();
 function makeStore(record?: GameRecord) {
   const now = () => Date.now() + clockOffset;
   // A ?puzzle= link starts that puzzle once; the saved record then lets a reload resume it.
-  const fromUrl = record ? null : recordFromSearch(window.location.search, Date.now());
+  const fromUrl = record
+    ? null
+    : recordFromSearch(window.location.search, Date.now());
   if (fromUrl) record = fromUrl;
   const store = createGameStore(
     record ??
@@ -116,18 +139,28 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
     [store],
   );
   useVisibility(store);
-  const [mode, setModeState] = useState<AppMode>(() => modeFromSearch(window.location.search));
+  const [mode, setModeState] = useState<AppMode>(() =>
+    modeFromSearch(window.location.search),
+  );
   const setMode = useCallback(
     (next: AppMode) => {
       // Display is a glance view, so the game clock must not run behind it; coming back leaves it
       // paused (the Resume overlay) rather than silently restarting.
       if (next === "display") pauseForDisplay(store);
       setModeState(next);
-    window.history.replaceState(null, "", searchForMode(window.location.search, next) || window.location.pathname);
-    // Unmounting the toggle drops focus to body; hand it to the control that replaces it.
-    requestAnimationFrame(() =>
-      document.querySelector<HTMLElement>(next === "display" ? ".display-exit" : "[data-display-toggle]")?.focus(),
-    );
+      window.history.replaceState(
+        null,
+        "",
+        searchForMode(window.location.search, next) || window.location.pathname,
+      );
+      // Unmounting the toggle drops focus to body; hand it to the control that replaces it.
+      requestAnimationFrame(() =>
+        document
+          .querySelector<HTMLElement>(
+            next === "display" ? ".display-exit" : "[data-display-toggle]",
+          )
+          ?.focus(),
+      );
     },
     [store],
   );
@@ -170,10 +203,15 @@ function Game({
   const [notesMode, setNotesMode] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
   const [helpOpen, setHelpOpen] = useState(false);
+  const [statsOpen, setStatsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
-  const [entry, entryDispatch] = useReducer(inputModeReducer, settings.entryMode, initialInputMode);
+  const [entry, entryDispatch] = useReducer(
+    inputModeReducer,
+    settings.entryMode,
+    initialInputMode,
+  );
   const digitFirst = entry.mode === "digit-first";
   const noting = notesMode || shiftHeld;
   const paused = isPaused(game.record) && game.record.status === "playing";
@@ -192,7 +230,11 @@ function Game({
   }, [dispatch]);
   const onHintRef = useRef<() => void>(noop);
   const act = useCallback(
-    (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard", code?: string) => {
+    (
+      action: NonNullable<ReturnType<typeof actionForKey>>,
+      input: "keyboard" | "pad" = "keyboard",
+      code?: string,
+    ) => {
       // Input is ignored while a new puzzle generates: the swap would discard it.
       if (pending && action.type !== "move") return;
       if (action.type === "help") {
@@ -237,10 +279,26 @@ function Game({
         const on = (notes[selected]! & (1 << (digit - 1))) === 0;
         dispatch({ type: "note", cell: selected, digit, on });
       } else if (action.type === "place")
-        dispatch({ type: "place", cell: selected, digit: action.digit, input, ...(code ? { key: code } : {}) });
+        dispatch({
+          type: "place",
+          cell: selected,
+          digit: action.digit,
+          input,
+          ...(code ? { key: code } : {}),
+        });
       else dispatch({ type: "erase", cell: selected });
     },
-    [selected, dispatch, noting, board, notes, pending, onPause, onResume, digitFirst],
+    [
+      selected,
+      dispatch,
+      noting,
+      board,
+      notes,
+      pending,
+      onPause,
+      onResume,
+      digitFirst,
+    ],
   );
 
   useEffect(() => {
@@ -285,18 +343,31 @@ function Game({
   useEffect(() => {
     if (paused || !refocusBoard.current) return;
     refocusBoard.current = false;
-    document.querySelector<HTMLButtonElement>(`[data-cell="${selected ?? 0}"]`)?.focus();
+    document
+      .querySelector<HTMLButtonElement>(`[data-cell="${selected ?? 0}"]`)
+      ?.focus();
   }, [paused, selected]);
 
   // Keep keyboard focus on the selected cell so screen readers follow the selection.
   useEffect(() => {
     if (selected === null) return;
-    const el = document.querySelector<HTMLButtonElement>(`[data-cell="${selected}"]`);
+    const el = document.querySelector<HTMLButtonElement>(
+      `[data-cell="${selected}"]`,
+    );
     if (el && document.activeElement?.closest(".board")) el.focus();
   }, [selected]);
 
   // Cells are memoized on onSelect, so the handler stays stable and reads current state via a ref.
-  const tapState = { pending, noting, digitFirst, entry, board, notes, givens, dispatch };
+  const tapState = {
+    pending,
+    noting,
+    digitFirst,
+    entry,
+    board,
+    notes,
+    givens,
+    dispatch,
+  };
   const tapRef = useRef(tapState);
   useEffect(() => {
     tapRef.current = tapState;
@@ -311,8 +382,18 @@ function Game({
       t.dispatch({ type: "note", cell, digit: t.entry.locked, on });
       return;
     }
-    const tap = tapForLockedDigit(t.entry, t.board[cell] ?? 0, t.givens[cell] !== 0);
-    if (tap?.type === "place") t.dispatch({ type: "place", cell, digit: tap.digit, input: "digit-first" });
+    const tap = tapForLockedDigit(
+      t.entry,
+      t.board[cell] ?? 0,
+      t.givens[cell] !== 0,
+    );
+    if (tap?.type === "place")
+      t.dispatch({
+        type: "place",
+        cell,
+        digit: tap.digit,
+        input: "digit-first",
+      });
     else if (tap?.type === "erase") t.dispatch({ type: "erase", cell });
   }, []);
   const onToggleEntry = useCallback(() => {
@@ -321,7 +402,10 @@ function Game({
     update({ entryMode: mode });
   }, [digitFirst, update]);
 
-  const onDigit = useCallback((digit: Digit) => act({ type: "place", digit }, "pad"), [act]);
+  const onDigit = useCallback(
+    (digit: Digit) => act({ type: "place", digit }, "pad"),
+    [act],
+  );
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
 
   const onUndo = useCallback(() => {
@@ -359,21 +443,31 @@ function Game({
   const onSubmit = useCallback(() => {
     if (!pending) dispatch({ type: "submit" });
   }, [pending, dispatch]);
-  const submitResult = [...game.record.log].reverse().find((e) => e.type === "submit");
+  const submitResult = [...game.record.log]
+    .reverse()
+    .find((e) => e.type === "submit");
   // Baseline is the submit already in the log at mount, so resuming a submitted game stays silent.
   // Adjusting state during render (not in an effect) keeps it to one render pass.
   const [seenSubmit, setSeenSubmit] = useState(submitResult);
   if (submitResult !== seenSubmit) {
     setSeenSubmit(submitResult);
-    if (submitResult?.type === "submit") setAnnouncement(describeSubmit(submitResult.result));
+    if (submitResult?.type === "submit")
+      setAnnouncement(describeSubmit(submitResult.result));
   }
   const resultOpen = submitted && !resultDismissed;
   // A correct solve shows its analysis once the result dialog is dismissed; an incorrect one on request.
-  const solvedGame = submitResult?.type === "submit" && submitResult.result === "solved";
+  const solvedGame =
+    submitResult?.type === "submit" && submitResult.result === "solved";
   const [analysisRequested, setAnalysisRequested] = useState(false);
   const [analysisClosed, setAnalysisClosed] = useState(false);
-  const showAnalysis = submitted && !resultOpen && !analysisClosed && (analysisRequested || solvedGame);
-  const { state: analysis, refetch: refetchAnalysis } = useAnalysis(showAnalysis ? game.record : null);
+  const showAnalysis =
+    submitted &&
+    !resultOpen &&
+    !analysisClosed &&
+    (analysisRequested || solvedGame);
+  const { state: analysis, refetch: refetchAnalysis } = useAnalysis(
+    showAnalysis ? game.record : null,
+  );
   const analysisRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (showAnalysis) analysisRef.current?.focus();
@@ -382,7 +476,9 @@ function Game({
     if (!showAnalysis || analysis.status !== "ready") return undefined;
     const [root, ...rest] = analysis.result.mistakes.highlight;
     if (root === undefined) return undefined;
-    const m = new Map<number, "root" | "support">(rest.map((c) => [c, "support"]));
+    const m = new Map<number, "root" | "support">(
+      rest.map((c) => [c, "support"]),
+    );
     m.set(root, "root");
     return m;
   }, [showAnalysis, analysis]);
@@ -401,8 +497,12 @@ function Game({
       setResultDismissed(false);
     },
     [game.record, dispatch],
-  );  const timeline = useMemo(
-    () => (showAnalysis && analysis.status === "ready" ? replayRecord(game.record) : null),
+  );
+  const timeline = useMemo(
+    () =>
+      showAnalysis && analysis.status === "ready"
+        ? replayRecord(game.record)
+        : null,
     [showAnalysis, analysis.status, game.record],
   );
   const preview =
@@ -415,12 +515,24 @@ function Game({
   );
   const previewMarks =
     preview && analysis.status === "ready" && timeline
-      ? marksAtStep(marks, analysis.result.mistakes.root?.mistake.index ?? null, timeline.path.length, previewStep ?? 0)
+      ? marksAtStep(
+          marks,
+          analysis.result.mistakes.root?.mistake.index ?? null,
+          timeline.path.length,
+          previewStep ?? 0,
+        )
       : marks;
-  const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
+  const errors = useMemo(
+    () => submitErrors(game.record, board),
+    [game.record, board],
+  );
 
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
-  const [checked, setChecked] = useState<{ key: string; mistakes: number; wrong: number[] } | null>(null);
+  const [checked, setChecked] = useState<{
+    key: string;
+    mistakes: number;
+    wrong: number[];
+  } | null>(null);
   const onCheck = useCallback(() => {
     if (pending) return;
     const { mistakes, wrong } = checkBoard(game.record, board);
@@ -431,14 +543,21 @@ function Game({
   // A result describes one board position; any edit, undo or rewind makes it stale.
   const checkResult = checked && checked.key === checkKey ? checked : null;
   const wrongSet = useMemo(
-    () => (settings.checkHighlighting && checkResult ? new Set(checkResult.wrong) : undefined),
+    () =>
+      settings.checkHighlighting && checkResult
+        ? new Set(checkResult.wrong)
+        : undefined,
     [settings.checkHighlighting, checkResult],
   );
 
   // Escalation is per board position: any edit, undo or rewind changes the key and starts over.
-  const [hintState, setHintState] = useState<{ key: string; hint: Hint } | null>(null);
+  const [hintState, setHintState] = useState<{
+    key: string;
+    hint: Hint;
+  } | null>(null);
   const [hintBusy, setHintBusy] = useState(false);
-  const currentHint = hintState && hintState.key === checkKey ? hintState.hint : null;
+  const currentHint =
+    hintState && hintState.key === checkKey ? hintState.hint : null;
   const hintKeyRef = useRef(checkKey);
   useEffect(() => {
     hintKeyRef.current = checkKey;
@@ -464,7 +583,15 @@ function Game({
         () => setAnnouncement("Hint could not be computed. Please try again."),
       )
       .finally(() => setHintBusy(false));
-  }, [pending, hintBusy, submitted, currentHint, checkKey, game.record, dispatch]);
+  }, [
+    pending,
+    hintBusy,
+    submitted,
+    currentHint,
+    checkKey,
+    game.record,
+    dispatch,
+  ]);
   useEffect(() => {
     onHintRef.current = onHint;
   }, [onHint]);
@@ -472,28 +599,62 @@ function Game({
     const p = currentHint?.placement;
     if (!currentHint || !p) return;
     setSelected(p.cell);
-    dispatch({ type: "hint-reveal", cell: p.cell, digit: p.digit, step: currentHint.logId });
+    dispatch({
+      type: "hint-reveal",
+      cell: p.cell,
+      digit: p.digit,
+      step: currentHint.logId,
+    });
   }, [currentHint, dispatch]);
   const hintMarks = useMemo(() => {
     if (!currentHint) return undefined;
     const m = new Map<number, CellMark>();
-    for (const u of currentHint.units) for (const c of UNITS[u] ?? []) m.set(c, "hint-unit");
+    for (const u of currentHint.units)
+      for (const c of UNITS[u] ?? []) m.set(c, "hint-unit");
     for (const c of currentHint.cells) m.set(c, "hint");
     return m;
   }, [currentHint]);
 
   return (
-    <div className="app" data-left-handed={settings.leftHanded ? "" : undefined}>
+    <div
+      className="app"
+      data-left-handed={settings.leftHanded ? "" : undefined}
+    >
       <header className="app-header">
         <h1>Sudoku</h1>
-        <NewGame pending={pending} inProgress={hasProgress(game.record)} onNewGame={onNewGame} />
-        <button type="button" className="ctl" onClick={() => setHelpOpen(true)} aria-keyshortcuts="?">
+        <NewGame
+          pending={pending}
+          inProgress={hasProgress(game.record)}
+          onNewGame={onNewGame}
+        />
+        <button
+          type="button"
+          className="ctl"
+          onClick={() => setHelpOpen(true)}
+          aria-keyshortcuts="?"
+        >
           Shortcuts
         </button>
-        <button type="button" className="ctl" onClick={() => setSettingsOpen(true)}>
+        <button
+          type="button"
+          className="ctl"
+          onClick={() => setStatsOpen(true)}
+        >
+          Stats
+        </button>
+        <button
+          type="button"
+          className="ctl"
+          onClick={() => setSettingsOpen(true)}
+        >
           Settings
         </button>
-        <button type="button" className="ctl" data-display-toggle onClick={onDisplay}>
+        <button
+          type="button"
+          className="ctl"
+          data-display-toggle
+          onClick={onDisplay}
+        >
           Display
         </button>
       </header>
@@ -537,9 +698,21 @@ function Game({
             onViewResult={() => setResultDismissed(false)}
             resultOpen={resultOpen}
             checkResult={checkResult}
-            hintButton={<HintButton busy={hintBusy} disabled={submitted || pending} onHint={onHint} />}
+            hintButton={
+              <HintButton
+                busy={hintBusy}
+                disabled={submitted || pending}
+                onHint={onHint}
+              />
+            }
           />
-          {!paused && currentHint && <HintPanel hint={currentHint} canApply={!submitted} onApply={onApplyHint} />}
+          {!paused && currentHint && (
+            <HintPanel
+              hint={currentHint}
+              canApply={!submitted}
+              onApply={onApplyHint}
+            />
+          )}
           {showAnalysis && (
             <AnalysisPanel
               ref={analysisRef}
@@ -556,8 +729,20 @@ function Game({
               }}
             />
           )}
-          {!paused && <Pad board={board} onDigit={onDigit} onErase={onErase} notesMode={noting} lockedDigit={digitFirst ? entry.locked : null} />}
-          <SidePanel record={game.record} showTimer={settings.showTimer} wallClock={settings.wallClock} />
+          {!paused && (
+            <Pad
+              board={board}
+              onDigit={onDigit}
+              onErase={onErase}
+              notesMode={noting}
+              lockedDigit={digitFirst ? entry.locked : null}
+            />
+          )}
+          <SidePanel
+            record={game.record}
+            showTimer={settings.showTimer}
+            wallClock={settings.wallClock}
+          />
         </div>
       </main>
       <div className="sr-only" aria-live="polite" aria-atomic="true">
@@ -586,6 +771,12 @@ function Game({
         />
       )}
       {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}
+      {statsOpen && (
+        <StatsDialog
+          loadArchive={persistence.list}
+          onClose={() => setStatsOpen(false)}
+        />
+      )}
     </div>
   );
 }
