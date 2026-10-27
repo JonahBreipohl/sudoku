@@ -2978,7 +2978,7 @@
         "Rule exclusion removed from watch variants in e2e/display.spec.ts",
         "fixme test watch puzzle noted cells pass label-content-name-mismatch is un-fixmed and passes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     }

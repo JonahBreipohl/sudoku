@@ -335,3 +335,7 @@ Spend ~0.62 of $10. Stopped after one task to keep the run short. Next up: M9-07
 run 20261027-2023 (~20 min): shallow clone, in sync. Trunk green (692 tests).
 - M9-09 (qa-e2e, sonnet S): pass, need 0.6, actual 0.33, overhead ~0.26, not reviewed (Q4). check 692 tests, build, full e2e 244 pass + 2 fixme. Found real app bug (watch-mode notes cells fail axe label-content-name-mismatch); added follow-up M9-09a.
 Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-09a, M9-03a, M9-07, M10-01, M10-03.
+
+run 20261027-2123 (~20 min): shallow clone, in sync. Trunk green (692 tests).
+- M9-09a (feature-dev, sonnet S): pass, need 0.6, actual ~0.24, not reviewed (Q4). check 692 tests, build, e2e 246 pass. Follow-up: noted-cell digit reading unverified with a real screen reader.
+Spend ~0.45 of $10. Stopped after one task to keep the run short. Next up: M9-03a, M9-07, M10-01, M10-03, M10-07.
