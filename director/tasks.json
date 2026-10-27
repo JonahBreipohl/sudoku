@@ -2717,8 +2717,8 @@
       "acceptance": [
         "Analysis UI shows loading and friendly error states"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
