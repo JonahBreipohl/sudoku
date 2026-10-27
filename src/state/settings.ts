@@ -26,7 +26,7 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   checkHighlighting: true,
   wallClock: true,
   leftHanded: false,
-  idleMinutes: 5,
+  idleMinutes: 10,
   showTimer: true,
 };
 
