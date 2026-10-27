@@ -2766,9 +2766,9 @@
         "Preview shows conflicts for the previewed position",
         "Mistake marks appear only from the root mistake step onward"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Check highlights in preview left out (stale on rewind)."
     },
     {
       "id": "M7-10b",
