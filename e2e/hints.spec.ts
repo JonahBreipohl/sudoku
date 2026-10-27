@@ -20,7 +20,7 @@ test("three presses escalate and the reveal applies the right digit", async ({ p
   await expect(page.locator(".cell--mark-hint, .cell--mark-hint-unit").first()).toBeVisible();
   await page.keyboard.press("Shift+H");
   await expect(panel(page)).toHaveAttribute("data-tier", "technique");
-  await page.getByRole("button", { name: /Show answer/ }).click();
+  await page.keyboard.press("Shift+H");
   await expect(panel(page)).toHaveAttribute("data-tier", "reveal");
   const target = page.locator(".cell--mark-hint").first();
   const cell = Number(await target.getAttribute("data-cell"));

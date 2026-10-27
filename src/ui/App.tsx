@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "r
 import { findConflicts, UNITS, type Digit } from "../engine";
 import type { Hint } from "../analysis/hints";
 import type { HintTier } from "../state/events";
-import { HintButton } from "./components/HintButton";
+import { HintButton, HintPanel } from "./components/HintButton";
 import { marksAtStep } from "./timeline";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
@@ -489,10 +489,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             onViewResult={() => setResultDismissed(false)}
             resultOpen={resultOpen}
             checkResult={checkResult}
+            hintButton={<HintButton busy={hintBusy} disabled={submitted || pending} onHint={onHint} />}
           />
-          {!paused && (
-            <HintButton hint={currentHint} busy={hintBusy} disabled={submitted || pending} onHint={onHint} onApply={onApplyHint} />
-          )}
+          {!paused && currentHint && <HintPanel hint={currentHint} canApply={!submitted} onApply={onApplyHint} />}
           {showAnalysis && (
             <AnalysisPanel
               ref={analysisRef}
