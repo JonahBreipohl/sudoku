@@ -1748,7 +1748,7 @@
         "Scales cleanly from 1280x720 to 3840x2160 and portrait 1080x1920",
         "Live updates when the game changes in another tab are not required"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

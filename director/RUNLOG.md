@@ -303,3 +303,7 @@ Spend ~1.0 of $10. Stopped after two tasks to keep the run short. Next up: M9-08
 
 ## 20261027-1124
 skipped: trunk diverged. The container's local main (66 commits) shares no history with origin/main (69 commits, latest 2fef631), so it can't be fast-forwarded. No tasks dispatched. The local-only history is kept as branch backup/local-main-20261027 in the run container.
+
+run 20261027-1247 (~25 min): local clone was shallow again; `git fetch --unshallow` fixed it (Q6 repair), fast-forwarded. Trunk green (665 tests).
+- M9-02 (feature-dev, sonnet S): pass, need 1.2, actual ~0.4 (estimate from subagent tokens), not reviewed. build ok; check and full e2e each showed one load-flaky failure (diagnose perf timing test; desktop submit.spec) that passed on isolated re-run.
+Stopped after one task to keep the run short. Next up: M9-04, M9-01b, M9-06, M9-07, M9-08.
