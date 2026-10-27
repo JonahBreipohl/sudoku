@@ -1697,8 +1697,8 @@
         "Announced via the live region",
         "e2e/hints.spec.ts: three presses escalate, reveal applies the right digit, a planted mistake is hinted first"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
