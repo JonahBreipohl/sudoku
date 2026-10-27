@@ -2883,8 +2883,8 @@
       "acceptance": [
         "ARCHITECTURE.md Testing hooks mentions &level="
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
