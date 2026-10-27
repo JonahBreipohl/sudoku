@@ -4,7 +4,7 @@ import { cellName, digitBit, parseGrid, type Digit, type Level } from "../engine
 import { SAMPLE_EASY } from "../engine/samples";
 import type { GameRecord, HintTier } from "../state/events";
 import { append, type NewBoardEvent, type Tree } from "../state/tree";
-import { hint } from "./hints";
+import { condenseExplanation, hint, MAX_REVEAL_TEXT } from "./hints";
 
 const TIERS: readonly HintTier[] = ["nudge", "technique", "reveal"];
 const T0 = 1_700_000_000_000;
@@ -43,6 +43,20 @@ function record(puzzle: { puzzle: string; solution: string }, moves: readonly Mo
   };
 }
 
+// From src/engine/grade.test.ts: one puzzle per upper tier.
+const HARD = {
+  puzzle: ".69.8..1......17....1.72....82...96..9.....4..73...85....32.5....76......2..4.69.",
+  solution: "769483215234561789851972436182754963596238147473196852618329574947615328325847691",
+};
+const EXPERT = {
+  puzzle: "..3.49...4.1......6.8.1...5...5..941...1.7...152..8...2...7.8.9......3.4...23.5..",
+  solution: "523749186491856732678312495867523941349167258152498673235674819716985324984231567",
+};
+const MASTER = {
+  puzzle: "2..6...7...9...86.....25..95.1.4..2...........2..6.7.33..15.....68...5...9...3..6",
+  solution: "283694175459317862617825349531749628976238451824561793342156987168972534795483216",
+};
+
 const emptyCells = (puzzle: string) => [...puzzle].flatMap((ch, i) => (ch === "." ? [i] : []));
 const truthAt = (solution: string, cell: number) => Number(solution[cell]) as Digit;
 /** A digit that is not the solution of `cell`. */
@@ -64,7 +78,7 @@ describe("hint on a correct board", () => {
     expect(technique!.step).toBeNull();
 
     const step = reveal!.step!;
-    expect(reveal!.text).toBe(`${step.explanation}.`);
+    expect(reveal!.text).toBe(`${condenseExplanation(step.explanation)}.`);
     expect(reveal!.cells).toEqual(step.cells);
     expect(reveal!.placement).toEqual(step.placements[0]);
     expect(reveal!.logId).toBe(step.technique);
@@ -169,6 +183,29 @@ const partialMoves = (puzzle: { puzzle: string; solution: string }) => {
     });
 };
 
+describe("condenseExplanation", () => {
+  it("passes short explanations through", () => {
+    expect(condenseExplanation("Naked Single: r1c1 must be 5")).toBe("Naked Single: r1c1 must be 5");
+  });
+
+  it("keeps a long chain's end nodes and counts its links", () => {
+    const nodes = Array.from({ length: 20 }, (_, i) => `r${(i % 9) + 1}c${((i * 2) % 9) + 1}`);
+    const chain = nodes.map((n, i) => (i ? `${i % 2 ? "=" : "-"} ${n}` : n)).join(" ");
+    const long = `X-Chain on 1: ${chain}; one of ${nodes[0]} and ${nodes[19]} must be 1, so remove 1 from r2c2, r3c2`;
+    const out = condenseExplanation(long);
+    expect(out.length).toBeLessThanOrEqual(MAX_REVEAL_TEXT - 1);
+    expect(out).toContain(`${nodes[0]} ... ${nodes[19]} (19 links)`);
+    expect(out.endsWith("so remove 1 from r2c2, r3c2")).toBe(true);
+  });
+
+  it("cuts a long elimination list with a count", () => {
+    const cells = Array.from({ length: 30 }, (_, i) => `r${(i % 9) + 1}c${(i % 7) + 1}`).join(", ");
+    const out = condenseExplanation(`XY-Chain on 2: r1c1 (2=3) - r1c2 (3=2); one of r1c1 and r1c2 must be 2, so remove 2 from ${cells}`);
+    expect(out.length).toBeLessThanOrEqual(MAX_REVEAL_TEXT - 1);
+    expect(out).toMatch(/ and \d+ more$/);
+  });
+});
+
 describe("hint properties", () => {
   for (const [name, puzzle, level] of [
     ["easy", SAMPLE_EASY, "easy"],
@@ -198,6 +235,39 @@ describe("hint properties", () => {
       );
     });
   }
+
+  for (const [name, puzzle, level] of [
+    ["hard", HARD, "hard"],
+    ["expert", EXPERT, "expert"],
+    ["master", MASTER, "master"],
+  ] as const) {
+    it(`stays sound and within length limits on ${name} boards`, () => {
+      const solution = parseGrid(puzzle.solution);
+      fc.assert(
+        fc.property(partialMoves(puzzle), (moves) => {
+          const r = record(puzzle, moves, level);
+          const [nudge, technique, reveal] = TIERS.map((t) => hint(r, t));
+          const step = reveal!.step!;
+          expect(reveal!.kind).toBe("step");
+          for (const p of step.placements) expect(p.digit).toBe(solution[p.cell]);
+          for (const e of step.eliminations) expect(e.digit).not.toBe(solution[e.cell]);
+          expect(technique!.technique).toBe(step.technique);
+          expect(nudge!.text.length).toBeLessThanOrEqual(24);
+          expect(technique!.text.length).toBeLessThanOrEqual(48);
+          expect(reveal!.text.length).toBeLessThanOrEqual(MAX_REVEAL_TEXT);
+          expect(reveal!.text).not.toMatch(/\n/);
+        }),
+        { numRuns: 15 },
+      );
+    });
+  }
+
+  it("falls back to the full technique set for a mislabeled puzzle", () => {
+    const r = record(MASTER, [], "easy");
+    const h = hint(r, "reveal");
+    expect(h.kind).toBe("step");
+    expect(h.text.length).toBeLessThanOrEqual(MAX_REVEAL_TEXT);
+  });
 
   it("puts a wrong value ahead of every deduction", () => {
     const cells = emptyCells(SAMPLE_EASY.puzzle);
