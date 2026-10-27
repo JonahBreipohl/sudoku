@@ -1724,8 +1724,8 @@
         "Clock ticks once per second with useSecondTick; no animation loops",
         "Exit back to Play by button or Escape"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
