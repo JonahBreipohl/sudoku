@@ -32,7 +32,7 @@ export interface TimeBreakdown {
    * placement that ends the first third, the last one to the end of play, so they sum to activeMs.
    */
   phases: [number, number, number];
-  /** Placements (place and hint-reveal events on the path) in each phase. */
+  /** Real placements (correct, non-given place and hint-reveal events on the path) in each phase. */
   phasePlacements: [number, number, number];
 }
 
@@ -186,7 +186,11 @@ export function analyzeSolve(record: GameRecord, registry: TechniqueRegistry = d
   const endAt = endOfPlay(record);
   const { activeMs, firstStart } = foldTime(record.log, endAt);
   const pausedMs = firstStart === null ? 0 : Math.max(0, endAt - firstStart - activeMs);
-  const placements = path.filter((e) => e.type === "place" || e.type === "hint-reveal");
+  // Real placements only: a wrong digit, a clear or a write over a given is not progress, so it
+  // must not move the thirds' boundaries.
+  const placements = path.filter(
+    (e) => (e.type === "place" || e.type === "hint-reveal") && givens[e.cell] === 0 && e.digit === solution[e.cell],
+  );
   const p = placements.length;
   const cut1 = Math.ceil(p / 3);
   const cut2 = Math.ceil((2 * p) / 3);

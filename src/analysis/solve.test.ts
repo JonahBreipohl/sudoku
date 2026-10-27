@@ -113,6 +113,19 @@ describe("analyzeSolve: time breakdown", () => {
     expect(r.time.phases).toEqual([6_000, 0, 1_000]);
   });
 
+  it("splits thirds by real placements, ignoring wrong digits", () => {
+    const s = easy();
+    EASY_EMPTY.slice(0, 6).forEach((cell) => {
+      const right = EASY_SOLUTION[cell]!;
+      s.wait(1_000).place(cell, (right % 9) + 1);
+      s.wait(1_000).place(cell, right);
+    });
+    s.wait(1_000).meta({ type: "submit", result: "incorrect" });
+    const r = analyzeSolve(s.record());
+    expect(r.time.phasePlacements).toEqual([2, 2, 2]);
+    expect(r.time.phases.reduce((a, b) => a + b, 0)).toBe(r.time.activeMs);
+  });
+
   it("puts all time in the last phase when nothing was placed", () => {
     const r = analyzeSolve(easy().wait(4_000).meta({ type: "submit", result: "incorrect" }).record());
     expect(r.time).toMatchObject({ activeMs: 4_000, pausedMs: 0, phases: [0, 0, 4_000], phasePlacements: [0, 0, 0] });
