@@ -163,10 +163,56 @@
   .display-date {
     font-size: min(4cqh, 2.4cqw);
   }
+  .display-stats dl {
+    grid-template-columns: repeat(2, auto);
+    gap: 2cqh 4cqw;
+  }
+  .display-stat dt {
+    font-size: max(2.2cqh, 12px);
+  }
+  .display-stat dd {
+    font-size: max(4cqh, 16px);
+  }
 }
 
 @container display (orientation: portrait) {
   .dboard {
     --dsize: min(90cqw, 48cqh);
+  }
+}
+
+/* Today's stats sit under the clock: 2x2 in landscape (beside the board), a row in portrait. */
+.display-stats dl {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(4, auto);
+  gap: 1cqmin 4cqmin;
+}
+
+.display-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5cqmin;
+}
+
+.display-stat dt {
+  font-size: max(1.8cqmin, 12px);
+  color: var(--text-muted);
+}
+
+.display-stat dd {
+  margin: 0;
+  font-size: max(3cqmin, 16px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+@container display (orientation: portrait) {
+  .display-stat dt {
+    font-size: max(2.6cqw, 12px);
+  }
+  .display-stat dd {
+    font-size: max(4.4cqw, 16px);
   }
 }

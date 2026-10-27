@@ -50,5 +50,12 @@ for (const size of [{ width: 1280, height: 720 }, { width: 3840, height: 2160 },
     expect(b.width).toBeGreaterThan(size.height * 0.4);
     const overlap = b.x < t.x + t.width && t.x < b.x + b.width && b.y < t.y + t.height && t.y < b.y + b.height;
     expect(overlap).toBe(false);
+    const stats = page.getByRole("region", { name: "Today's stats" });
+    await expect(stats).toContainText("Solved today");
+    await expect(stats).toContainText("Streak");
+    const s = (await stats.boundingBox())!;
+    expect(s.y + s.height).toBeLessThanOrEqual(size.height);
+    expect(s.x + s.width).toBeLessThanOrEqual(size.width);
+    expect(b.y < s.y + s.height && s.y < b.y + b.height && b.x < s.x + s.width && s.x < b.x + b.width).toBe(false);
   });
 }
