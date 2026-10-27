@@ -1669,9 +1669,9 @@
         "Mistakes take priority over deductions",
         "Each tier's text is short and specific"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Reviewed: approve. Minor: long chain reveal text; property tests only Easy/Medium."
     },
     {
       "id": "M8-02",
@@ -2885,6 +2885,31 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M8-01b",
+      "title": "Hints: cap reveal length and test Hard+ levels",
+      "milestone": 8,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "effort": "default",
+      "agent": "engine-dev",
+      "deps": [
+        "M8-01"
+      ],
+      "files": [
+        "src/analysis/hints.ts",
+        "src/analysis/hints.test.ts"
+      ],
+      "description": "Follow-up from M8-01 review: cap/condense the reveal text for long chain explanations (X-Chain, XY-Chain), and extend the property tests to Hard through Master puzzles (text length, master fallback).",
+      "acceptance": [
+        "Reveal text stays within a stated length limit for chain techniques",
+        "Property tests cover Hard, Expert and Master puzzles"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
