@@ -1,19 +1,23 @@
-# Status (run 20261027-0723)
+# Status (run 20261027-0823)
 
-M7-11b (Check flow e2e) and M7-11c (docs) done this run.
+M8-01 (hint engine, opus, reviewed: approve) and M8-02 (hint UI, sonnet) done this run.
 
 ## Progress
 - M1-M7: complete
-- M8: 0/2, M9: 0/9, M10: 0/9 (M10-09 blocked on Q1 hosting)
+- M8: 2/3 done (M8-01b follow-up ready), M9: 0/9, M10: 0/9 (M10-09 blocked on Q1 hosting)
 
 ## Next ready
-M8-01 (opus S, ~2.4 + review), M8-02 (sonnet S, ~0.6), M9-01 (sonnet M, ~2.0), M10-03 (sonnet S), M10-04 (sonnet S)
+M8-01b (sonnet S, ~0.6), M9-01 (sonnet M, ~2.0), M9-08 (sonnet M), M10-01 (sonnet M), M10-03 (sonnet S), M10-04 (sonnet S)
 
 ## Blocked
 M10-09 (Q1: user will connect an existing site later).
 
+## Open questions
+Q6 (hint key; Shift+H implemented) and Q6b (proposal: unshallow before divergence check in Starting Prompt.txt) await answers; neither blocks work.
+
 ## Spend
-This run about $1 API-equivalent; budget $10/run, $100/week per config. Sonnet S tasks cost about $0.2-0.45 against the $0.6 prior.
+This run about $2.9 API-equivalent (M8-01 0.91 + review 0.24; M8-02 1.28; Director ~0.4). Budget $10/run, $100/week.
+M8-02 (UI with e2e) cost 1.28 against a 0.65 prior: UI tasks that touch layout run about 2x.
 
 ## Projection
-19 tasks left, mostly sonnet S at ~$0.4 plus a few M and one opus S: roughly $12 to finish, about 2 runs at $10.
+About 19 tasks left, mostly sonnet S/M at ~$0.5-2: roughly $15 to finish, about 2 runs at $10.

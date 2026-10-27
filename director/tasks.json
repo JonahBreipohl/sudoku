@@ -1697,9 +1697,9 @@
         "Announced via the live region",
         "e2e/hints.spec.ts: three presses escalate, reveal applies the right digit, a planted mistake is hinted first"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Phone controls: removed ? icon from Check/Hint to keep three rows; Hint label constant."
     },
     {
       "id": "M9-01",

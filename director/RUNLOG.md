@@ -290,3 +290,8 @@ run 20261027-0723 (~12 min): shallow clone, in sync. Trunk green (641 tests).
 - M7-11b (qa-e2e, sonnet S): pass, need 0.6, actual 0.22. check 641 tests, build, e2e 196 pass. Not reviewed (Q4).
 - M7-11c (chore-dev, haiku S): pass, need 0.1, actual ~0.03. Docs only; check and build pass. Note: the subagent briefly created and deleted a stray send_later reminder; nightly trigger untouched.
 Next up: M8-01 (opus S, review required), M8-02, M9-01, M10-03, M10-04.
+
+run 20261027-0823 (~40 min): shallow clone, in sync. Trunk green (641 tests).
+- M8-01 (engine-dev, opus S): pass, need 0.9, actual 0.91, review 0.24 (approve), overhead ~0.25. check 653 tests, build. Added M8-01b follow-up (reveal length cap, Hard+ tests).
+- M8-02 (feature-dev, sonnet S): pass, need 0.65, actual 1.28. check 654 tests, build, e2e 200 pass. Not reviewed (Q4). Over estimate; UI/layout work.
+Spend ~2.9 of $10. Stopped after two tasks to keep the run short. Next up: M8-01b, M9-01, M10-03, M10-04.
