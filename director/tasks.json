@@ -1904,8 +1904,8 @@
         "Update flow: a new version activates on next load without breaking a game in progress",
         "If a new dependency (e.g. vite-plugin-pwa) is added, the report says why"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
