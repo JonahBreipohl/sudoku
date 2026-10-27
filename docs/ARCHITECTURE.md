@@ -241,9 +241,15 @@ All analysis runs in the worker on a `GameRecord` and the path ending at its cur
    Diagnosis ignores notes, drops wrong values from the replayed state and empties the mistaken
    cell before solving. A removed solution note is refuted by the placing step.
 4. **What was available instead**: the first step `nextStep(S, level)` returns.
-5. **Cascade**: walk later events keeping a set of wrong cells (starting with the root). A later
-   mistake belongs to the cascade if its diagnosis is "consequence"; a later placement belongs if
-   any wrong cell is among its peers and holds the solution digit of its cell.
+5. **Cascade**: walk later events keeping a set of wrong cells, starting with the root cell when the
+   root is a wrong placement (a removed solution note starts the set empty). Before each event,
+   drop cells that are no longer wrong (erased, corrected or reset). A later place, hint-reveal or
+   note event joins the cascade only when a wrong peer of its cell in the set holds the cell's
+   solution digit, so the wrong value hid the truth. A wrong placement in the cell of a
+   removed-solution-note root also joins, depending on that root. Givens are skipped, and notes
+   join only when they are mistakes. A joining wrong placement adds its cell to the set. A later
+   correct placement, or any move outside the cascade that overwrites a set cell, removes that
+   cell from the set.
 6. **Actions**: highlight the root cell and its justification cells; a timeline that previews the
    board at any node of the path; rewind to the root's parent and keep playing.
 
