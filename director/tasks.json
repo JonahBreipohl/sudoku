@@ -1643,9 +1643,9 @@
         "Rewind then finishing correctly auto-submits",
         "Correct solve shows stalls and hardest technique"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-ups: M7-11a (?puzzle= hook), M7-11b (Check button e2e)."
     },
     {
       "id": "M8-01",
@@ -2790,6 +2790,52 @@
       "acceptance": [
         "Archive reflects reopened game",
         "Abandoned branches visible or documented as out of scope"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-11a",
+      "title": "Implement ?puzzle=<81 chars> test hook and simplify analysis.spec open()",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M7-11"
+      ],
+      "files": [
+        "src/",
+        "e2e/analysis.spec.ts"
+      ],
+      "description": "Documented hook is not implemented; analysis.spec seeds localStorage instead.",
+      "acceptance": [
+        "?puzzle= loads the given grid",
+        "analysis.spec uses it"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M7-11b",
+      "title": "E2E: Check button flow",
+      "milestone": 7,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "qa-e2e",
+      "deps": [
+        "M7-11"
+      ],
+      "files": [
+        "e2e/check.spec.ts"
+      ],
+      "description": "Cover the Check button flow, not covered by M7-11.",
+      "acceptance": [
+        "Check flow covered at both viewports with axe"
       ],
       "status": "todo",
       "attempts": 0,
