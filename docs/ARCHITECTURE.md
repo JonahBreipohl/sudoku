@@ -175,7 +175,12 @@ notes, and conflicts; snapshots every 64 nodes keep replay fast.
 - **Append** adds a child of `cursor` and moves `cursor` to it.
 - **Undo** moves `cursor` to its parent. **Redo** moves to its most recently added child.
 - **Rewind** (from analysis) moves `cursor` to any node. Nothing is ever deleted, so history is
-  preserved and new moves start a new branch.
+  preserved and new moves start a new branch. Reopening a submitted game removes its archived
+  copy; it is archived again on the next submit or when the player starts another game.
+  Move history lists only the cursor line plus the redo chain, tagging branch points; browsing
+  older abandoned branches is out of scope (the nodes stay in the record for analysis).
+  Rewind is not offered at the "now" step of a solved game: reopening a solved game is done
+  from analysis only.
 
 ### Meta events (not undoable; linear log)
 

@@ -229,6 +229,33 @@ describe("submit", () => {
     expect(isGameRecord(record)).toBe(true);
   });
 
+  it("reopening by rewind removes the archived copy and resubmitting archives again", () => {
+    const archived = new Map<string, unknown>();
+    const persistence = {
+      saveCurrent: vi.fn(),
+      clearCurrent: vi.fn(),
+      archive: (r: { id: string }) => void archived.set(r.id, r),
+      remove: (id: string) => void archived.delete(id),
+    };
+    let t = 1000;
+    const s = createGameStore(
+      newGameRecord({
+        id: "t",
+        puzzle: SAMPLE_EASY.puzzle,
+        solution: SAMPLE_EASY.solution,
+        level: "easy",
+        createdAt: 1000,
+      }),
+      { now: () => t++, elapsed: () => 5, persistence: persistence as never },
+    );
+    s.dispatch({ type: "submit" });
+    expect(archived.has("t")).toBe(true);
+    s.dispatch({ type: "rewind", to: -1 });
+    expect(archived.has("t")).toBe(false);
+    s.dispatch({ type: "submit" });
+    expect(archived.has("t")).toBe(true);
+  });
+
   it("rewind to the current node still reopens a submitted game", () => {
     const s = make();
     s.dispatch({ type: "submit" });
