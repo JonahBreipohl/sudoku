@@ -1824,9 +1824,9 @@
         "A Playwright trace or performance check shows no animation frames between ticks",
         "Reduced motion disables drift transitions (position still changes)"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Passed; drift/dim via useDrift, e2e uses rAF count not trace file."
     },
     {
       "id": "M9-06",
