@@ -1773,7 +1773,7 @@
         "Step interval configurable (default 6 s); deterministic with ?seed=",
         "Uses timeouts, not animation loops; the caption fades without JS animation"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2934,6 +2934,28 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M9-03a",
+      "title": "Watch puzzle: visual check and interval setting",
+      "milestone": 9,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M9-03"
+      ],
+      "files": [
+        "src/ui/display/WatchPuzzle.tsx"
+      ],
+      "description": "Follow-up from M9-03: inspect the watch view at 390px and 1440px in light and dark; optionally expose the step interval in settings.",
+      "acceptance": [
+        "No layout or contrast issues in either theme at both widths"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]

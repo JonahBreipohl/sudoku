@@ -27,3 +27,5 @@
 
 ## Spend
 - This run ~0.6; all time ~64.4 (API-equivalent, ledger)
+
+_Update 20261027-1725: M9-03 done (682 tests). Next ready: M9-06, M9-07, M9-08, M10-01, M10-03._

@@ -319,3 +319,7 @@ Stopped after one task to keep the run short. Next up: M9-01b, M9-03, M9-06, M9-
 run 20261027-1628 (~15 min): shallow clone, in sync. Trunk green (675 tests).
 - M9-01b (feature-dev, sonnet S): pass, need 1.2, actual ~0.45, not reviewed (Q4). check 677 tests, build, e2e 218 pass. Follow-up note: minor mis-indent in setMode in App.tsx (cosmetic).
 Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-03, M9-06, M9-07, M9-08, M10-01.
+
+run 20261027-1725 (~25 min): shallow clone, in sync. Trunk green (677 tests).
+- M9-03 (feature-dev, sonnet S): pass, need 0.35, actual 0.59, overhead ~0.07, not reviewed (Q4). check 682 tests, build, e2e 220 pass. Added M9-03a follow-up (visual check).
+Spend ~0.7 of $10. Stopped after one task to keep the run short. Next up: M9-06, M9-07, M9-08, M10-01, M10-03.
