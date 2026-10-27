@@ -19,6 +19,13 @@
   text-align: center;
 }
 
+.display-clock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2cqmin;
+}
+
 .display-time {
   margin: 0;
   font-size: 18cqmin;
@@ -55,5 +62,111 @@
   }
   .display-date {
     font-size: 5.5cqw;
+  }
+}
+
+/* Read-only board. Sized from the display container so it scales from 720p to 4K and portrait. */
+.dboard {
+  --dsize: min(70cqh, 44cqw);
+  width: var(--dsize);
+  height: var(--dsize);
+  flex: none;
+  display: grid;
+  grid-template-rows: repeat(9, 1fr);
+  background: var(--surface);
+  border: 0.3cqmin solid var(--line-strong);
+  border-radius: 1cqmin;
+  container-type: size;
+  container-name: dboard;
+}
+
+.dboard-row {
+  display: grid;
+  grid-template-columns: repeat(9, 1fr);
+}
+
+.dcell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-size: 7cqmin;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  min-width: 0;
+}
+
+.dcell:nth-child(3n) {
+  border-right: 0.5cqmin solid var(--line-strong);
+}
+.dcell:last-child {
+  border-right: 0;
+}
+.dboard-row:nth-child(3n) > .dcell {
+  border-bottom: 0.5cqmin solid var(--line-strong);
+}
+.dboard-row:last-child > .dcell {
+  border-bottom: 0;
+}
+
+.dcell--given {
+  background: var(--given-bg);
+  color: var(--given);
+  font-weight: 700;
+}
+
+.dcell--entry {
+  color: var(--entry);
+  font-weight: 400;
+}
+
+/* Conflicts get a wavy underline as well as color. */
+.dcell--conflict {
+  background: var(--conflict-bg);
+  color: var(--conflict);
+  text-decoration: underline wavy;
+  text-underline-offset: 0.6cqmin;
+}
+
+/* Notes are subdued: small, muted, light weight. */
+.dnotes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: 100%;
+  height: 100%;
+  padding: 4%;
+  box-sizing: border-box;
+  font-size: 2.4cqmin;
+  font-weight: 300;
+  color: var(--text-muted);
+  text-align: center;
+  align-items: center;
+}
+
+@container display (orientation: landscape) {
+  .display-body {
+    flex-direction: row;
+    gap: 6cqw;
+  }
+  .display-clock {
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+  .dboard {
+    --dsize: min(84cqh, 46cqw);
+  }
+  .display-time {
+    font-size: min(22cqh, 7cqw);
+  }
+  .display-date {
+    font-size: min(4cqh, 2.4cqw);
+  }
+}
+
+@container display (orientation: portrait) {
+  .dboard {
+    --dsize: min(90cqw, 48cqh);
   }
 }

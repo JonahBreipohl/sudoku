@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
+import { DisplayBoard } from "./DisplayBoard";
 import "./display.css";
 
 function pageVisible(): boolean {
@@ -35,8 +36,11 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
     <div className="display">
       <main className="display-body">
         <h1 className="sr-only">Display mode</h1>
-        <p className="display-time">{formatClockSeconds(now)}</p>
-        <p className="display-date">{formatLongDate(now)}</p>
+        <div className="display-clock">
+          <p className="display-time">{formatClockSeconds(now)}</p>
+          <p className="display-date">{formatLongDate(now)}</p>
+        </div>
+        <DisplayBoard />
       </main>
       <button ref={buttonRef} type="button" className="ctl display-exit" onClick={onExit} aria-keyshortcuts="Escape">
         Exit Display
