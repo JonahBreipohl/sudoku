@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
+import { useDrift } from "./useDrift";
 import { DisplayBoard } from "./DisplayBoard";
 import { TodayStats } from "./TodayStats";
 import "./display.css";
@@ -19,6 +20,8 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   }, []);
   const now = useSecondTick(visible);
 
+  const { dx, dy, night } = useDrift(now);
+
   const exitRef = useRef(onExit);
   useEffect(() => {
     exitRef.current = onExit;
@@ -34,8 +37,8 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   useEffect(() => buttonRef.current?.focus(), []);
 
   return (
-    <div className="display">
-      <main className="display-body">
+    <div className="display" data-night={night ? "true" : undefined}>
+      <main className="display-body" style={{ "--drift-x": `${dx}px`, "--drift-y": `${dy}px` } as React.CSSProperties}>
         <h1 className="sr-only">Display mode</h1>
         <div className="display-clock">
           <p className="display-time">{formatClockSeconds(now)}</p>

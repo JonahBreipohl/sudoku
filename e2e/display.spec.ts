@@ -59,3 +59,34 @@ for (const size of [{ width: 1280, height: 720 }, { width: 3840, height: 2160 },
     expect(b.y < s.y + s.height && s.y < b.y + b.height && b.x < s.x + s.width && s.x < b.x + b.width).toBe(false);
   });
 }
+
+test("display is idle between ticks: no rAF loop and no running animations", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __raf: number };
+    w.__raf = 0;
+    const orig = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (cb) => {
+      w.__raf++;
+      return orig(cb);
+    };
+  });
+  await page.goto("/?mode=display");
+  await expect(page.locator(".display-time")).toBeVisible();
+  await page.waitForTimeout(500);
+  const before = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
+  await page.waitForTimeout(2500);
+  const after = await page.evaluate(() => (window as unknown as { __raf: number }).__raf);
+  expect(after - before).toBe(0);
+  expect(await page.evaluate(() => document.getAnimations().length)).toBe(0);
+});
+
+test("reduced motion removes the drift transition but keeps the offset", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/?mode=display");
+  const body = page.locator(".display-body");
+  await expect(body).toBeVisible();
+  // A global reduced-motion rule may clamp to 1e-6s rather than 0s; either means no visible transition.
+  const dur = await body.evaluate((el) => parseFloat(getComputedStyle(el).transitionDuration));
+  expect(dur).toBeLessThan(0.001);
+  expect(await body.evaluate((el) => el.style.getPropertyValue("--drift-x"))).toMatch(/^-?\d+px$/);
+});

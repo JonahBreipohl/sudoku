@@ -17,6 +17,20 @@
   gap: 2cqmin;
   padding: var(--gutter);
   text-align: center;
+  /* Burn-in drift: the offset changes every few minutes, so the transition is long and idle between. */
+  transform: translate(var(--drift-x, 0), var(--drift-y, 0));
+  transition: transform 90s linear, filter 60s linear;
+}
+
+/* Night: dim the content (not the exit control) from 22:00 to 07:00. */
+.display[data-night="true"] .display-body {
+  filter: brightness(0.55);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .display-body {
+    transition: none;
+  }
 }
 
 .display-clock {
