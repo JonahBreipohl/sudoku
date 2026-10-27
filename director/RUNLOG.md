@@ -268,3 +268,7 @@ Stopped after one task to keep the run short. Next up: M7-05b, M7-06b, M7-07b, M
 run 20261027-0123 (~10 min): shallow clone, ff worked. Trunk green (630 tests).
 - M7-05b (chore-dev, haiku S): pass, need 0.1, actual 0.01. Docs only; not reviewed.
 Stopped after one task to keep the run short. Next up: M7-06b, M7-07b, M7-08b, M7-09b, M8-01.
+
+run 20261027-0223 (~8 min): shallow clone, ff worked. Trunk green (630 tests).
+- M7-06b (chore-dev, sonnet S): pass, need 0.6, actual ~0.3 (estimate, 59k tokens). check 631 tests, build. Not reviewed (Q4).
+Stopped after one task to keep the run short. Next up: M7-07b, M7-08b, M7-09b, M7-10b, M8-01.
