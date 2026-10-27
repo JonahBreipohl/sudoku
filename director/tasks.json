@@ -2837,8 +2837,8 @@
       "acceptance": [
         "Check flow covered at both viewports with axe"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
