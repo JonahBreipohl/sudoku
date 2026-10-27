@@ -2861,9 +2861,9 @@
         "Panel content fully reachable at 390x844 and 1440x900 without clipping",
         "No horizontal scroll"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": "Follow-up from M7-08b report."
+      "notes": "No clipping found (panel scrolls via .app); e2e added. Follow-ups optional: Retry-button test hook; inner scroll region on desktop."
     }
   ]
 }

@@ -277,3 +277,7 @@ run 20261027-0323 (~35 min): shallow clone, in sync. Trunk green (633 tests).
 - M7-07b (feature-dev, sonnet S): pass, need 0.6, actual ~0.3 (estimate). Tests only; hook was already wired. Not reviewed.
 - M7-08b (feature-dev, sonnet S): pass, need 0.6, actual ~0.45 (estimate). check 634 tests, build, e2e 186 pass. Not reviewed. Added M7-08c follow-up.
 Next up: M7-08c, M7-09b, M7-10b, M7-11a, M7-11b, M8-01.
+
+run 20261027-0423 (~12 min): shallow clone, ff worked. Trunk green (634 tests).
+- M7-08c (feature-dev, sonnet S): pass, need 0.6, actual ~0.45 (estimate, 58k tokens). check 634 tests, build, e2e 188 pass. Not reviewed. No clipping found; e2e added.
+Stopped after one task to keep the run short. Next up: M7-09b, M7-10b, M7-11a, M7-11b, M8-01.

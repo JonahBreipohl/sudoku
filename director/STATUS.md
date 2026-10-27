@@ -18,3 +18,5 @@ This run about $1.5 (estimates); budget $10/run, $40/week. Sonnet S tasks cost a
 
 ## Projection
 About 25 tasks left, mostly sonnet S at ~$0.45 and a few M at ~$1: roughly $15 to finish, about 2 runs at $10 if run to the task cap (6 per run).
+
+_Run 20261027-0423: M7-08c done. Next: M7-09b, M7-10b, M7-11a, M7-11b, M8-01._
