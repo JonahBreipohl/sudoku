@@ -2717,7 +2717,7 @@
       "acceptance": [
         "Analysis UI shows loading and friendly error states"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2742,8 +2742,8 @@
         "Retry from the error state re-runs analysis",
         "Panel visually checked at 390px and 1440px, light and dark"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": "Follow-up from M7-08 report."
     },
     {
