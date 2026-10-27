@@ -2908,9 +2908,9 @@
         "Reveal text stays within a stated length limit for chain techniques",
         "Property tests cover Hard, Expert and Master puzzles"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-up: Hard+ property tests use random boards so real chain text only tested via synthetic chains."
     }
   ]
 }
