@@ -1,23 +1,39 @@
-# Status (run 20261027-0823)
-
-M8-01 (hint engine, opus, reviewed: approve) and M8-02 (hint UI, sonnet) done this run.
+# Director status (run 20261027-1023)
 
 ## Progress
-- M1-M7: complete
-- M8: 2/3 done (M8-01b follow-up ready), M9: 0/9, M10: 0/9 (M10-09 blocked on Q1 hosting)
+- M1: 8/8
+- M2: 19/19
+- M3: 11/11
+- M4: 12/12
+- M5: 9/9
+- M6: 8/8
+- M7: 25/25
+- M8: 3/3
+- M9: 1/10
+- M10: 0/9
 
-## Next ready
-M8-01b (sonnet S, ~0.6), M9-01 (sonnet M, ~2.0), M9-08 (sonnet M), M10-01 (sonnet M), M10-03 (sonnet S), M10-04 (sonnet S)
+Totals: {'done': 96, 'todo': 17, 'blocked': 1}
+
+## Next 5 ready
+- M9-02 sonnet S
+- M9-01b sonnet S
+- M9-04 sonnet S
+- M9-06 sonnet S
+- M9-08 sonnet M
 
 ## Blocked
-M10-09 (Q1: user will connect an existing site later).
+- M10-09: Enable deployment
 
 ## Open questions
-Q6 (hint key; Shift+H implemented) and Q6b (proposal: unshallow before divergence check in Starting Prompt.txt) await answers; neither blocks work.
+- Q6 (unshallow before divergence check): awaiting answer; M10-09 host choice.
 
 ## Spend
-This run about $2.9 API-equivalent (M8-01 0.91 + review 0.24; M8-02 1.28; Director ~0.4). Budget $10/run, $100/week.
-M8-02 (UI with e2e) cost 1.28 against a 0.65 prior: UI tasks that touch layout run about 2x.
+- This run so far: ~1.0 of $10
+- All time (ledger): $61.85
 
-## Projection
-About 19 tasks left, mostly sonnet S/M at ~$0.5-2: roughly $15 to finish, about 2 runs at $10.
+## Median actual cost
+- haiku S: $0.01 (n=9)
+- opus M: $1.44 (n=4)
+- opus S: $0.74 (n=19)
+- sonnet M: $0.43 (n=8)
+- sonnet S: $0.27 (n=56)

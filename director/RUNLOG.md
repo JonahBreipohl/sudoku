@@ -295,3 +295,8 @@ run 20261027-0823 (~40 min): shallow clone, in sync. Trunk green (641 tests).
 - M8-01 (engine-dev, opus S): pass, need 0.9, actual 0.91, review 0.24 (approve), overhead ~0.25. check 653 tests, build. Added M8-01b follow-up (reveal length cap, Hard+ tests).
 - M8-02 (feature-dev, sonnet S): pass, need 0.65, actual 1.28. check 654 tests, build, e2e 200 pass. Not reviewed (Q4). Over estimate; UI/layout work.
 Spend ~2.9 of $10. Stopped after two tasks to keep the run short. Next up: M8-01b, M9-01, M10-03, M10-04.
+
+run 20261027-1023 (~30 min): local clone was a stale shallow copy with unrelated history (see Q6); backed it up as local branch backup/stale-main and reset main to origin/main (no pushed work lost). Trunk green (654 tests).
+- M8-01b (engine-dev, sonnet S): pass, need 0.6, actual 0.24, overhead ~0.25. check 661 tests, build. Not reviewed (Q4).
+- M9-01 (feature-dev, sonnet M): pass, need 1.0, actual 0.38, overhead ~0.08. check 665 tests, build, e2e 206 pass. Added M9-01b follow-up (pause/preserve game state across Display).
+Spend ~1.0 of $10. Stopped after two tasks to keep the run short. Next up: M9-08, M10-01, M10-03, M10-04, M9-01b.
