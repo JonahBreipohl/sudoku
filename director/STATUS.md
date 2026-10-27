@@ -1,4 +1,4 @@
-# Director status (run 20261027-2023)
+# Director status (run 20261027-2324)
 
 ## Progress
 - M1: 8/8
@@ -9,15 +9,15 @@
 - M6: 8/8
 - M7: 25/25
 - M8: 3/3
-- M9: 9/13
-- M10: 0/9
+- M9: 10/13
+- M10: 1/9
 
 ## Next 5 ready
-- M9-09a sonnet S
-- M9-03a sonnet S
-- M9-07 sonnet S
-- M10-01 sonnet M
 - M10-03 sonnet S
+- M10-02 sonnet S
+- M10-04 sonnet S
+- M10-05 haiku S
+- M10-07 sonnet S
 
 ## Blocked
 - M10-09 (Q1: hosting; answer says local/own site later)

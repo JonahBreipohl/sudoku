@@ -343,3 +343,8 @@ Spend ~0.45 of $10. Stopped after one task to keep the run short. Next up: M9-03
 run 20261027-2223 (~6 min): shallow clone, in sync. Trunk green (692 tests).
 - M9-03a (feature-dev, sonnet S): pass, need 0.35, actual 0.22, overhead ~0.18, not reviewed (Q4). Visual check at 390/1440 light/dark found no issues; no code change, nothing to merge. Interval setting stays URL-only (?interval=). Subagent left a vite dev server on port 5199 (sandbox denied pkill; harmless in an ephemeral container).
 Spend ~0.4 of $10. Stopped after one task to keep the run short. Next up: M9-07, M10-01, M10-03, M10-04, M10-07.
+
+run 20261027-2324 (~25 min): shallow clone, unshallowed, in sync. Trunk green (692 tests).
+- M9-07 (feature-dev, sonnet S): pass, need 0.35, actual 0.24, overhead ~0.24, not reviewed (Q4). check 695 tests, build, full e2e 246 pass. Idle default changed 5 to 10 min.
+- M10-01 (feature-dev, sonnet M): pass, need 1.0, actual 0.46, not reviewed (Q4). check 703 tests, build, full e2e 246 pass. Stats dialog not visually inspected.
+Spend ~1.0 of $10. Stopped after two tasks to keep the run short. Next up: M10-03, M10-02, M10-04, M10-05, M10-07.
