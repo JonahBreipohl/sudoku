@@ -29,7 +29,14 @@ export interface BoardViewProps {
   marked?: ReadonlySet<number>;
 }
 
-export function BoardView({ label, board, givens, notes: allNotes, conflicts, marked }: BoardViewProps) {
+export function BoardView({
+  label,
+  board,
+  givens,
+  notes: allNotes,
+  conflicts,
+  marked,
+}: BoardViewProps) {
   return (
     <div className="dboard" role="grid" aria-label={label} aria-readonly="true">
       {IDX.map((r) => (
@@ -39,20 +46,42 @@ export function BoardView({ label, board, givens, notes: allNotes, conflicts, ma
             const value = board[cell]!;
             const given = givens[cell] !== 0;
             const notes = allNotes[cell] ?? 0;
+            const noted = value === 0 && notes !== 0;
             const conflict = conflicts?.has(cell) ?? false;
-            const cls = ["dcell", given ? "dcell--given" : value !== 0 ? "dcell--entry" : "", conflict && "dcell--conflict", marked?.has(cell) && "dcell--step"]
+            const cls = [
+              "dcell",
+              given ? "dcell--given" : value !== 0 ? "dcell--entry" : "",
+              conflict && "dcell--conflict",
+              marked?.has(cell) && "dcell--step",
+            ]
               .filter(Boolean)
               .join(" ");
             return (
-              <div role="gridcell" key={c} className={cls} data-cell={cell} aria-label={cellLabel(cell, value, given, notes, conflict)}>
+              <div
+                role="gridcell"
+                key={c}
+                className={cls}
+                data-cell={cell}
+                // Noted cells are named from content (hidden prefix + visible digits) so the visible text is part of the name.
+                aria-label={
+                  noted
+                    ? undefined
+                    : cellLabel(cell, value, given, notes, conflict)
+                }
+              >
                 {value !== 0 ? (
                   value
-                ) : notes !== 0 ? (
-                  <span className="dnotes" aria-hidden="true">
-                    {NOTE_SLOTS.map((d) => (
-                      <span key={d}>{maskDigits(notes).includes(d) ? d : ""}</span>
-                    ))}
-                  </span>
+                ) : noted ? (
+                  <>
+                    <span className="sr-only">{`${cellLabel(cell, 0, false, 0, conflict)}, notes`}</span>
+                    <span className="dnotes">
+                      {NOTE_SLOTS.map((d) => (
+                        <span key={d}>
+                          {maskDigits(notes).includes(d) ? d : ""}
+                        </span>
+                      ))}
+                    </span>
+                  </>
                 ) : null}
               </div>
             );
