@@ -305,6 +305,8 @@ horizontally. Colors are CSS custom properties on `:root` with Light, Dark, and 
 ## Testing hooks
 
 - `?puzzle=<81 chars>` starts that puzzle (also the share/import format).
+- `&level=<easy|medium|hard|expert|master>` sets the level label for the `?puzzle=` puzzle
+  (default `easy`; an unknown value falls back to `easy`).
 - `?seed=<n>` makes generation and the watch puzzle deterministic.
 - `?test=1` exposes `window.__sudoku` with a controllable clock (`advance(ms)`) for e2e; it is
   ignored unless the build is a test build or the flag is present.
