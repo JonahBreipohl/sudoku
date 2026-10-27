@@ -300,3 +300,6 @@ run 20261027-1023 (~30 min): local clone was a stale shallow copy with unrelated
 - M8-01b (engine-dev, sonnet S): pass, need 0.6, actual 0.24, overhead ~0.25. check 661 tests, build. Not reviewed (Q4).
 - M9-01 (feature-dev, sonnet M): pass, need 1.0, actual 0.38, overhead ~0.08. check 665 tests, build, e2e 206 pass. Added M9-01b follow-up (pause/preserve game state across Display).
 Spend ~1.0 of $10. Stopped after two tasks to keep the run short. Next up: M9-08, M10-01, M10-03, M10-04, M9-01b.
+
+## 20261027-1124
+skipped: trunk diverged. The container's local main (66 commits) shares no history with origin/main (69 commits, latest 2fef631), so it can't be fast-forwarded. No tasks dispatched. The local-only history is kept as branch backup/local-main-20261027 in the run container.
