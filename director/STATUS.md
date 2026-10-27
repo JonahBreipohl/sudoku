@@ -1,22 +1,19 @@
-# Status (run 20261027-0623)
+# Status (run 20261027-0723)
 
-M7-07b and M7-08b done this run (analysis panel loading/error states and retry). Follow-up M7-08c added.
+M7-11b (Check flow e2e) and M7-11c (docs) done this run.
 
 ## Progress
-- M1-M6: complete
-- M7: base tasks done; open follow-ups M7-11b, M7-11c
+- M1-M7: complete
 - M8: 0/2, M9: 0/9, M10: 0/9 (M10-09 blocked on Q1 hosting)
 
 ## Next ready
-M7-11b (sonnet S, ~0.6), M7-11c (haiku S, ~0.1), M8-01 (opus S, ~2.4), M9-01 (sonnet M)
+M8-01 (opus S, ~2.4 + review), M8-02 (sonnet S, ~0.6), M9-01 (sonnet M, ~2.0), M10-03 (sonnet S), M10-04 (sonnet S)
 
 ## Blocked
 M10-09 (Q1: user will connect an existing site later).
 
 ## Spend
-This run about $1.5 (estimates); budget $10/run, $40/week. Sonnet S tasks cost about $0.3-0.45 each, well under the $0.6 prior.
+This run about $1 API-equivalent; budget $10/run, $100/week per config. Sonnet S tasks cost about $0.2-0.45 against the $0.6 prior.
 
 ## Projection
-About 25 tasks left, mostly sonnet S at ~$0.45 and a few M at ~$1: roughly $15 to finish, about 2 runs at $10 if run to the task cap (6 per run).
-
-_Run 20261027-0423: M7-08c done. Next: M7-09b, M7-10b, M7-11a, M7-11b, M8-01._
+19 tasks left, mostly sonnet S at ~$0.4 plus a few M and one opus S: roughly $12 to finish, about 2 runs at $10.
