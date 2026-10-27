@@ -35,3 +35,5 @@ _Update 20261027-1923: M9-08 done (692 tests, e2e 224). Next ready: M9-07, M10-0
 _Update 20261027-2023: M9-09 done (e2e 244 + 2 fixme); follow-up M9-09a added._
 
 (run 20261027-2123: M9-09a done; next: M9-03a, M9-07, M10-01, M10-03, M10-07)
+
+_Update 20261027-2223: M9-03a done (no code change). Next ready: M9-07, M10-01, M10-03, M10-04, M10-07. Open questions: Q1 (host, blocks M10-09), Q6 (hint key; unshallow proposal) unanswered, non-blocking._

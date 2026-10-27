@@ -2954,9 +2954,9 @@
       "acceptance": [
         "No layout or contrast issues in either theme at both widths"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Visual check at 390/1440 light/dark found no issues; no code change. Interval stays URL-only (?interval=)."
     },
     {
       "id": "M9-09a",
