@@ -2861,8 +2861,8 @@
         "Panel content fully reachable at 390x844 and 1440x900 without clipping",
         "No horizontal scroll"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": "Follow-up from M7-08b report."
     }
   ]
