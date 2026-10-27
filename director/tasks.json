@@ -2954,8 +2954,8 @@
       "acceptance": [
         "No layout or contrast issues in either theme at both widths"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
