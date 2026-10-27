@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { BoardEvent } from "../state/events";
-import { clampStep, mistakeStep, stepLabel } from "./timeline";
+import { clampStep, marksAtStep, mistakeStep, stepLabel } from "./timeline";
 
 const path = [
   { id: 0, parent: -1, at: 0, elapsed: 0, type: "place", cell: 28, digit: 6, input: "keyboard" },
@@ -22,5 +22,17 @@ describe("timeline", () => {
     expect(mistakeStep(0, 2)).toBe(1);
     expect(mistakeStep(null, 2)).toBeNull();
     expect(mistakeStep(5, 2)).toBeNull();
+  });
+});
+
+describe("marksAtStep", () => {
+  const marks = new Map([[3, "root" as const]]);
+  it("shows marks only from the root mistake step onward", () => {
+    expect(marksAtStep(marks, 1, 4, 1)).toBeUndefined();
+    expect(marksAtStep(marks, 1, 4, 2)).toBe(marks);
+    expect(marksAtStep(marks, 1, 4, 4)).toBe(marks);
+  });
+  it("hides marks when there is no root mistake", () => {
+    expect(marksAtStep(marks, null, 4, 4)).toBeUndefined();
   });
 });
