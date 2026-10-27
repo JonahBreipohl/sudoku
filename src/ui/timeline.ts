@@ -20,3 +20,14 @@ export function mistakeStep(rootIndex: number | null | undefined, length: number
   if (rootIndex === null || rootIndex === undefined || rootIndex < 0 || rootIndex >= length) return null;
   return rootIndex + 1;
 }
+
+/** Mistake marks belong to the root mistake, so earlier previewed positions must not show them. */
+export function marksAtStep<T>(
+  marks: T | undefined,
+  rootIndex: number | null | undefined,
+  length: number,
+  step: number,
+): T | undefined {
+  const from = mistakeStep(rootIndex, length);
+  return from !== null && step >= from ? marks : undefined;
+}

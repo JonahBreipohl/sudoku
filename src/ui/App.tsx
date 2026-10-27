@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import type { Digit } from "../engine";
+import { findConflicts, type Digit } from "../engine";
+import { marksAtStep } from "./timeline";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
@@ -351,6 +352,14 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     timeline && previewStep !== null && previewStep < timeline.path.length
       ? (timeline.states[previewStep] ?? null)
       : null;
+  const previewConflicts = useMemo(
+    () => (preview ? findConflicts([...preview.board]) : NO_CELLS),
+    [preview],
+  );
+  const previewMarks =
+    preview && analysis.status === "ready" && timeline
+      ? marksAtStep(marks, analysis.result.mistakes.root?.mistake.index ?? null, timeline.path.length, previewStep ?? 0)
+      : marks;
   const errors = useMemo(() => submitErrors(game.record, board), [game.record, board]);
 
   const checkKey = `${game.record.cursor}:${game.record.nodes.length}`;
@@ -390,9 +399,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             board={preview ? [...preview.board] : board}
             notes={preview ? preview.notes : notes}
             selected={preview ? null : selected}
-            conflicts={preview ? NO_CELLS : conflicts}
+            conflicts={preview ? previewConflicts : conflicts}
             wrong={preview ? undefined : wrongSet}
-            marks={marks}
+            marks={previewMarks}
             preview={preview !== null}
             onSelect={preview ? noop : onSelectCell}
             lockedDigit={entry.locked}
