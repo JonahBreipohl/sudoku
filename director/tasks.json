@@ -1799,7 +1799,7 @@
         "todayStats(archive, now) is pure and tested across midnight",
         "Shown in both display orientations"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

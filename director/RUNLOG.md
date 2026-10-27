@@ -307,3 +307,7 @@ skipped: trunk diverged. The container's local main (66 commits) shares no histo
 run 20261027-1247 (~25 min): local clone was shallow again; `git fetch --unshallow` fixed it (Q6 repair), fast-forwarded. Trunk green (665 tests).
 - M9-02 (feature-dev, sonnet S): pass, need 1.2, actual ~0.4 (estimate from subagent tokens), not reviewed. build ok; check and full e2e each showed one load-flaky failure (diagnose perf timing test; desktop submit.spec) that passed on isolated re-run.
 Stopped after one task to keep the run short. Next up: M9-04, M9-01b, M9-06, M9-07, M9-08.
+
+run 20261027-1355 (~20 min): local clone was shallow/unrelated again; `git fetch --unshallow` + ff to origin/main (Q6 repair). Trunk green (665 tests).
+- M9-04 (feature-dev, sonnet S): pass, need 1.2, actual ~0.35, not reviewed (Q4). check 672 tests, build, full e2e 212 pass.
+Spend ~0.6 of $10. Stopped after one task to keep the run short. Next up: M9-01b, M9-06, M9-07, M9-08, M10-01.
