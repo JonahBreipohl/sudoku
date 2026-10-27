@@ -124,7 +124,13 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
       document.querySelector<HTMLElement>(next === "display" ? ".display-exit" : "[data-display-toggle]")?.focus(),
     );
   }, []);
-  if (mode === "display") return <DisplayMode onExit={() => setMode("play")} />;
+  if (mode === "display") {
+    return (
+      <GameProvider store={store}>
+        <DisplayMode onExit={() => setMode("play")} />
+      </GameProvider>
+    );
+  }
   return (
     <GameProvider store={store}>
       <Game
