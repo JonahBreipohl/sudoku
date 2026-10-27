@@ -12,6 +12,7 @@ import { createPlayedStore, createPuzzleSource, type PuzzleSource } from "../sta
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
 import { newGame, resetGame } from "../state/newGame";
+import { recordFromSearch } from "../state/puzzleParam";
 import { Board } from "./components/Board";
 import { SubmitDialog } from "./components/SubmitDialog";
 import { submitErrors } from "../state/store";
@@ -44,6 +45,9 @@ const persistence = createLocalStoragePersistence();
 
 function makeStore(record?: GameRecord) {
   const now = () => Date.now() + clockOffset;
+  // A ?puzzle= link starts that puzzle once; the saved record then lets a reload resume it.
+  const fromUrl = record ? null : recordFromSearch(window.location.search, Date.now());
+  if (fromUrl) record = fromUrl;
   const store = createGameStore(
     record ??
       persistence.loadCurrent() ??
