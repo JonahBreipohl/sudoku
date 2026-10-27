@@ -2908,8 +2908,8 @@
         "Reveal text stays within a stated length limit for chain techniques",
         "Property tests cover Hard, Expert and Master puzzles"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
