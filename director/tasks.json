@@ -1849,8 +1849,8 @@
         "Wake lock re-acquired after the tab becomes visible again",
         "Unit tests with a mocked API"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
