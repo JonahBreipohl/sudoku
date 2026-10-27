@@ -1,0 +1,59 @@
+/* The wrapper is a size container so layout follows the monitor's shape, not the viewport API. */
+.display {
+  container-type: size;
+  container-name: display;
+  position: fixed;
+  inset: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.display-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2cqmin;
+  padding: var(--gutter);
+  text-align: center;
+}
+
+.display-time {
+  margin: 0;
+  font-size: 18cqmin;
+  line-height: 1;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.display-date {
+  margin: 0;
+  font-size: 4.5cqmin;
+  color: var(--text-muted);
+}
+
+.display-exit {
+  position: absolute;
+  top: var(--gutter);
+  right: var(--gutter);
+  min-height: var(--touch);
+  min-width: var(--touch);
+}
+
+@container display (orientation: landscape) {
+  .display-time {
+    font-size: min(30cqh, 10cqw);
+  }
+}
+
+/* Portrait: the clock is width-bound and the date wraps beneath it. */
+@container display (orientation: portrait) {
+  .display-time {
+    font-size: 12cqw;
+  }
+  .display-date {
+    font-size: 5.5cqw;
+  }
+}
