@@ -1773,8 +1773,8 @@
         "Step interval configurable (default 6 s); deterministic with ?seed=",
         "Uses timeouts, not animation loops; the caption fades without JS animation"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
