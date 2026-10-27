@@ -1,10 +1,26 @@
 import { describe, expect, it } from "vitest";
+import { SAMPLE_EASY } from "../engine/samples";
+import { newGameRecord } from "../state/store";
 import { CancelledError, createEngineClient } from "./client";
 
 const EMPTY = Array<number>(81).fill(0) as never;
 const CONFLICT = [1, 1, ...Array<number>(79).fill(0)] as never;
 
 describe("engine client (in-thread)", () => {
+  it("returns a hint for a record", async () => {
+    const c = createEngineClient({ inThread: true });
+    const record = newGameRecord({
+      id: "h",
+      puzzle: SAMPLE_EASY.puzzle.replace(/\./g, "0"),
+      solution: SAMPLE_EASY.solution,
+      level: "easy",
+      createdAt: 0,
+    });
+    const h = await c.hint(record, "nudge");
+    expect(h.tier).toBe("nudge");
+    expect(h.kind).toBe("step");
+  });
+
   it("solves and counts", async () => {
     const c = createEngineClient({ inThread: true });
     const s = await c.solve(EMPTY);

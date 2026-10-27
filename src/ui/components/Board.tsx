@@ -1,6 +1,6 @@
 import { type CandidateMask, type Grid } from "../../engine";
 import { highlightsFor } from "../highlight";
-import { Cell } from "./Cell";
+import { Cell, type CellMark } from "./Cell";
 
 interface BoardProps {
   givens: Grid;
@@ -11,7 +11,7 @@ interface BoardProps {
   /** Cells to mark wrong after a Check; empty when highlighting is off. */
   wrong?: ReadonlySet<number>;
   /** Analysis highlight: root mistake cell and the cells that justify its diagnosis. */
-  marks?: ReadonlyMap<number, "root" | "support">;
+  marks?: ReadonlyMap<number, CellMark>;
   onSelect: (cell: number) => void;
   /** Digit locked in digit-first entry; highlighted wherever it appears. */
   lockedDigit?: number | null;

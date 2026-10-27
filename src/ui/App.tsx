@@ -1,5 +1,8 @@
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { findConflicts, type Digit } from "../engine";
+import { findConflicts, UNITS, type Digit } from "../engine";
+import type { Hint } from "../analysis/hints";
+import type { HintTier } from "../state/events";
+import { HintButton, HintPanel } from "./components/HintButton";
 import { marksAtStep } from "./timeline";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
@@ -13,6 +16,7 @@ import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
 import { newGame, resetGame } from "../state/newGame";
 import { recordFromSearch } from "../state/puzzleParam";
+import type { CellMark } from "./components/Cell";
 import { Board } from "./components/Board";
 import { SubmitDialog } from "./components/SubmitDialog";
 import { submitErrors } from "../state/store";
@@ -143,6 +147,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     refocusBoard.current = true;
     dispatch({ type: "resume" });
   }, [dispatch]);
+  const onHintRef = useRef<() => void>(noop);
   const act = useCallback(
     (action: NonNullable<ReturnType<typeof actionForKey>>, input: "keyboard" | "pad" = "keyboard", code?: string) => {
       // Input is ignored while a new puzzle generates: the swap would discard it.
@@ -156,7 +161,10 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
         else onPause();
         return;
       }
-      if (action.type === "hint") return; // hints arrive in M7; the key is reserved
+      if (action.type === "hint") {
+        onHintRef.current();
+        return;
+      }
       if (action.type === "undo" || action.type === "redo") {
         dispatch({ type: action.type });
         return;
@@ -382,6 +390,53 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
     [settings.checkHighlighting, checkResult],
   );
 
+  // Escalation is per board position: any edit, undo or rewind changes the key and starts over.
+  const [hintState, setHintState] = useState<{ key: string; hint: Hint } | null>(null);
+  const [hintBusy, setHintBusy] = useState(false);
+  const currentHint = hintState && hintState.key === checkKey ? hintState.hint : null;
+  const hintKeyRef = useRef(checkKey);
+  useEffect(() => {
+    hintKeyRef.current = checkKey;
+  }, [checkKey]);
+  const onHint = useCallback(() => {
+    if (pending || hintBusy || submitted || pausedRef.current) return;
+    const tier: HintTier = !currentHint
+      ? "nudge"
+      : currentHint.tier === "nudge"
+        ? "technique"
+        : "reveal";
+    const key = checkKey;
+    setHintBusy(true);
+    getEngineClient()
+      .hint(game.record, tier)
+      .then(
+        (h) => {
+          if (hintKeyRef.current !== key) return; // the board moved on meanwhile
+          dispatch({ type: "hint", tier, step: h.logId });
+          setHintState({ key, hint: h });
+          setAnnouncement(h.text);
+        },
+        () => setAnnouncement("Hint could not be computed. Please try again."),
+      )
+      .finally(() => setHintBusy(false));
+  }, [pending, hintBusy, submitted, currentHint, checkKey, game.record, dispatch]);
+  useEffect(() => {
+    onHintRef.current = onHint;
+  }, [onHint]);
+  const onApplyHint = useCallback(() => {
+    const p = currentHint?.placement;
+    if (!currentHint || !p) return;
+    setSelected(p.cell);
+    dispatch({ type: "hint-reveal", cell: p.cell, digit: p.digit, step: currentHint.logId });
+  }, [currentHint, dispatch]);
+  const hintMarks = useMemo(() => {
+    if (!currentHint) return undefined;
+    const m = new Map<number, CellMark>();
+    for (const u of currentHint.units) for (const c of UNITS[u] ?? []) m.set(c, "hint-unit");
+    for (const c of currentHint.cells) m.set(c, "hint");
+    return m;
+  }, [currentHint]);
+
   return (
     <div className="app" data-left-handed={settings.leftHanded ? "" : undefined}>
       <header className="app-header">
@@ -405,7 +460,7 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             selected={preview ? null : selected}
             conflicts={preview ? previewConflicts : conflicts}
             wrong={preview ? undefined : wrongSet}
-            marks={previewMarks}
+            marks={previewMarks ?? hintMarks}
             preview={preview !== null}
             onSelect={preview ? noop : onSelectCell}
             lockedDigit={entry.locked}
@@ -434,7 +489,9 @@ function Game({ pending, onNewGame }: { pending: boolean; onNewGame: (level: Lev
             onViewResult={() => setResultDismissed(false)}
             resultOpen={resultOpen}
             checkResult={checkResult}
+            hintButton={<HintButton busy={hintBusy} disabled={submitted || pending} onHint={onHint} />}
           />
+          {!paused && currentHint && <HintPanel hint={currentHint} canApply={!submitted} onApply={onApplyHint} />}
           {showAnalysis && (
             <AnalysisPanel
               ref={analysisRef}

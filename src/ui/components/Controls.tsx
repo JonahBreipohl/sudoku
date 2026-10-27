@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { checkMessage } from "../../state/check";
 import { ConfirmDialog } from "./ConfirmDialog";
@@ -27,6 +28,7 @@ interface ControlsProps {
   resultOpen: boolean;
   /** Result of the last Check while the board is unchanged, else null. */
   checkResult: { mistakes: number } | null;
+  hintButton: ReactNode;
 }
 
 export function Controls({
@@ -51,6 +53,7 @@ export function Controls({
   onViewResult,
   resultOpen,
   checkResult,
+  hintButton,
 }: ControlsProps) {
   const active = notesMode || shiftHeld;
   const [confirming, setConfirming] = useState(false);
@@ -104,8 +107,9 @@ export function Controls({
         <span aria-hidden="true">{autoCandidates ? "☑" : "☐"}</span> Auto-candidates: {autoCandidates ? "On" : "Off"}
       </button>
       <button type="button" className="ctl" onClick={onCheck}>
-        <span aria-hidden="true">?</span> Check
+        Check
       </button>
+      {hintButton}
       {submitted ? (
         <button ref={resultButton} type="button" className="ctl" aria-haspopup="dialog" onClick={onViewResult}>
           <span aria-hidden="true">✓</span> View result
