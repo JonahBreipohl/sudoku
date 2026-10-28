@@ -5,8 +5,16 @@ import {
   useReducer,
   useRef,
   useState,
+  lazy,
+  Suspense,
 } from "react";
-import { findConflicts, parseGrid, puzzleUrl, UNITS, type Digit } from "../engine";
+import {
+  findConflicts,
+  parseGrid,
+  puzzleUrl,
+  UNITS,
+  type Digit,
+} from "../engine";
 import type { Hint } from "../analysis/hints";
 import type { HintTier } from "../state/events";
 import { HintButton, HintPanel } from "./components/HintButton";
@@ -39,7 +47,6 @@ import { ConfirmDialog } from "./components/ConfirmDialog";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
-import { AnalysisPanel } from "./components/AnalysisPanel";
 import { useAnalysis } from "./useAnalysis";
 import { replayRecord } from "../analysis/replay";
 import { SidePanel } from "./components/SidePanel";
@@ -59,7 +66,6 @@ import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { useIdle } from "./useIdle";
-import { DisplayMode } from "./display/DisplayMode";
 import {
   modeFromSearch,
   pauseForDisplay,
@@ -68,6 +74,16 @@ import {
 } from "./display/mode";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
+// Split out of the initial bundle: Display mode and the analysis panel are not needed to start solving.
+const DisplayMode = lazy(() =>
+  import("./display/DisplayMode").then((m) => ({ default: m.DisplayMode })),
+);
+const AnalysisPanel = lazy(() =>
+  import("./components/AnalysisPanel").then((m) => ({
+    default: m.AnalysisPanel,
+  })),
+);
+
 const NO_CELLS: ReadonlySet<number> = new Set();
 const noop = () => {};
 
@@ -225,7 +241,11 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
           onDisplay={() => setMode("display")}
         />
       </div>
-      {display && <DisplayMode onExit={() => setMode("play")} />}
+      {display && (
+        <Suspense fallback={null}>
+          <DisplayMode onExit={() => setMode("play")} />
+        </Suspense>
+      )}
     </GameProvider>
   );
 }
@@ -255,7 +275,9 @@ function Game({
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
-  const [importConfirm, setImportConfirm] = useState<ImportedPuzzle | null>(null);
+  const [importConfirm, setImportConfirm] = useState<ImportedPuzzle | null>(
+    null,
+  );
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
   const [entry, entryDispatch] = useReducer(
@@ -519,10 +541,8 @@ function Game({
   const { state: analysis, refetch: refetchAnalysis } = useAnalysis(
     showAnalysis ? game.record : null,
   );
-  const analysisRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    if (showAnalysis) analysisRef.current?.focus();
-  }, [showAnalysis]);
+  // Callback ref: the panel is lazy, so it may mount after the render that opened it.
+  const analysisRef = useCallback((el: HTMLElement | null) => el?.focus(), []);
   const marks = useMemo(() => {
     if (!showAnalysis || analysis.status !== "ready") return undefined;
     const [root, ...rest] = analysis.result.mistakes.highlight;
@@ -789,20 +809,22 @@ function Game({
             />
           )}
           {showAnalysis && (
-            <AnalysisPanel
-              ref={analysisRef}
-              state={analysis}
-              onRetry={refetchAnalysis}
-              path={timeline?.path}
-              step={previewStep ?? undefined}
-              onStep={setPreviewStep}
-              onRewind={onRewind}
-              onClose={() => {
-                setAnalysisClosed(true);
-                setAnalysisRequested(false);
-                setPreviewStep(null);
-              }}
-            />
+            <Suspense fallback={null}>
+              <AnalysisPanel
+                ref={analysisRef}
+                state={analysis}
+                onRetry={refetchAnalysis}
+                path={timeline?.path}
+                step={previewStep ?? undefined}
+                onStep={setPreviewStep}
+                onRewind={onRewind}
+                onClose={() => {
+                  setAnalysisClosed(true);
+                  setAnalysisRequested(false);
+                  setPreviewStep(null);
+                }}
+              />
+            </Suspense>
           )}
           {!paused && (
             <Pad
@@ -842,7 +864,9 @@ function Game({
             setResultDismissed(true);
             // The modal keeps the page inert until it unmounts, so click after the next frame.
             requestAnimationFrame(() =>
-              document.querySelector<HTMLButtonElement>("[data-new-game]")?.click(),
+              document
+                .querySelector<HTMLButtonElement>("[data-new-game]")
+                ?.click(),
             );
           }}
           onAnalyze={() => {
