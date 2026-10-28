@@ -2081,8 +2081,8 @@
         "Commands match package.json",
         "Under 150 lines"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
