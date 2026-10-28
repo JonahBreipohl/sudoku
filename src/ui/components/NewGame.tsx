@@ -9,9 +9,11 @@ interface NewGameProps {
   inProgress: boolean;
   onNewGame: (level: Level) => void;
   onDaily: () => void;
+  /** Evaluated when the picker opens, so it reflects solves since the last render. */
+  isDailySolved?: () => boolean;
 }
 
-export function NewGame({ pending, inProgress, onNewGame, onDaily }: NewGameProps) {
+export function NewGame({ pending, inProgress, onNewGame, onDaily, isDailySolved }: NewGameProps) {
   const [choosing, setChoosing] = useState(false);
   const [confirm, setConfirm] = useState<Level | "daily" | null>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -47,6 +49,7 @@ export function NewGame({ pending, inProgress, onNewGame, onDaily }: NewGameProp
       {choosing && (
         <NewGameDialog
           onCancel={() => setChoosing(false)}
+          dailySolved={isDailySolved?.() ?? false}
           onDaily={() => {
             setChoosing(false);
             if (inProgress) setConfirm("daily");

@@ -132,3 +132,12 @@ test("rewinding before the mistake reopens play on a new branch", async ({ page 
   await page.keyboard.press(right(b));
   await expect(page.getByTestId("branch-point")).toHaveCount(1);
 });
+
+test("New game in the solved result dialog opens the difficulty picker", async ({ page }) => {
+  await solveAll(page);
+  const result = page.getByRole("dialog", { name: /Solved/ });
+  await result.getByRole("button", { name: "New game" }).click();
+  await expect(page.getByRole("dialog", { name: "Choose a difficulty" })).toBeVisible();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("button", { name: "New game" })).toBeFocused();
+});

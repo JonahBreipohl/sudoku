@@ -29,12 +29,13 @@ import type { GameRecord } from "../state/events";
 import {
   createPlayedStore,
   createPuzzleSource,
+  type PlayedStore,
   type PuzzleSource,
 } from "../state/puzzles";
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
 import { newGame, resetGame, type PuzzleSupplier } from "../state/newGame";
-import { dailyLevel, dailyPuzzle } from "../state/daily";
+import { dailyLevel, dailyPuzzle, dailySolvedOn } from "../state/daily";
 import { recordFromSearch } from "../state/puzzleParam";
 import type { CellMark } from "./components/Cell";
 import { Board } from "./components/Board";
@@ -121,6 +122,10 @@ function makeStore(record?: GameRecord) {
   return store;
 }
 
+// One played-id store shared by regular games and the daily, so the daily's bank puzzle is skipped.
+let sharedPlayed: PlayedStore | null = null;
+const getPlayed = () => (sharedPlayed ??= createPlayedStore());
+
 export function App({ source }: { source?: PuzzleSource } = {}) {
   // A saved game, if any, resumes on first mount; "New game" swaps in a fresh store.
   const [store, setStore] = useState(() => makeStore());
@@ -157,7 +162,7 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
       puzzleSource.current ??= createPuzzleSource({
         fetch: (url) => fetch(url),
         generator: getEngineClient(),
-        played: createPlayedStore(),
+        played: getPlayed(),
         baseUrl: import.meta.env.BASE_URL + "puzzles/",
       });
       start(puzzleSource.current, level);
@@ -172,6 +177,7 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
           dailyPuzzle(date, {
             fetch: (url) => fetch(url),
             baseUrl: import.meta.env.BASE_URL + "puzzles/",
+            played: getPlayed(),
           }),
       },
       dailyLevel(date),
@@ -698,6 +704,7 @@ function Game({
           inProgress={hasProgress(game.record)}
           onNewGame={onNewGame}
           onDaily={onDaily}
+          isDailySolved={() => dailySolvedOn(new Date(), [...persistence.list(), game.record])}
         />
         {game.record.source === "daily" && (
           <span className="daily-badge">
