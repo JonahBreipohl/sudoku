@@ -5,6 +5,8 @@ import { LEVELS, type Level } from "../../engine/step";
 interface NewGameDialogProps {
   onStart: (level: Level) => void;
   onDaily: () => void;
+  /** Today's daily is already solved; offering it again would restart a finished puzzle. */
+  dailySolved?: boolean;
   onCancel: () => void;
 }
 
@@ -14,7 +16,7 @@ export const levelLabel = (l: Level) => l[0]!.toUpperCase() + l.slice(1);
  * Modal difficulty picker on the native <dialog> (same focus and Escape behavior as ConfirmDialog).
  * Radios rather than a select so all five levels are visible and arrow keys move between them.
  */
-export function NewGameDialog({ onStart, onDaily, onCancel }: NewGameDialogProps) {
+export function NewGameDialog({ onStart, onDaily, dailySolved = false, onCancel }: NewGameDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const [level, setLevel] = useState<Level>("easy");
   const titleId = useId();
@@ -38,10 +40,17 @@ export function NewGameDialog({ onStart, onDaily, onCancel }: NewGameDialogProps
       <h2 id={titleId} className="dialog-title">
         Choose a difficulty
       </h2>
-      <button type="button" className="ctl daily-start" onClick={onDaily}>
-        <span aria-hidden="true">★ </span>
-        Daily puzzle ({levelLabel(dailyLevel(new Date()))} today)
-      </button>
+      {dailySolved ? (
+        <button type="button" className="ctl daily-start" aria-disabled="true" data-daily-solved>
+          <span aria-hidden="true">✓ </span>
+          Daily puzzle solved today. Next one tomorrow.
+        </button>
+      ) : (
+        <button type="button" className="ctl daily-start" onClick={onDaily}>
+          <span aria-hidden="true">★ </span>
+          Daily puzzle ({levelLabel(dailyLevel(new Date()))} today)
+        </button>
+      )}
       <fieldset className="level-list">
         <legend className="sr-only">Difficulty</legend>
         {LEVELS.map((l) => (

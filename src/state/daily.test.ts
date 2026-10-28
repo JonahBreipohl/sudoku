@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { LEVELS } from "../engine/step";
 import type { GameRecord } from "./events";
-import { dailyLevel, dailyPuzzle, dailyStats, dateKey, hashString } from "./daily";
+import { dailyLevel, dailyPuzzle, dailySolvedOn, dailyStats, dateKey, hashString } from "./daily";
 import { levelStats } from "./stats";
 
 const fetchBank = async (url: string) => {
@@ -80,5 +80,24 @@ describe("dailyStats", () => {
   it("keeps daily games out of per-level stats", () => {
     const a = [game("daily", local(28).getTime())];
     expect(levelStats(a, local(28).getTime()).every((s) => s.solved === 0)).toBe(true);
+  });
+});
+
+describe("daily played marking and solved state", () => {
+  it("marks the picked bank id as played", async () => {
+    const added: string[] = [];
+    const p = await dailyPuzzle(local(28), { fetch: fetchBank, played: { add: (id) => added.push(id) } });
+    expect(added).toHaveLength(1);
+    expect(added[0]).toMatch(/^m-/);
+    expect(added[0]).not.toBe(p.id);
+  });
+
+  it("detects a solved daily for the date, ignoring other days and unsolved records", () => {
+    const d = local(28);
+    const solved = { ...game("daily", d.getTime()), id: "daily-2026-10-28" } as GameRecord;
+    expect(dailySolvedOn(d, [solved])).toBe(true);
+    expect(dailySolvedOn(local(29), [solved])).toBe(false);
+    expect(dailySolvedOn(d, [{ ...solved, status: "abandoned", log: [] } as GameRecord])).toBe(false);
+    expect(dailySolvedOn(d, [undefined])).toBe(false);
   });
 });
