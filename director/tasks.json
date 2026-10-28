@@ -1983,8 +1983,8 @@
         "Same date gives the same puzzle; tested across time zones via injected dates",
         "Daily games count separately in stats"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
