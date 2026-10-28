@@ -7,6 +7,8 @@ interface SubmitDialogProps {
   onClose: () => void;
   /** Absent until analysis is wired (M7-07); the button then shows as unavailable. */
   onAnalyze?: () => void;
+  /** Offered after a solve so the player can keep going; closes this dialog and opens the picker. */
+  onNewGame?: () => void;
 }
 
 /** Plain-text summary of an incorrect submission; counts only, never which digits are right. */
@@ -18,7 +20,7 @@ export function submitSummary(wrong: number, blank: number): string {
 }
 
 /** Result screen shown after a submit. The record is already final; closing only reveals the board. */
-export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze }: SubmitDialogProps) {
+export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze, onNewGame }: SubmitDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -53,6 +55,11 @@ export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze }: Submi
         {!solved && (
           <button type="button" className="ctl" disabled={!onAnalyze} onClick={onAnalyze}>
             Analyze mistakes
+          </button>
+        )}
+        {solved && onNewGame && (
+          <button type="button" className="ctl" onClick={onNewGame}>
+            New game
           </button>
         )}
         <button ref={closeRef} type="button" className="ctl dialog-confirm" onClick={onClose}>

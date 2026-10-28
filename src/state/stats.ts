@@ -41,7 +41,8 @@ export function levelStats(
     let mistakeGames = 0;
     const days = new Set<number>();
     for (const r of archive) {
-      if (r.level !== level) continue;
+      // Daily games are counted separately (daily.ts).
+      if (r.level !== level || r.source === "daily") continue;
       const at = solvedAt(r);
       if (at === null) continue;
       const ms = activeMs(r, at);

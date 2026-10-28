@@ -996,3 +996,19 @@ button {
   min-width: 11rem;
   font-weight: 600;
 }
+
+.daily-start {
+  width: 100%;
+  margin-bottom: var(--gutter);
+  font-weight: 700;
+}
+/* Text plus a star, so the badge never relies on color. */
+.daily-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0 10px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  font-weight: 700;
+}

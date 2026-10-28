@@ -8,11 +8,12 @@ interface NewGameProps {
   /** The current game has player work that a new game would discard. */
   inProgress: boolean;
   onNewGame: (level: Level) => void;
+  onDaily: () => void;
 }
 
-export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
+export function NewGame({ pending, inProgress, onNewGame, onDaily }: NewGameProps) {
   const [choosing, setChoosing] = useState(false);
-  const [confirm, setConfirm] = useState<Level | null>(null);
+  const [confirm, setConfirm] = useState<Level | "daily" | null>(null);
   const button = useRef<HTMLButtonElement>(null);
   const wasOpen = useRef(false);
   const open = choosing || confirm !== null;
@@ -46,6 +47,11 @@ export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
       {choosing && (
         <NewGameDialog
           onCancel={() => setChoosing(false)}
+          onDaily={() => {
+            setChoosing(false);
+            if (inProgress) setConfirm("daily");
+            else onDaily();
+          }}
           onStart={(level) => {
             setChoosing(false);
             if (inProgress) setConfirm(level);
@@ -56,14 +62,15 @@ export function NewGame({ pending, inProgress, onNewGame }: NewGameProps) {
       {confirm !== null && (
         <ConfirmDialog
           title="Abandon this game?"
-          message={`Starting a new ${levelLabel(confirm)} game discards your progress on this puzzle. It is kept in your history as abandoned.`}
+          message={`Starting ${confirm === "daily" ? "the daily puzzle" : `a new ${levelLabel(confirm)} game`} discards your progress on this puzzle. It is kept in your history as abandoned.`}
           confirmLabel="Abandon and start new"
           cancelLabel="Keep playing"
           onCancel={() => setConfirm(null)}
           onConfirm={() => {
             const level = confirm;
             setConfirm(null);
-            onNewGame(level);
+            if (level === "daily") onDaily();
+            else onNewGame(level);
           }}
         />
       )}
