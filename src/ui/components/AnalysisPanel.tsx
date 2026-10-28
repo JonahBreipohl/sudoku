@@ -4,6 +4,7 @@ import type { BoardEvent } from "../../state/events";
 import type { AnalysisState } from "../useAnalysis";
 import { clampStep } from "../timeline";
 import { Timeline } from "./Timeline";
+import { analysis } from "../strings";
 import {
   describeAlternative,
   describeCascade,
@@ -31,9 +32,9 @@ export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(functio
   ref,
 ) {
   return (
-    <section ref={ref} tabIndex={-1} className="analysis" aria-label="Analysis" data-analysis>
+    <section ref={ref} tabIndex={-1} className="analysis" aria-label={analysis.label} data-analysis>
       <div className="analysis-head">
-        <h2 className="analysis-title">Analysis</h2>
+        <h2 className="analysis-title">{analysis.title}</h2>
         <button type="button" className="ctl" onClick={onClose}>
           Close analysis
         </button>
@@ -41,7 +42,7 @@ export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(functio
       <Body state={state} onRetry={onRetry} />
       {state.status === "ready" && path && path.length > 0 && onStep && (
         <>
-          <h3 className="analysis-sub">Timeline</h3>
+          <h3 className="analysis-sub">{analysis.timeline}</h3>
           <Timeline
             path={path}
             step={step ?? path.length}
@@ -77,7 +78,7 @@ function RewindActions({
   // Just before the root mistake is the step that leaves the mistaken move out.
   const before = rootIndex !== null && rootIndex >= 0 && rootIndex < length ? rootIndex : null;
   return (
-    <div className="timeline-row" role="group" aria-label="Rewind and keep playing">
+    <div className="timeline-row" role="group" aria-label={analysis.rewindGroup}>
       {before !== null && (
         <button type="button" className="ctl" data-testid="rewind-before-mistake" onClick={() => onRewind(before)}>
           Rewind to before the mistake
@@ -131,7 +132,7 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
         </dl>
         {solve.stalls.length > 0 && (
           <>
-            <h3 className="analysis-sub">Longest pauses in thinking</h3>
+            <h3 className="analysis-sub">{analysis.pauses}</h3>
             <ol className="analysis-list">
               {solve.stalls.map((s) => (
                 <li key={s.beforeId}>{describeStall(s)}</li>
@@ -161,11 +162,11 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
           </>
         )}
       </p>
-      <h3 className="analysis-sub">What you could have done</h3>
+      <h3 className="analysis-sub">{analysis.couldHaveDone}</h3>
       <p>{describeAlternative(m.alternative)}</p>
       {m.cascade.length > 0 && (
         <>
-          <h3 className="analysis-sub">What it led to</h3>
+          <h3 className="analysis-sub">{analysis.ledTo}</h3>
           <ol className="analysis-list">
             {m.cascade.map((c) => (
               <li key={c.eventId}>You {describeCascade(c)}</li>

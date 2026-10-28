@@ -5,6 +5,7 @@ import type { BankPuzzle } from "../../engine/bank";
 import { getEngineClient } from "../../workers/client";
 import { BoardView } from "./DisplayBoard";
 import { pickWatchPuzzle } from "./watch";
+import { display } from "../strings";
 
 interface Props {
   stepMs: number;
@@ -100,7 +101,7 @@ export function WatchPuzzle({ stepMs, seed, active }: Props) {
         if (!step) {
           // Solved (or stuck): linger on the result, then move on to the next puzzle.
           const done = r.state.values.every((v) => v !== 0);
-          show(r.state, null, done ? "Solved" : "No further step");
+          show(r.state, null, done ? display.solved : display.noFurtherStep);
           r.state = null;
           r.n += 1;
           await wait(stepMs * 2);
@@ -123,7 +124,7 @@ export function WatchPuzzle({ stepMs, seed, active }: Props) {
   return (
     <div className="watch">
       <BoardView
-        label="Watch puzzle, solving itself"
+        label={display.watchLabel}
         board={shown.state.values}
         givens={shown.givens}
         notes={toNotes(shown.state)}
@@ -135,7 +136,7 @@ export function WatchPuzzle({ stepMs, seed, active }: Props) {
             <strong>{shown.caption.title}</strong> {shown.caption.text}
           </>
         ) : (
-          "New puzzle"
+          display.newPuzzle
         )}
       </p>
     </div>

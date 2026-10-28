@@ -67,6 +67,7 @@ import { useSettings } from "./useSettings";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { useIdle } from "./useIdle";
+import { app, common } from "./strings";
 import {
   modeFromSearch,
   pauseForDisplay,
@@ -657,7 +658,7 @@ function Game({
           setHintState({ key, hint: h });
           setAnnouncement(h.text);
         },
-        () => setAnnouncement("Hint could not be computed. Please try again."),
+        () => setAnnouncement(app.hintFailed),
       )
       .finally(() => setHintBusy(false));
   }, [
@@ -698,7 +699,7 @@ function Game({
       data-left-handed={settings.leftHanded ? "" : undefined}
     >
       <header className="app-header">
-        <h1>Sudoku</h1>
+        <h1>{app.title}</h1>
         <NewGame
           pending={pending}
           inProgress={hasProgress(game.record)}
@@ -905,10 +906,10 @@ function Game({
       )}
       {importConfirm && (
         <ConfirmDialog
-          title="Abandon this game?"
-          message={`Starting the imported ${importConfirm.level} puzzle discards your progress on this puzzle. It is kept in your history as abandoned.`}
-          confirmLabel="Abandon and import"
-          cancelLabel="Keep playing"
+          title={app.abandonImportTitle}
+          message={app.abandonImportMessage(importConfirm.level)}
+          confirmLabel={app.abandonImportConfirm}
+          cancelLabel={common.keepPlaying}
           onCancel={() => setImportConfirm(null)}
           onConfirm={() => {
             const p = importConfirm;

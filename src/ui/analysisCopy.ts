@@ -4,6 +4,7 @@
 import { cellName, techniqueInfo } from "../engine";
 import type { CascadeMove, MistakeReport } from "../analysis/report";
 import type { SolveReport } from "../analysis/solve";
+import { analysis } from "./strings";
 
 type Root = NonNullable<MistakeReport["root"]>;
 
@@ -45,7 +46,7 @@ export function describeDiagnosis(root: Root): string {
 
 /** The step that was available instead, or a line saying none applied. */
 export function describeAlternative(alt: MistakeReport["alternative"]): string {
-  if (!alt) return "No step at your level was available at that point.";
+  if (!alt) return analysis.noAlternative;
   return `${techniqueInfo(alt.technique).name}: ${alt.explanation}`;
 }
 

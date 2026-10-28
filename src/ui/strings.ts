@@ -180,3 +180,45 @@ export const importErrors: Record<string, string> = {
   ungradable: "This puzzle is valid but too hard for the built-in grader, so it cannot be rated.",
   worker: "The puzzle could not be checked. Please try again.",
 };
+
+export const app = {
+  title: "Sudoku",
+  hintFailed: "Hint could not be computed. Please try again.",
+  abandonImportTitle: "Abandon this game?",
+  abandonImportConfirm: "Abandon and import",
+  abandonImportMessage: (level: string) =>
+    `Starting the imported ${level} puzzle discards your progress on this puzzle. It is kept in your history as abandoned.`,
+};
+
+export const analysis = {
+  label: "Analysis",
+  title: "Analysis",
+  timeline: "Timeline",
+  rewindGroup: "Rewind and keep playing",
+  pauses: "Longest pauses in thinking",
+  couldHaveDone: "What you could have done",
+  ledTo: "What it led to",
+  noAlternative: "No step at your level was available at that point.",
+};
+
+export const display = {
+  heading: "Display mode",
+  exit: "Exit",
+  boardLabel: "Current game, read only",
+  watchLabel: "Watch puzzle, solving itself",
+  newPuzzle: "New puzzle",
+  solved: "Solved",
+  noFurtherStep: "No further step",
+  fullscreenOn: "Fullscreen: on",
+  fullscreenOff: "Fullscreen: off",
+  keepAwakeOn: "Keep awake: on",
+  keepAwakeWaiting: "Keep awake: waiting",
+  keepAwakeOff: "Keep awake: off",
+  statsLabel: "Today's stats",
+  solvedToday: "Solved today",
+  totalTime: "Total time",
+  bestTime: "Best time",
+  streak: "Streak",
+  day: "day",
+  days: "days",
+};
