@@ -2010,8 +2010,8 @@
         "Imported puzzles are graded in the worker before starting",
         "Copy works with a fallback when the clipboard API is denied"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
