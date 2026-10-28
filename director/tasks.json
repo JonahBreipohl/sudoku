@@ -2132,8 +2132,8 @@
         "Suite passes 3 consecutive runs locally",
         "axe clean on every screen in both themes"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
