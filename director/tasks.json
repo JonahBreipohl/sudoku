@@ -3003,9 +3003,9 @@
         "Regular games skip the daily's bank puzzle",
         "e2e covers the result dialog New game button"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Merged. One e2e flake (phone submit.spec New game in solved result) under full-suite load; passes 3x in isolation."
     },
     {
       "id": "M10-03a",
