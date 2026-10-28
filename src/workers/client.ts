@@ -7,7 +7,7 @@ import type { CandidateState, CellValue, Grid, Level, Step } from "../engine";
 import { dispatch } from "./protocol";
 import type { Hint } from "../analysis/hints";
 import type { GameRecord, HintTier } from "../state/events";
-import type { AnalysisResult, GeneratedResult, Handlers, Method, Request, Response } from "./protocol";
+import type { AnalysisResult, GeneratedResult, ImportResult, Handlers, Method, Request, Response } from "./protocol";
 
 export class CancelledError extends Error {
   constructor() {
@@ -26,6 +26,7 @@ export interface EngineClient {
   solve(grid: Grid): Promise<CellValue[] | null>;
   countSolutions(grid: Grid, limit?: number): Promise<number>;
   generate(level: Level, seed: number | string): Promise<GeneratedResult>;
+  importPuzzle(text: string): Promise<ImportResult>;
   analyze(record: GameRecord): Promise<AnalysisResult>;
   hint(record: GameRecord, tier: HintTier): Promise<Hint>;
   nextStep(state: CandidateState, maxLevel: Level): Promise<Step | null>;
@@ -89,6 +90,7 @@ export function createEngineClient(opts: { inThread?: boolean } = {}): EngineCli
     solve: (grid) => call("solve", grid),
     countSolutions: (grid, limit) => call("countSolutions", grid, limit),
     generate: (level, seed) => call("generate", level, seed),
+    importPuzzle: (text) => call("importPuzzle", text),
     analyze: (record) => call("analyze", record),
     hint: (record, tier) => call("hint", record, tier),
     nextStep: (state, maxLevel) => call("nextStep", state, maxLevel),

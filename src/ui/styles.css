@@ -1012,3 +1012,49 @@ button {
   border-radius: var(--radius);
   font-weight: 700;
 }
+
+/* Share and import dialogs. */
+.share-row {
+  margin-bottom: var(--gutter);
+}
+.share-label {
+  display: block;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+.share-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.share-input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  min-height: var(--touch);
+  padding: 0 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+}
+.import-input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 8px;
+  resize: vertical;
+  overflow-wrap: anywhere;
+}
+.import-input[aria-invalid="true"] {
+  border-width: 3px;
+}
+.import-error {
+  min-height: 1.5em;
+  margin: 8px 0;
+  font-weight: 600;
+}
+.share-status {
+  min-height: 1.5em;
+  margin: 0 0 var(--gutter);
+}
