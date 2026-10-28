@@ -1,19 +1,18 @@
 import { useEffect, useId, useRef } from "react";
-import { MAX_IDLE_MINUTES, type Settings, type ThemePref } from "../../state/settings";
+import { MAX_IDLE_MINUTES, type Settings } from "../../state/settings";
 import { THEME_ORDER } from "../theme";
-
-const THEME_LABELS: Record<ThemePref, string> = { system: "System", light: "Light", dark: "Dark" };
+import { common, settings as t } from "../strings";
 
 type BoolKey = {
   [K in keyof Settings]: Settings[K] extends boolean ? K : never;
 }[keyof Settings];
 
 const TOGGLES: { key: BoolKey; label: string; hint: string }[] = [
-  { key: "autoCandidates", label: "Auto candidates", hint: "Fill pencil notes automatically." },
-  { key: "checkHighlighting", label: "Highlight wrong cells on Check", hint: "Check marks each wrong entry with a cross and frame." },
-  { key: "showTimer", label: "Show timer", hint: "Display the solve clock while playing." },
-  { key: "wallClock", label: "Wall clock in Display mode", hint: "Show the time of day." },
-  { key: "leftHanded", label: "Left-handed layout", hint: "Mirror the pad and side panel to the left in landscape and desktop layouts." },
+  { key: "autoCandidates", ...t.autoCandidates },
+  { key: "checkHighlighting", ...t.checkHighlighting },
+  { key: "showTimer", ...t.showTimer },
+  { key: "wallClock", ...t.wallClock },
+  { key: "leftHanded", ...t.leftHanded },
 ];
 
 interface Props {
@@ -57,27 +56,27 @@ export function SettingsDialog({ settings, onChange, onToggleEntry, onToggleAuto
       }}
     >
       <h2 id={titleId} className="dialog-title">
-        Settings
+        {t.title}
       </h2>
       <fieldset className="settings-group">
-        <legend>Theme</legend>
+        <legend>{t.theme}</legend>
         <div className="settings-radios">
-          {THEME_ORDER.map((t) => (
-            <label key={t} className="settings-radio">
+          {THEME_ORDER.map((th) => (
+            <label key={th} className="settings-radio">
               <input
                 type="radio"
                 name="theme"
-                value={t}
-                checked={settings.theme === t}
-                onChange={() => onChange({ theme: t })}
+                value={th}
+                checked={settings.theme === th}
+                onChange={() => onChange({ theme: th })}
               />
-              <span>{THEME_LABELS[t]}</span>
+              <span>{t.themeLabels[th]}</span>
             </label>
           ))}
         </div>
       </fieldset>
       <fieldset className="settings-group">
-        <legend>Entry mode</legend>
+        <legend>{t.entryMode}</legend>
         <div className="settings-radios">
           {(["cell-first", "digit-first"] as const).map((m) => (
             <label key={m} className="settings-radio">
@@ -88,7 +87,7 @@ export function SettingsDialog({ settings, onChange, onToggleEntry, onToggleAuto
                 checked={settings.entryMode === m}
                 onChange={() => settings.entryMode !== m && onToggleEntry()}
               />
-              <span>{m === "cell-first" ? "Cell first" : "Digit first"}</span>
+              <span>{m === "cell-first" ? t.cellFirst : t.digitFirst}</span>
             </label>
           ))}
         </div>
@@ -117,14 +116,14 @@ export function SettingsDialog({ settings, onChange, onToggleEntry, onToggleAuto
             }}
           />
           <span>
-            Idle minutes before Display mode
-            <small className="settings-hint">0 turns it off.</small>
+            {t.idleMinutes}
+            <small className="settings-hint">{t.idleOff}</small>
           </span>
         </label>
       </div>
       <div className="dialog-actions">
         <button type="button" className="ctl dialog-confirm" autoFocus onClick={onClose}>
-          Close
+          {common.close}
         </button>
       </div>
     </dialog>

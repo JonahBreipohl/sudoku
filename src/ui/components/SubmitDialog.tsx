@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef } from "react";
+import { common, newGame, submitDialog as t } from "../strings";
 
 interface SubmitDialogProps {
   result: "solved" | "incorrect";
@@ -46,24 +47,24 @@ export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze, onNewGa
     >
       <h2 id={titleId} className="dialog-title">
         <span aria-hidden="true">{solved ? "✓ " : "✕ "}</span>
-        {solved ? "Solved" : "Not solved yet"}
+        {solved ? t.solved : t.notSolved}
       </h2>
       <p id={messageId} className="dialog-message">
-        {solved ? "Every cell is correct. The clock has stopped." : `Your submission has ${submitSummary(wrong, blank)}.`}
+        {solved ? t.solvedMessage : t.incorrectMessage(submitSummary(wrong, blank))}
       </p>
       <div className="dialog-actions">
         {!solved && (
           <button type="button" className="ctl" disabled={!onAnalyze} onClick={onAnalyze}>
-            Analyze mistakes
+            {t.analyze}
           </button>
         )}
         {solved && onNewGame && (
           <button type="button" className="ctl" onClick={onNewGame}>
-            New game
+            {newGame.button}
           </button>
         )}
         <button ref={closeRef} type="button" className="ctl dialog-confirm" onClick={onClose}>
-          Close
+          {common.close}
         </button>
       </div>
     </dialog>

@@ -6,6 +6,7 @@ export const common = {
   off: "Off",
   cancel: "Cancel",
   keepPlaying: "Keep playing",
+  close: "Close",
 };
 
 export const controls = {
@@ -59,4 +60,34 @@ export const pause = {
   region: "Game paused",
   title: "Paused",
   resume: "Resume",
+};
+
+export const submitDialog = {
+  solved: "Solved",
+  notSolved: "Not solved yet",
+  solvedMessage: "Every cell is correct. The clock has stopped.",
+  incorrectMessage: (summary: string) => `Your submission has ${summary}.`,
+  analyze: "Analyze mistakes",
+};
+
+export const settings = {
+  title: "Settings",
+  theme: "Theme",
+  themeLabels: { system: "System", light: "Light", dark: "Dark" },
+  entryMode: "Entry mode",
+  cellFirst: "Cell first",
+  digitFirst: "Digit first",
+  autoCandidates: { label: "Auto candidates", hint: "Fill pencil notes automatically." },
+  checkHighlighting: {
+    label: "Highlight wrong cells on Check",
+    hint: "Check marks each wrong entry with a cross and frame.",
+  },
+  showTimer: { label: "Show timer", hint: "Display the solve clock while playing." },
+  wallClock: { label: "Wall clock in Display mode", hint: "Show the time of day." },
+  leftHanded: {
+    label: "Left-handed layout",
+    hint: "Mirror the pad and side panel to the left in landscape and desktop layouts.",
+  },
+  idleMinutes: "Idle minutes before Display mode",
+  idleOff: "0 turns it off.",
 };
