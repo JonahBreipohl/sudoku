@@ -2058,9 +2058,9 @@
         "All component strings come from strings.ts",
         "No behavior changes; check and e2e pass"
       ],
-      "status": "in_progress",
+      "status": "resume",
       "attempts": 2,
-      "notes": "Attempt 1 partial (d96ce6c, check+e2e green): strings.ts created; Controls, NewGame, NewGameDialog, HintButton, PauseOverlay migrated. Remaining: AnalysisPanel, Board, Cell, Pad, ImportDialog, MoveHistory, SettingsDialog, ShareDialog, ShortcutsDialog, SidePanel, StatsDialog, SubmitDialog, Timeline, WallClock, App.tsx, src/ui/display/*, analysisCopy.ts/shareCopy.ts; then copy edits (sentence case, shorter). Update e2e specs in same commit if matched text changes. Consider splitting into S tasks. Update: subagent continued after wrap-up; 6612bfa also migrated SubmitDialog and SettingsDialog (check 722 green, e2e not rerun by Director). Remaining list otherwise as above.",
+      "notes": "Attempt 2 partial (161b0d5, check 722 + build + e2e 275 green, pushed). Migrated all but: Board.tsx grid aria-label/preview, Cell.tsx, nested group labels in AnalysisPanel.tsx, row labels/phase names in analysisCopy.ts, rest of TodayStats.tsx. Then light copy edits (sentence case, shorter) with e2e spec updates in same commit (regression.spec.ts matches Statistics, share.spec.ts matches Import a puzzle). Branch has main merged in.",
       "branch": "task/M10-05"
     },
     {
