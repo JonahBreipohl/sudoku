@@ -1,5 +1,6 @@
 import type { BoardEvent } from "../../state/events";
 import { clampStep, mistakeStep, stepLabel } from "../timeline";
+import { timeline as copy } from "../strings";
 
 interface TimelineProps {
   path: readonly BoardEvent[];
@@ -18,26 +19,26 @@ export function Timeline({ path, step, rootIndex, onStep }: TimelineProps) {
   const label = stepLabel(path, s);
   const go = (to: number) => onStep(clampStep(to, n));
   return (
-    <div className="timeline" role="group" aria-label="Move timeline">
+    <div className="timeline" role="group" aria-label={copy.group}>
       <p className="timeline-label" role="status" data-testid="timeline-label">
         {label}
-        {s === n ? " (now)" : ""}
+        {s === n ? copy.now : ""}
       </p>
       <div className="timeline-row">
         <button type="button" className="ctl" disabled={s === 0} onClick={() => go(0)}>
-          Start
+          {copy.start}
         </button>
         <button type="button" className="ctl" disabled={s === 0} onClick={() => go(s - 1)}>
-          Previous move
+          {copy.previous}
         </button>
         <button type="button" className="ctl" disabled={s === n} onClick={() => go(s + 1)}>
-          Next move
+          {copy.next}
         </button>
       </div>
       <input
         type="range"
         className="timeline-slider"
-        aria-label="Move"
+        aria-label={copy.slider}
         aria-valuetext={label}
         min={0}
         max={n}
@@ -48,11 +49,11 @@ export function Timeline({ path, step, rootIndex, onStep }: TimelineProps) {
       <div className="timeline-row">
         {root !== null && (
           <button type="button" className="ctl" disabled={s === root} onClick={() => go(root)}>
-            Jump to mistake
+            {copy.jumpToMistake}
           </button>
         )}
         <button type="button" className="ctl" disabled={s === n} onClick={() => go(n)}>
-          Back to now
+          {copy.backToNow}
         </button>
       </div>
     </div>

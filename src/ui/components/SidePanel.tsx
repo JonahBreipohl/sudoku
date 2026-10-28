@@ -1,6 +1,7 @@
 import { activeMs } from "../../state/timer";
 import type { GameRecord } from "../../state/events";
 import { formatElapsed } from "../clock";
+import { sidePanel } from "../strings";
 import { useSecondTick } from "../useSecondTick";
 import { MoveHistory } from "./MoveHistory";
 import { WallClock } from "./WallClock";
@@ -15,13 +16,13 @@ interface SidePanelProps {
 export function SidePanel({ record, showTimer, wallClock }: SidePanelProps) {
   const now = useSecondTick(showTimer);
   return (
-    <aside className="side-panel" aria-label="Game info">
+    <aside className="side-panel" aria-label={sidePanel.label}>
       {(showTimer || wallClock) && (
         <div className="panel-clocks">
           {showTimer && (
             <p className="panel-clock">
-              <span className="panel-label">Time</span>
-              <span className="panel-time" role="timer" aria-label="Elapsed time">
+              <span className="panel-label">{sidePanel.time}</span>
+              <span className="panel-time" role="timer" aria-label={sidePanel.elapsed}>
                 {formatElapsed(activeMs(record, now))}
               </span>
             </p>

@@ -91,3 +91,58 @@ export const settings = {
   idleMinutes: "Idle minutes before Display mode",
   idleOff: "0 turns it off.",
 };
+
+export const pad = {
+  group: "Number pad",
+  notesGroup: "Number pad, notes mode",
+  erase: "Erase",
+  complete: "complete",
+  remaining: (n: number) => `${n} remaining`,
+};
+
+export const clock = {
+  label: "Clock",
+};
+
+export const timeline = {
+  group: "Move timeline",
+  now: " (now)",
+  start: "Start",
+  previous: "Previous move",
+  next: "Next move",
+  slider: "Move",
+  jumpToMistake: "Jump to mistake",
+  backToNow: "Back to now",
+};
+
+export const share = {
+  title: "Share this puzzle",
+  puzzleString: "Puzzle string",
+  link: "Link",
+  copy: "Copy",
+  copied: (label: string) => `${label} copied.`,
+  blocked: (label: string) =>
+    `Copy was blocked. The ${label.toLowerCase()} is selected: press Ctrl+C (Cmd+C on Mac).`,
+  done: "Done",
+};
+
+export const shortcuts = {
+  title: "Keyboard shortcuts",
+  close: "Close",
+};
+
+export const sidePanel = {
+  label: "Game info",
+  time: "Time",
+  elapsed: "Elapsed time",
+};
+
+export const history = {
+  title: "Moves",
+  scroll: "Move history, newest first",
+  empty: "No moves yet.",
+  undone: "undone",
+  now: "now",
+  branchPoint: "branch point",
+  start: "Start",
+};
