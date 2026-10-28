@@ -146,3 +146,37 @@ export const history = {
   branchPoint: "branch point",
   start: "Start",
 };
+
+export const stats = {
+  title: "Statistics",
+  none: "None yet",
+  solved: "Solved",
+  bestTime: "Best time",
+  averageTime: "Average time",
+  streak: "Streak",
+  oneDay: "1 day",
+  days: (n: number) => `${n} days`,
+  mistakes: "Games with a mistake",
+  mistakeRate: (pct: number, games: number, solved: number) => `${pct}% (${games} of ${solved})`,
+  daily: "Daily puzzle",
+  dailyStreak: "Daily streak",
+  close: "Close",
+};
+
+export const importDialog = {
+  title: "Import a puzzle",
+  field: "Puzzle string or link",
+  checking: "Checking…",
+  submit: "Import",
+};
+
+/** Player-facing wording for each import failure; each says what to fix. */
+export const importErrors: Record<string, string> = {
+  "wrong-length": "A puzzle needs exactly 81 cells (digits, with . or 0 for blanks).",
+  "invalid-characters": "Only the digits 0-9 and . are allowed in a puzzle.",
+  "rule-conflict": "Two equal digits share a row, column or box in this puzzle.",
+  "no-solution": "This puzzle has no solution.",
+  "multiple-solutions": "This puzzle has more than one solution, so it cannot be played.",
+  ungradable: "This puzzle is valid but too hard for the built-in grader, so it cannot be rated.",
+  worker: "The puzzle could not be checked. Please try again.",
+};

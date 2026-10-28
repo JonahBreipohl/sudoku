@@ -2,10 +2,11 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { GameRecord } from "../../state/events";
 import { dailyStats } from "../../state/daily";
 import { levelStats } from "../../state/stats";
+import { stats as copy } from "../strings";
 import { formatDuration } from "../analysisCopy";
 import { levelLabel } from "./NewGameDialog";
 
-const dash = "None yet";
+const dash = copy.none;
 
 /**
  * Per-level stats on the native <dialog> (same pattern as ShortcutsDialog). Each level is a
@@ -52,22 +53,22 @@ export function StatsDialog({
       }}
     >
       <h2 id={titleId} className="dialog-title">
-        Statistics
+        {copy.title}
       </h2>
       {stats.map((s) => {
         const rows: [string, string][] = [
-          ["Solved", String(s.solved)],
-          ["Best time", s.bestMs === null ? dash : formatDuration(s.bestMs)],
+          [copy.solved, String(s.solved)],
+          [copy.bestTime, s.bestMs === null ? dash : formatDuration(s.bestMs)],
           [
-            "Average time",
+            copy.averageTime,
             s.averageMs === null ? dash : formatDuration(s.averageMs),
           ],
-          ["Streak", s.streak === 1 ? "1 day" : `${s.streak} days`],
+          [copy.streak, s.streak === 1 ? copy.oneDay : copy.days(s.streak)],
           [
-            "Games with a mistake",
+            copy.mistakes,
             s.mistakeRate === null
               ? dash
-              : `${Math.round(s.mistakeRate * 100)}% (${s.mistakeGames} of ${s.solved})`,
+              : copy.mistakeRate(Math.round(s.mistakeRate * 100), s.mistakeGames, s.solved),
           ],
         ];
         return (
@@ -90,16 +91,16 @@ export function StatsDialog({
       })}
       <section className="shortcuts-group" data-level="daily">
         <h3 className="shortcuts-heading">
-          <span aria-hidden="true">★ </span>Daily puzzle
+          <span aria-hidden="true">★ </span>{copy.daily}
         </h3>
         <dl className="shortcuts-list">
           <div className="shortcuts-row">
-            <dt className="stats-label">Solved</dt>
+            <dt className="stats-label">{copy.solved}</dt>
             <dd>{daily.solved}</dd>
           </div>
           <div className="shortcuts-row">
-            <dt className="stats-label">Daily streak</dt>
-            <dd>{daily.streak === 1 ? "1 day" : `${daily.streak} days`}</dd>
+            <dt className="stats-label">{copy.dailyStreak}</dt>
+            <dd>{daily.streak === 1 ? copy.oneDay : copy.days(daily.streak)}</dd>
           </div>
         </dl>
       </section>
@@ -110,7 +111,7 @@ export function StatsDialog({
           autoFocus
           onClick={onClose}
         >
-          Close
+          {copy.close}
         </button>
       </div>
     </dialog>

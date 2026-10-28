@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { getEngineClient } from "../../workers/client";
 import type { ImportResult } from "../../workers/protocol";
 import { IMPORT_ERRORS, type ImportFailure } from "../shareCopy";
+import { importDialog as copy } from "../strings";
 
 export type ImportedPuzzle = Extract<ImportResult, { ok: true }>;
 
@@ -64,10 +65,10 @@ export function ImportDialog({ onImport, onCancel, check }: ImportDialogProps) {
         }}
       >
         <h2 id={titleId} className="dialog-title">
-          Import a puzzle
+          {copy.title}
         </h2>
         <label htmlFor={fieldId} className="share-label">
-          Puzzle string or link
+          {copy.field}
         </label>
         <textarea
           ref={input}
@@ -94,7 +95,7 @@ export function ImportDialog({ onImport, onCancel, check }: ImportDialogProps) {
             Cancel
           </button>
           <button type="submit" className="ctl dialog-confirm" aria-disabled={busy || text.trim() === ""}>
-            {busy ? "Checking…" : "Import"}
+            {busy ? copy.checking : copy.submit}
           </button>
         </div>
       </form>
