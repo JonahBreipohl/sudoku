@@ -6,7 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { findConflicts, UNITS, type Digit } from "../engine";
+import { findConflicts, parseGrid, puzzleUrl, UNITS, type Digit } from "../engine";
 import type { Hint } from "../analysis/hints";
 import type { HintTier } from "../state/events";
 import { HintButton, HintPanel } from "./components/HintButton";
@@ -33,6 +33,9 @@ import { Board } from "./components/Board";
 import { SubmitDialog } from "./components/SubmitDialog";
 import { submitErrors } from "../state/store";
 import { Controls } from "./components/Controls";
+import { ShareDialog } from "./components/ShareDialog";
+import { ImportDialog, type ImportedPuzzle } from "./components/ImportDialog";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
@@ -158,6 +161,25 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
       dailyLevel(date),
     );
   }, [start]);
+  const onImport = useCallback(
+    (p: ImportedPuzzle) => {
+      start(
+        {
+          nextPuzzle: () =>
+            Promise.resolve({
+              id: `import-${Date.now()}`,
+              puzzle: p.puzzle,
+              solution: p.solution,
+              level: p.level,
+              score: p.score,
+              source: "import" as const,
+            }),
+        },
+        p.level,
+      );
+    },
+    [start],
+  );
   useVisibility(store);
   const [mode, setModeState] = useState<AppMode>(() =>
     modeFromSearch(window.location.search),
@@ -199,6 +221,7 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
           pending={pending}
           onNewGame={onNewGame}
           onDaily={onDaily}
+          onImport={onImport}
           onDisplay={() => setMode("display")}
         />
       </div>
@@ -212,12 +235,14 @@ function Game({
   pending,
   onNewGame,
   onDaily,
+  onImport,
   onDisplay,
 }: {
   active: boolean;
   pending: boolean;
   onNewGame: (level: Level) => void;
   onDaily: () => void;
+  onImport: (p: ImportedPuzzle) => void;
   onDisplay: () => void;
 }) {
   const { game, dispatch } = useGame();
@@ -228,6 +253,9 @@ function Game({
   const [helpOpen, setHelpOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [importOpen, setImportOpen] = useState(false);
+  const [importConfirm, setImportConfirm] = useState<ImportedPuzzle | null>(null);
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
   const [entry, entryDispatch] = useReducer(
@@ -659,6 +687,23 @@ function Game({
         <button
           type="button"
           className="ctl"
+          aria-haspopup="dialog"
+          onClick={() => setShareOpen(true)}
+        >
+          Share
+        </button>
+        <button
+          type="button"
+          className="ctl"
+          aria-haspopup="dialog"
+          disabled={pending}
+          onClick={() => setImportOpen(true)}
+        >
+          Import
+        </button>
+        <button
+          type="button"
+          className="ctl"
           onClick={() => setHelpOpen(true)}
           aria-keyshortcuts="?"
         >
@@ -803,6 +848,40 @@ function Game({
             setAnalysisClosed(false);
             setAnalysisRequested(true);
             setResultDismissed(true);
+          }}
+        />
+      )}
+      {shareOpen && (
+        <ShareDialog
+          puzzle={game.record.puzzle}
+          url={puzzleUrl(
+            parseGrid(game.record.puzzle),
+            window.location.origin + window.location.pathname,
+          )}
+          onClose={() => setShareOpen(false)}
+        />
+      )}
+      {importOpen && (
+        <ImportDialog
+          onCancel={() => setImportOpen(false)}
+          onImport={(p) => {
+            setImportOpen(false);
+            if (hasProgress(game.record)) setImportConfirm(p);
+            else onImport(p);
+          }}
+        />
+      )}
+      {importConfirm && (
+        <ConfirmDialog
+          title="Abandon this game?"
+          message={`Starting the imported ${importConfirm.level} puzzle discards your progress on this puzzle. It is kept in your history as abandoned.`}
+          confirmLabel="Abandon and import"
+          cancelLabel="Keep playing"
+          onCancel={() => setImportConfirm(null)}
+          onConfirm={() => {
+            const p = importConfirm;
+            setImportConfirm(null);
+            onImport(p);
           }}
         />
       )}

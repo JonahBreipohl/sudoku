@@ -4,8 +4,8 @@
  * Arguments and results must be structured-cloneable. Add a convenience method to the client
  * in client.ts only if you want a nicer signature than `client.call("name", ...args)`.
  */
-import { countSolutions, generate, nextStep, solve } from "../engine";
-import type { CandidateState, CellValue, Grid, Level, Step } from "../engine";
+import { countSolutions, generate, grade, nextStep, parsePuzzleInput, serializeGrid, solve } from "../engine";
+import type { CandidateState, CellValue, Grid, Level, PuzzleParseFailure, Step } from "../engine";
 import { analyzeMistakes, type MistakeReport } from "../analysis/report";
 import { hint, type Hint } from "../analysis/hints";
 import { analyzeSolve, type SolveReport } from "../analysis/solve";
@@ -17,6 +17,11 @@ export interface GeneratedResult {
   score: number;
   level: Level;
 }
+
+/** An import is rejected by the codec's specific reason, or because no technique tier solves it. */
+export type ImportResult =
+  | { ok: true; puzzle: string; solution: string; score: number; level: Level }
+  | { ok: false; reason: PuzzleParseFailure | "ungradable" };
 
 /** Both reports for one record; plain data, so it crosses the worker boundary. */
 export interface AnalysisResult {
@@ -34,6 +39,21 @@ export const handlers = {
   hint: (record: GameRecord, tier: HintTier): Hint => hint(record, tier),
   /** One logical step from a candidate state (the Display watch puzzle); null when stuck or solved. */
   nextStep: (state: CandidateState, maxLevel: Level): Step | null => nextStep(state, maxLevel),
+  /** Validates (codec), solves and grades pasted text or a ?puzzle= URL before it may start. */
+  importPuzzle: (text: string): ImportResult => {
+    const parsed = parsePuzzleInput(text);
+    if (!parsed.ok) return parsed;
+    const solution = solve(parsed.grid);
+    const graded = grade(parsed.grid);
+    if (!solution || graded.level === null) return { ok: false, reason: "ungradable" };
+    return {
+      ok: true,
+      puzzle: serializeGrid(parsed.grid),
+      solution: serializeGrid(solution),
+      score: graded.score,
+      level: graded.level,
+    };
+  },
   generate: (level: Level, seed: number | string): GeneratedResult => {
     const p = generate({ level, seed });
     return { puzzle: p.puzzle.join(""), solution: p.solution.join(""), score: p.score, level: p.level };
