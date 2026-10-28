@@ -84,6 +84,13 @@ Director and subagents, and how long the run took.
 
 ## Tooling repairs
 
+- 2026-10-28: run "stopped 20261028-run" reported unrelated histories again (66 ahead, 64 behind,
+  no merge base) even though the hook existed; it only unshallowed after a failure, and the
+  Director's own sync in step 1 didn't use it. sync-trunk.sh now unshallows every time (about a
+  second), and step 1 of Starting Prompt.txt runs it and treats only a merge base that is neither
+  tip as divergence. Verified on a stale depth-1 clone 70 commits behind: plain ff fails with
+  "unrelated histories"; sync-trunk.sh fast-forwards it.
+
 - 2026-10-28: budget switched from dollars (run_budget_usd, weekly_budget_usd) to percent of the
   plan's windows (config plan_budget; scripts/plan-budget.mjs). director/runs.jsonl was backfilled
   from ledger.jsonl (per-run sum of actual + review + overhead; start from run_id in UTC; end
