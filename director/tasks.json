@@ -2034,8 +2034,8 @@
         "Under 1.5 s, no layout shift",
         "Skipped entirely with prefers-reduced-motion"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
