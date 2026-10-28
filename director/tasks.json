@@ -1983,7 +1983,7 @@
         "Same date gives the same puzzle; tested across time zones via injected dates",
         "Daily games count separately in stats"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -2980,6 +2980,31 @@
       ],
       "status": "done",
       "attempts": 1,
+      "notes": ""
+    },
+    {
+      "id": "M10-02a",
+      "title": "Daily replay state and played-id marking",
+      "milestone": 10,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M10-02"
+      ],
+      "files": [
+        "src/state/daily.ts",
+        "src/ui/components/NewGameDialog.tsx"
+      ],
+      "description": "Follow-ups from M10-02: show an already-solved-today state instead of restarting the daily; mark the daily's bank id as played so regular games don't repeat it; e2e for the result dialog New game button.",
+      "acceptance": [
+        "Reopening the daily after solving it shows solved state",
+        "Regular games skip the daily's bank puzzle",
+        "e2e covers the result dialog New game button"
+      ],
+      "status": "todo",
+      "attempts": 0,
       "notes": ""
     }
   ]
