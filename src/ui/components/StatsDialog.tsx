@@ -1,5 +1,6 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { GameRecord } from "../../state/events";
+import { dailyStats } from "../../state/daily";
 import { levelStats } from "../../state/stats";
 import { formatDuration } from "../analysisCopy";
 import { levelLabel } from "./NewGameDialog";
@@ -26,6 +27,7 @@ export function StatsDialog({
   const ref = useRef<HTMLDialogElement>(null);
   const titleId = useId();
   const stats = useMemo(() => levelStats(archive, now), [archive, now]);
+  const daily = useMemo(() => dailyStats(archive, now), [archive, now]);
   useEffect(() => {
     const dialog = ref.current;
     if (!dialog) return;
@@ -86,6 +88,21 @@ export function StatsDialog({
           </section>
         );
       })}
+      <section className="shortcuts-group" data-level="daily">
+        <h3 className="shortcuts-heading">
+          <span aria-hidden="true">★ </span>Daily puzzle
+        </h3>
+        <dl className="shortcuts-list">
+          <div className="shortcuts-row">
+            <dt className="stats-label">Solved</dt>
+            <dd>{daily.solved}</dd>
+          </div>
+          <div className="shortcuts-row">
+            <dt className="stats-label">Daily streak</dt>
+            <dd>{daily.streak === 1 ? "1 day" : `${daily.streak} days`}</dd>
+          </div>
+        </dl>
+      </section>
       <div className="dialog-actions">
         <button
           type="button"

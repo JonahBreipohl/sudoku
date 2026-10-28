@@ -25,7 +25,8 @@ import {
 } from "../state/puzzles";
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
-import { newGame, resetGame } from "../state/newGame";
+import { newGame, resetGame, type PuzzleSupplier } from "../state/newGame";
+import { dailyLevel, dailyPuzzle } from "../state/daily";
 import { recordFromSearch } from "../state/puzzleParam";
 import type { CellMark } from "./components/Cell";
 import { Board } from "./components/Board";
@@ -113,16 +114,10 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
     refocusNewGame.current = false;
     document.querySelector<HTMLButtonElement>("[data-new-game]")?.focus();
   }, [store]);
-  const onNewGame = useCallback(
-    (level: Level) => {
-      puzzleSource.current ??= createPuzzleSource({
-        fetch: (url) => fetch(url),
-        generator: getEngineClient(),
-        played: createPlayedStore(),
-        baseUrl: import.meta.env.BASE_URL + "puzzles/",
-      });
+  const start = useCallback(
+    (supplier: PuzzleSupplier, level: Level) => {
       setPending(true);
-      newGame(level, puzzleSource.current, {
+      newGame(level, supplier, {
         current: store.getSnapshot().record,
         persistence,
         now: Date.now,
@@ -138,6 +133,31 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
     },
     [store],
   );
+  const onNewGame = useCallback(
+    (level: Level) => {
+      puzzleSource.current ??= createPuzzleSource({
+        fetch: (url) => fetch(url),
+        generator: getEngineClient(),
+        played: createPlayedStore(),
+        baseUrl: import.meta.env.BASE_URL + "puzzles/",
+      });
+      start(puzzleSource.current, level);
+    },
+    [start],
+  );
+  const onDaily = useCallback(() => {
+    const date = new Date();
+    start(
+      {
+        nextPuzzle: () =>
+          dailyPuzzle(date, {
+            fetch: (url) => fetch(url),
+            baseUrl: import.meta.env.BASE_URL + "puzzles/",
+          }),
+      },
+      dailyLevel(date),
+    );
+  }, [start]);
   useVisibility(store);
   const [mode, setModeState] = useState<AppMode>(() =>
     modeFromSearch(window.location.search),
@@ -178,6 +198,7 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
           active={!display}
           pending={pending}
           onNewGame={onNewGame}
+          onDaily={onDaily}
           onDisplay={() => setMode("display")}
         />
       </div>
@@ -190,11 +211,13 @@ function Game({
   active,
   pending,
   onNewGame,
+  onDaily,
   onDisplay,
 }: {
   active: boolean;
   pending: boolean;
   onNewGame: (level: Level) => void;
+  onDaily: () => void;
   onDisplay: () => void;
 }) {
   const { game, dispatch } = useGame();
@@ -626,7 +649,13 @@ function Game({
           pending={pending}
           inProgress={hasProgress(game.record)}
           onNewGame={onNewGame}
+          onDaily={onDaily}
         />
+        {game.record.source === "daily" && (
+          <span className="daily-badge">
+            <span aria-hidden="true">★ </span>Daily
+          </span>
+        )}
         <button
           type="button"
           className="ctl"
@@ -763,6 +792,13 @@ function Game({
           wrong={errors.wrong}
           blank={errors.blank}
           onClose={() => setResultDismissed(true)}
+          onNewGame={() => {
+            setResultDismissed(true);
+            // The modal keeps the page inert until it unmounts, so click after the next frame.
+            requestAnimationFrame(() =>
+              document.querySelector<HTMLButtonElement>("[data-new-game]")?.click(),
+            );
+          }}
           onAnalyze={() => {
             setAnalysisClosed(false);
             setAnalysisRequested(true);
