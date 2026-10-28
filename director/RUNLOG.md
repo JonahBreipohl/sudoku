@@ -375,3 +375,4 @@ run 20261028-0524 (~12 min): shallow clone, in sync. Trunk green (722 tests).
 - M10-06 (chore-dev, haiku S): pass, need 0.1, actual 0.013, overhead ~0.21, not reviewed (Q4). README 105 lines, commands match package.json; check + build green. Merged.
 - M10-05 (chore-dev, haiku S): partial, need 0.1, actual ~0.06. strings.ts created, 5 components migrated, check 722 + e2e 275 green on task/M10-05 (pushed). Set resume with handoff.
 Spend ~0.35 of $10. Next up: M10-05 (resume).
+- Addendum: M10-05 subagent kept working after wrap-up; branch now has 6612bfa (SubmitDialog, SettingsDialog migrated), pushed. Still resume.
