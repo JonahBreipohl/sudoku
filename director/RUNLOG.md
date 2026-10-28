@@ -354,3 +354,7 @@ run 20261028-0022 (~45 min): shallow clone, in sync. Trunk green (703 tests).
 - M10-03 (feature-dev, sonnet S): pass, need 0.6, actual 0.31, overhead ~0.14, not reviewed (Q4). check 719, build, e2e 250 pass. Follow-up M10-03a (axe on dialogs).
 - M10-04 (feature-dev, sonnet S): pass, need 0.6, actual 0.29, overhead ~0.12, not reviewed (Q4). check 719, build, e2e 254 pass.
 Spend ~1.9 of $10. Stopped after three tasks to keep the run short. Next up: M10-07, M10-02a, M10-05, M10-06, M10-03a.
+
+run 20261028-0123 (~20 min): shallow clone, in sync. Trunk green (719 tests).
+- M10-08 (qa-e2e, sonnet M): pass, need 1.0, actual 0.48, overhead ~0.22, not reviewed (Q4). check 719 tests, build, e2e 266 pass x3. Added e2e/regression.spec.ts. Axe gaps (Share, Import, New game picker) left to M10-03a.
+Spend ~0.7 of $10. Stopped after one task to keep the run short. Next up: M10-07, M10-02a, M10-03a, M10-05, M10-06.

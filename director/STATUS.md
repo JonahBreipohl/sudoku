@@ -1,9 +1,9 @@
-# Director status (run 20261028-0022)
+# Director status (run 20261028-0123)
 
 ## Progress
 - M1-M8: all done (8, 19, 11, 12, 9, 8, 25, 3)
 - M9: 12/12 done (13 incl. closed follow-ups)
-- M10: 4/10 (M10-01..04 done; 1 blocked, 5 todo)
+- M10: 5/10 (M10-01..04, 08 done; 1 blocked, 4 todo)
 
 ## Next 5 ready
 - M10-07 sonnet S (need ~0.35)
@@ -12,7 +12,6 @@
 - M10-06 haiku S
 - M10-03a haiku S
 
-M10-08 (sonnet M) follows once its deps are done.
 
 ## Blocked
 - M10-09 (Q1: hosting; owner will connect their own site later)

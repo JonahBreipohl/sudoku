@@ -2132,9 +2132,9 @@
         "Suite passes 3 consecutive runs locally",
         "axe clean on every screen in both themes"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Axe gaps: Share, Import, New game picker dialogs (covered by M10-03a)."
     },
     {
       "id": "M10-09",
