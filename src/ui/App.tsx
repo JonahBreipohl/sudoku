@@ -745,6 +745,7 @@ function Game({
             wrong={preview ? undefined : wrongSet}
             marks={previewMarks ?? hintMarks}
             preview={preview !== null}
+            solved={solvedGame && preview === null}
             onSelect={preview ? noop : onSelectCell}
             lockedDigit={entry.locked}
           />
