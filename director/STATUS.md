@@ -1,39 +1,30 @@
-# Director status (run 20261027-2324)
+# Director status (run 20261028-0022)
 
 ## Progress
-- M1: 8/8
-- M2: 19/19
-- M3: 11/11
-- M4: 12/12
-- M5: 9/9
-- M6: 8/8
-- M7: 25/25
-- M8: 3/3
-- M9: 10/13
-- M10: 1/9
+- M1-M8: all done (8, 19, 11, 12, 9, 8, 25, 3)
+- M9: 12/12 done (13 incl. closed follow-ups)
+- M10: 4/10 (M10-01..04 done; 1 blocked, 5 todo)
 
 ## Next 5 ready
-- M10-03 sonnet S
-- M10-02 sonnet S
-- M10-04 sonnet S
+- M10-07 sonnet S (need ~0.35)
+- M10-02a sonnet S (need ~0.35)
 - M10-05 haiku S
-- M10-07 sonnet S
+- M10-06 haiku S
+- M10-03a haiku S
+
+M10-08 (sonnet M) follows once its deps are done.
 
 ## Blocked
-- M10-09 (Q1: hosting; answer says local/own site later)
+- M10-09 (Q1: hosting; owner will connect their own site later)
 
 ## Open questions
-- Q6 (hint key, unanswered default applied), Q6b (unshallow proposal)
+- Q6 (hint key; default applied), Q6b (unshallow proposal; handled by tooling repair)
 
 ## Spend
-- This run ~0.6; all time ~66.1 (API-equivalent, ledger)
+- This run ~1.9 (API-equivalent); all time ~70.2 (ledger)
 
-_Update 20261027-1725: M9-03 done (682 tests). Next ready: M9-06, M9-07, M9-08, M10-01, M10-03._
+## Calibration
+- Median actual cost, sonnet S: ~$0.25 (55 samples)
 
-_Update 20261027-1923: M9-08 done (692 tests, e2e 224). Next ready: M9-07, M10-01, M10-03, M10-04, M9-03a._
-
-_Update 20261027-2023: M9-09 done (e2e 244 + 2 fixme); follow-up M9-09a added._
-
-(run 20261027-2123: M9-09a done; next: M9-03a, M9-07, M10-01, M10-03, M10-07)
-
-_Update 20261027-2223: M9-03a done (no code change). Next ready: M9-07, M10-01, M10-03, M10-04, M10-07. Open questions: Q1 (host, blocks M10-09), Q6 (hint key; unshallow proposal) unanswered, non-blocking._
+## Projection
+- 7 tasks left, mostly S at ~$0.3-0.5 each including overhead: about $3-4 to finish, under 1 run at the $10 run budget.
