@@ -358,3 +358,7 @@ Spend ~1.9 of $10. Stopped after three tasks to keep the run short. Next up: M10
 run 20261028-0123 (~20 min): shallow clone, in sync. Trunk green (719 tests).
 - M10-08 (qa-e2e, sonnet M): pass, need 1.0, actual 0.48, overhead ~0.22, not reviewed (Q4). check 719 tests, build, e2e 266 pass x3. Added e2e/regression.spec.ts. Axe gaps (Share, Import, New game picker) left to M10-03a.
 Spend ~0.7 of $10. Stopped after one task to keep the run short. Next up: M10-07, M10-02a, M10-03a, M10-05, M10-06.
+
+run 20261028-0223 (~20 min): main was a stale local ref, fast-forwarded to origin. Trunk green (719 tests).
+- M10-07 (feature-dev, sonnet S): pass, need 0.6, actual ~0.3 (estimate, transcript cost not read), not reviewed (Q4). check 720 tests, build, full e2e 267 pass + 1 skipped. Initial JS 98.2 KB gzip (budget 120 enforced by build plugin); TTI 215 ms. Follow-up idea: lazy-load Stats/Settings/Import/Share dialogs.
+Spend ~0.5 of $10. Stopped after one task to keep the run short. Next up: M10-02a, M10-03a, M10-05, M10-06.

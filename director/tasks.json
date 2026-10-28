@@ -2105,7 +2105,7 @@
         "Initial JS under 120 KB gzip (report actual)",
         "Time to interactive on the 390x844 project under 2 s in Playwright (local preview)"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
