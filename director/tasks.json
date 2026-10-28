@@ -3025,8 +3025,8 @@
       "acceptance": [
         "axe passes on both dialogs in light and dark at 390 and 1440"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
