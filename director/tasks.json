@@ -2058,8 +2058,8 @@
         "All component strings come from strings.ts",
         "No behavior changes; check and e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
@@ -2081,7 +2081,7 @@
         "Commands match package.json",
         "Under 150 lines"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
