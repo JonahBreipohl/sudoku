@@ -2010,7 +2010,7 @@
         "Imported puzzles are graded in the worker before starting",
         "Copy works with a fallback when the clipboard API is denied"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
@@ -3002,6 +3002,28 @@
         "Reopening the daily after solving it shows solved state",
         "Regular games skip the daily's bank puzzle",
         "e2e covers the result dialog New game button"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M10-03a",
+      "title": "Axe check for Share and Import dialogs",
+      "milestone": 10,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "qa-e2e",
+      "deps": [
+        "M10-03"
+      ],
+      "files": [
+        "e2e/share.spec.ts"
+      ],
+      "description": "Add axe runs (light and dark, both viewports) to the Share and Import dialogs; fix any violations.",
+      "acceptance": [
+        "axe passes on both dialogs in light and dark at 390 and 1440"
       ],
       "status": "todo",
       "attempts": 0,
