@@ -409,3 +409,7 @@ Plan usage: 5h ~25% of 60%, 7d ~50% of 85% (estimate). Next up: M11-04, M11-06, 
 run 20261030-1245 (~20 min): main in sync (already up to date). Trunk green (754 tests).
 - M11-04 (feature-dev, sonnet S): pass, need 0.5, actual 0.58, overhead ~0.22, not reviewed (Q4). check 763, build, e2e 295 pass + 1 skipped. Merged. Follow-up noted: spotify-theme "returning from sign-in" e2e flaky under full-suite load (passes alone).
 Plan usage: 5h ~33% of 60%, 7d ~51% of 85% (estimate). Next up: M11-05, M11-06, M11-07, M11-08. Stopped after one task to keep the run short.
+
+run 20261030-1322 (~15 min): main fast-forwarded 114 commits from stale shallow checkout. Trunk green (763 tests).
+- M11-05 (feature-dev, sonnet S): pass, need 0.5, actual ~0.32, overhead ~0.26, not reviewed (Q4). check 763, build, e2e 295 pass + 1 skipped. Merged. Follow-ups: no e2e for flourish class; done state with conflicting ninth copy.
+Plan usage: 5h ~42% of 60%, 7d ~51% of 85% (estimate). Next up: M11-06, M11-07, M11-08. Stopped after one task (5h window room).

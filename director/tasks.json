@@ -3185,9 +3185,9 @@
         "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-ups: no e2e asserts flourish class; pad-key--done uses remaining===0 so conflicting ninth copy shows done without flourish."
     },
     {
       "id": "M11-06",
