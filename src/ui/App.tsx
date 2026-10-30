@@ -64,6 +64,7 @@ import {
 import { moveSelection } from "./selection";
 import { describeChange, describeCheck, describeSubmit, describeUnits } from "./announce";
 import { unitsCompletedBy } from "./unitComplete";
+import { prefersReducedMotion, RIPPLE_DIALOG_DELAY_MS } from "./ripple";
 import { useSettings } from "./useSettings";
 import { haptic } from "./haptics";
 import { ThemeToggle } from "./components/ThemeToggle";
@@ -573,10 +574,19 @@ function Game({
       if (submitResult.result === "solved") haptic("solve", settings.haptics);
     }
   }
-  const resultOpen = submitted && !resultDismissed;
   // A correct solve shows its analysis once the result dialog is dismissed; an incorrect one on request.
   const solvedGame =
     submitResult?.type === "submit" && submitResult.result === "solved";
+  // Let the completion ripple play before the dialog covers it; reduced motion opens at once.
+  const [rippleSeen, setRippleSeen] = useState<typeof submitResult>(undefined);
+  const rippleWait = solvedGame && !prefersReducedMotion() && rippleSeen !== submitResult;
+  useEffect(() => {
+    if (!rippleWait) return;
+    const t = window.setTimeout(() => setRippleSeen(submitResult), RIPPLE_DIALOG_DELAY_MS);
+    return () => window.clearTimeout(t);
+  }, [rippleWait, submitResult]);
+  const resultOpen = submitted && !resultDismissed && !rippleWait;
+  const lastPlaced = [...game.record.nodes].reverse().find((n) => n.type === "place");
   const [analysisRequested, setAnalysisRequested] = useState(false);
   const [analysisClosed, setAnalysisClosed] = useState(false);
   const showAnalysis =
@@ -821,6 +831,7 @@ function Game({
             marks={previewMarks ?? hintMarks}
             preview={preview !== null}
             solved={solvedGame && preview === null}
+            rippleOrigin={lastPlaced?.type === "place" ? lastPlaced.cell : null}
             sweep={preview ? null : sweep}
             onSelect={preview ? noop : onSelectCell}
             lockedDigit={entry.locked}
