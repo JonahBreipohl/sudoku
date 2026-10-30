@@ -3098,7 +3098,7 @@
         "Contrast test (src/ui/contrast.test.ts) and axe stay green",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

@@ -397,3 +397,7 @@ Plan usage: 5h ~15% of 60%, 7d ~51% of 85% (estimate). Next up: M11-01a, M11-02.
 run 20261030-0922 (~10 min): main fast-forwarded 98 commits from stale shallow checkout. Trunk green (754 tests).
 - M11-01a (feature-dev, sonnet S): pass, need 0.4, actual 0.175, overhead ~0.07, not reviewed (Q4). check 754, build, e2e 291 pass + 1 skipped. Merged.
 Plan usage: 5h ~11% of 60%, 7d ~51% of 85% (estimate). Next up: M11-02, M11-08. Stopped after one task to keep the run short.
+
+run 20261030-1023 (~25 min): main fast-forwarded 102 commits from stale shallow checkout. Trunk green (754 tests).
+- M11-02 (feature-dev, sonnet S): pass, need 0.4, actual 0.51, overhead ~0.14, not reviewed (Q4). check 754, build, e2e 291 pass + 1 skipped. Merged.
+Plan usage: 5h ~20% of 60%, 7d ~49% of 85% (estimate). Next up: M11-03, M11-08. Stopped after one task to keep the run short.
