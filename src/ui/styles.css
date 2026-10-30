@@ -697,6 +697,7 @@ button {
   border: 3px dashed var(--line-strong);
   background: var(--surface);
   color: var(--text);
+  animation: mode-fade 160ms ease-out;
 }
 .pause-title {
   margin: 0;
@@ -742,6 +743,41 @@ button {
 }
 .dialog::backdrop {
   background: var(--scrim);
+}
+/* Fade and scale in and out. Where @starting-style or allow-discrete is unsupported the
+   rules are ignored and the dialog just appears and disappears. The reduced-motion clamp
+   below shortens these to nothing. */
+.dialog {
+  opacity: 0;
+  transform: scale(0.96);
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out,
+    overlay 160ms allow-discrete,
+    display 160ms allow-discrete;
+}
+.dialog[open] {
+  opacity: 1;
+  transform: scale(1);
+}
+.dialog::backdrop {
+  opacity: 0;
+  transition:
+    opacity 160ms ease-out,
+    overlay 160ms allow-discrete,
+    display 160ms allow-discrete;
+}
+.dialog[open]::backdrop {
+  opacity: 1;
+}
+@starting-style {
+  .dialog[open] {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  .dialog[open]::backdrop {
+    opacity: 0;
+  }
 }
 .dialog-title {
   margin: 0 0 8px;
@@ -957,6 +993,16 @@ button {
 .cell:active {
   background-color: var(--press);
   transform: scale(0.97);
+}
+
+/* One-shot opacity crossfade for the pause overlay and for returning from Display. */
+@keyframes mode-fade {
+  from {
+    opacity: 0;
+  }
+}
+.mode-fade {
+  animation: mode-fade 200ms ease-out;
 }
 
 /* Honor the OS motion setting: no transitions or animations, no smooth scrolling. */
