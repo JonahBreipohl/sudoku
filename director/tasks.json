@@ -3049,8 +3049,8 @@
         "No inline user-facing template literals left in analysisCopy.ts",
         "check and e2e pass"
       ],
-      "status": "todo",
-      "attempts": 0
+      "status": "in_progress",
+      "attempts": 1
     }
   ]
 }
