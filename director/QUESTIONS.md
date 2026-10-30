@@ -69,4 +69,4 @@ Tooling repairs). Proposal for Starting Prompt.txt step 1: before checking for d
 this is changed, runs that see "unrelated histories" should do that by hand under the existing
 tooling-repair rule.
 
-Answer:
+Answer: Yes. Done 2026-10-28: scripts/sync-trunk.sh now always unshallows first, and Starting Prompt.txt step 1 runs it and defines divergence by the merge base.

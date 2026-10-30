@@ -1,17 +1,18 @@
 {
   "trunk": "main",
-  "run_budget_usd": 10,
-  "weekly_budget_usd": 100,
+  "plan_budget": {
+    "five_hour_pct": 60,
+    "seven_day_pct": 85,
+    "usd_per_pct_prior": { "five_hour": 0.1, "seven_day": 1.0 },
+    "readings_used": 5,
+    "live_max_age_minutes": 30
+  },
   "wrapup_reserve_usd": 0.5,
   "director_overhead_usd": 0.5,
   "min_finish_probability": 0.8,
   "max_tasks_per_run": 6,
   "max_parallel": 1,
   "max_run_minutes": 150,
-  "plan_usage_ceilings": {
-    "five_hour_pct": 80,
-    "seven_day_pct": 85
-  },
   "allow_fable": false,
   "size_priors_usd": {
     "haiku": { "S": 0.05, "M": 0.15 },

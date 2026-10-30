@@ -49,8 +49,13 @@ Verified on the setup session (b3030e86-...), with one web-fetch subagent.
 ## Plan-usage signal
 
 `~/.claude/plan-usage.json` does not exist yet. It appears once the owner enables
-`scripts/statusline-snapshot.sh` as their status line (director/README.md). Until then the
-plan-usage ceilings are not checked; usage-limit errors still stop a run.
+`scripts/statusline-snapshot.sh` as their status line (director/README.md). Until then
+`scripts/plan-budget.mjs` runs in estimate mode.
+
+Checked in a cloud session on 2026-10-28: cloud sessions have no way to read plan percentages.
+No status line runs, the transcript and debug logs carry no rate-limit fields, headless
+`claude -p /usage` reports only session cost, and there is no OAuth token for the usage endpoint.
+So cloud runs always estimate (director/README.md, "Plan-usage budget").
 
 ## Cloud runs
 
@@ -68,8 +73,8 @@ What the environment provides (from the docs, not yet verified by a run):
 - Setup script (cached when it finishes in about 5 minutes):
   `npx -y playwright@1.64.1 install --with-deps chromium`. Keep that version in step with
   `@playwright/test` in package.json; a mismatch shows up as "browser not found" in e2e.
-- No `~/.claude/plan-usage.json` (expected), so plan-usage ceilings aren't checked; usage-limit
-  errors still stop a run.
+- No `~/.claude/plan-usage.json` (expected), so the plan budget is estimated from the Director's
+  own spend; usage-limit errors still stop a run.
 
 **First cloud run results (2026-10-24)**: usage.mjs works in the cloud; transcripts are under `~/.claude/projects/-home-user-sudoku/<session>/` with subagents in `subagents/`, and it reports the Director and each subagent. `npm ci`, check and build work; e2e not exercised yet (no UI task). Run took ~15 minutes for six S tasks.
 
@@ -78,6 +83,27 @@ why), where transcripts live and whether `node scripts/usage.mjs --since <run_st
 Director and subagents, and how long the run took.
 
 ## Tooling repairs
+
+- 2026-10-30: the 10-28 stop came from the scheduled task's own prompt, which did a plain
+  `git fetch` + `git merge --ff-only` before Starting Prompt.txt (and the repo's sync script) was
+  read. The container's checkout was stale (03e34f5, 2026-10-27) and shallow, so it looked
+  unrelated; the "66 local commits" were all already in origin/main (backup/local-main-20261028
+  holds nothing unique). The scheduled task's prompt now unshallows first, fast-forwards when main
+  is an ancestor of origin/main, and otherwise renames the stale main (pushing it as a backup only
+  if it has unique commits) and checks out origin/main. Step 1 of Starting Prompt.txt matches.
+  Tested on a stale depth-1 clone at 03e34f5 and on a truly diverged one.
+
+- 2026-10-28: run "stopped 20261028-run" reported unrelated histories again (66 ahead, 64 behind,
+  no merge base) even though the hook existed; it only unshallowed after a failure, and the
+  Director's own sync in step 1 didn't use it. sync-trunk.sh now unshallows every time (about a
+  second), and step 1 of Starting Prompt.txt runs it and treats only a merge base that is neither
+  tip as divergence. Verified on a stale depth-1 clone 70 commits behind: plain ff fails with
+  "unrelated histories"; sync-trunk.sh fast-forwards it.
+
+- 2026-10-28: budget switched from dollars (run_budget_usd, weekly_budget_usd) to percent of the
+  plan's windows (config plan_budget; scripts/plan-budget.mjs). director/runs.jsonl was backfilled
+  from ledger.jsonl (per-run sum of actual + review + overhead; start from run_id in UTC; end
+  approximated from task minutes), so it omits Director overhead of runs that dispatched nothing.
 
 - 2026-10-26: "trunk diverged / unrelated histories" was a shallow-clone artifact, not a real
   divergence. The cloud checkout was stale and shallow, so `git fetch` brought in origin/main

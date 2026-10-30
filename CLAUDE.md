@@ -22,6 +22,7 @@ rendered or self-solving puzzle, and today's stats). Static site, no backend.
 | `npm run test:slow` | Slow generator suite (Hard 10-seed headroom assertion); run in CI as its own job. |
 | `npx tsx scripts/sweep-attempts.ts` | Sweep generator attempt counts to check headroom (M3-02a tooling). |
 | `node scripts/usage.mjs --since <ISO>` | Usage and cost from transcripts (Director tooling). |
+| `node scripts/plan-budget.mjs --since <ISO>` | Room left in the plan's 5-hour and 7-day usage windows (Director tooling). |
 
 Run checks with quiet output and read failures, not passing output.
 

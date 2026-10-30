@@ -18,3 +18,6 @@
 
 ## Projection
 - 1 task left to finish plus M10-09 (blocked): well under 1 run at the $10 budget.
+
+## Update run 20261028-0609
+M10-05 still resume (attempt 2 partial, branch pushed). Only remaining ready task. M10-09 blocked on Q1. Run spend ~0.17; 116/118 tasks done.

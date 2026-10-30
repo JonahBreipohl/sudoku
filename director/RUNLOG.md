@@ -376,3 +376,8 @@ run 20261028-0524 (~12 min): shallow clone, in sync. Trunk green (722 tests).
 - M10-05 (chore-dev, haiku S): partial, need 0.1, actual ~0.06. strings.ts created, 5 components migrated, check 722 + e2e 275 green on task/M10-05 (pushed). Set resume with handoff.
 Spend ~0.35 of $10. Next up: M10-05 (resume).
 - Addendum: M10-05 subagent kept working after wrap-up; branch now has 6612bfa (SubmitDialog, SettingsDialog migrated), pushed. Still resume.
+
+run 20261028-0609 (~15 min): shallow clone (unshallowed), in sync. Trunk green (722 tests).
+- M10-05 (chore-dev, haiku S, attempt 2): partial, need 0.1, actual 0.03, overhead ~0.14. Check 722, build, e2e 275 green on task/M10-05 (pushed). Remaining: Board/Cell/analysisCopy/TodayStats leftovers plus the light copy edits. Set resume.
+Spend ~0.17 of $10. Next up: M10-05 (resume). M10-09 stays blocked on Q1.
+stopped 20261028-run: local main has unrelated history to origin/main (66 ahead, 64 behind, no merge base); cannot fast-forward trunk safely, no tasks run. Needs owner to re-clone or reset the scheduler checkout.
