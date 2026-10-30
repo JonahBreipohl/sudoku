@@ -1,5 +1,6 @@
 import type { Grid } from "../engine";
 import { checkMessage } from "../state/check";
+import { unitLabel, type CompletedUnit } from "./unitComplete";
 
 export interface BoardView {
   board: Grid;
@@ -28,3 +29,5 @@ export const describeCheck = (mistakes: number) => `Check: ${checkMessage(mistak
 
 export const describeSubmit = (result: "solved" | "incorrect") =>
   result === "solved" ? "Puzzle complete. Every cell is correct." : "Submitted. The board has mistakes.";
+
+export const describeUnits = (units: readonly CompletedUnit[]) => units.map(unitLabel).join(". ") + ".";

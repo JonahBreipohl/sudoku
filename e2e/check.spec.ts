@@ -82,3 +82,14 @@ test("Check is operable from the keyboard with visible focus", async ({ page }) 
   await expect(button).toBeFocused();
   await noAxeViolations(page);
 });
+
+test("completing a row sweeps it once and announces it", async ({ page }) => {
+  await open(page);
+  const row = Math.floor(blanks[0]! / 9);
+  const inRow = blanks.filter((b) => Math.floor(b / 9) === row);
+  for (const cell of inRow) await enter(page, cell, right(cell));
+  await expect(page.locator('[role="gridcell"][data-sweep]').first()).toBeAttached();
+  await expect(page.locator('[aria-live="polite"]')).toContainText(`Row ${row + 1} complete`);
+  // Gone again shortly after, so it never replays on its own.
+  await expect(page.locator('[role="gridcell"][data-sweep]')).toHaveCount(0, { timeout: 3000 });
+});

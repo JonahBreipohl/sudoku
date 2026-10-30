@@ -62,7 +62,8 @@ import {
   tapForLockedDigit,
 } from "./inputMode";
 import { moveSelection } from "./selection";
-import { describeChange, describeCheck, describeSubmit } from "./announce";
+import { describeChange, describeCheck, describeSubmit, describeUnits } from "./announce";
+import { unitsCompletedBy } from "./unitComplete";
 import { useSettings } from "./useSettings";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { GameProvider, useGame } from "./useGame";
@@ -513,11 +514,38 @@ function Game({
   // results are announced by their own handler. Resume/new-game remounts start with a fresh baseline.
   const [announcement, setAnnouncement] = useState("");
   const prevView = useRef({ board, conflicts });
+  const prevNodeCount = useRef(game.record.nodes.length);
+  // Cells of units a placement just completed, mapped to their sweep order. Alternating the
+  // phase restarts the CSS animation when two moves in a row complete units.
+  const [sweep, setSweep] = useState<{ order: ReadonlyMap<number, number>; phase: 0 | 1 } | null>(null);
+  const sweepPhase = useRef<0 | 1>(0);
   useEffect(() => {
-    const msg = describeChange(prevView.current, { board, conflicts });
+    const prev = prevView.current;
+    let msg = describeChange(prev, { board, conflicts });
     prevView.current = { board, conflicts };
+    const { nodes, cursor } = game.record;
+    const last = nodes[cursor];
+    const grew = nodes.length > prevNodeCount.current;
+    prevNodeCount.current = nodes.length;
+    // Only a freshly appended place node sweeps: load, undo, redo and rewind move the cursor
+    // over existing nodes without growing the tree.
+    if (grew && last?.type === "place" && cursor === nodes.length - 1) {
+      const units = unitsCompletedBy(prev.board, board, conflicts, last.cell);
+      if (units.length > 0) {
+        const order = new Map<number, number>();
+        for (const u of units) u.cells.forEach((c, i) => order.set(c, Math.min(order.get(c) ?? i, i)));
+        sweepPhase.current = sweepPhase.current === 0 ? 1 : 0;
+        setSweep({ order, phase: sweepPhase.current });
+        msg = `${msg ?? ""} ${describeUnits(units)}`.trim();
+      }
+    }
     if (msg) setAnnouncement(msg);
-  }, [board, conflicts]);
+  }, [board, conflicts, game.record]);
+  useEffect(() => {
+    if (!sweep) return;
+    const t = window.setTimeout(() => setSweep(null), 800);
+    return () => window.clearTimeout(t);
+  }, [sweep]);
 
   const submitted = game.record.status === "submitted";
   const [resultDismissed, setResultDismissed] = useState(false);
@@ -783,6 +811,7 @@ function Game({
             marks={previewMarks ?? hintMarks}
             preview={preview !== null}
             solved={solvedGame && preview === null}
+            sweep={preview ? null : sweep}
             onSelect={preview ? noop : onSelectCell}
             lockedDigit={entry.locked}
           />
