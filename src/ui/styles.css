@@ -25,6 +25,8 @@
   --mark-support-bg: #e9dff7;
   --hint: #0b6b5d;
   --hint-bg: #d3f0e9;
+  --hover: #ebe8df;
+  --press: #dcd8cc;
 
   --gutter: 16px;
   --radius: 8px;
@@ -61,6 +63,8 @@
     --mark-support-bg: #3d2f5c;
     --hint: #6fdcc6;
     --hint-bg: #1b4a43;
+    --hover: #2d3139;
+    --press: #383d47;
     color-scheme: dark;
   }
 }
@@ -91,6 +95,8 @@
   --mark-support-bg: #3d2f5c;
   --hint: #6fdcc6;
   --hint-bg: #1b4a43;
+  --hover: #2d3139;
+  --press: #383d47;
   color-scheme: dark;
 }
 
@@ -921,6 +927,36 @@ button {
   background: var(--surface);
   color: var(--text);
   font: inherit;
+}
+
+/* Press and hover feedback. Only colors and transform animate, so nothing reflows.
+   Hover is limited to fine pointers so touch taps never leave a stuck hover tint. */
+.ctl,
+.pad-key,
+.cell {
+  transition:
+    background-color 120ms ease-out,
+    border-color 120ms ease-out,
+    box-shadow 120ms ease-out,
+    transform 120ms ease-out;
+}
+@media (hover: hover) and (pointer: fine) {
+  .ctl:hover:not(:disabled):not([aria-disabled="true"]),
+  .pad-key:hover:not(:disabled):not([aria-disabled="true"]) {
+    background-color: var(--hover);
+  }
+  .cell:hover:not(.cell--selected, .cell--same, .cell--conflict, .cell--mark-root, .cell--mark-support, .cell--mark-hint, .cell--mark-hint-unit) {
+    background-color: var(--hover);
+  }
+}
+.ctl:active:not(:disabled):not([aria-disabled="true"]),
+.pad-key:active:not(:disabled):not([aria-disabled="true"]) {
+  background-color: var(--press);
+  transform: scale(0.96);
+}
+.cell:active {
+  background-color: var(--press);
+  transform: scale(0.97);
 }
 
 /* Honor the OS motion setting: no transitions or animations, no smooth scrolling. */
