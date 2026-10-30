@@ -1036,6 +1036,23 @@ button {
   }
 }
 
+/* Pad finish flourish: the key swells once while its check fades in, then settles into the
+   done state. Remaining counts fade on change. Transform and opacity only, so nothing reflows;
+   no-preference gating means reduced motion gets none (the global clamp backs that up). */
+@keyframes pad-finish {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
+}
+@keyframes pad-check-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .pad-key--flourish { animation: pad-finish 300ms ease-in-out; }
+  .pad-key--flourish .pad-count { animation: pad-check-in 300ms ease-out; }
+  .pad-count[data-fade] { animation: pad-check-in 150ms ease-out; }
+}
+
 /* Analysis report */
 .analysis {
   padding: 8px 12px;

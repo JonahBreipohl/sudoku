@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { CellValue } from "../../engine";
 import { createGameStore, newGameRecord } from "../../state/store";
 import { SAMPLE_EASY } from "../../engine/samples";
-import { remainingCounts } from "./Pad";
+import { finishedDigits, remainingCounts } from "./Pad";
 
 describe("remainingCounts", () => {
   it("counts givens and clamps at zero", () => {
@@ -27,5 +27,19 @@ describe("remainingCounts", () => {
     expect(remainingCounts(store.getSnapshot().board)[4]).toBe(before[4]! - 1);
     store.dispatch({ type: "erase", cell: empty });
     expect(remainingCounts(store.getSnapshot().board)[4]).toBe(before[4]);
+  });
+});
+
+describe("finishedDigits", () => {
+  it("needs nine conflict-free copies", () => {
+    const board: CellValue[] = new Array<CellValue>(81).fill(0);
+    for (let i = 0; i < 9; i++) board[i * 9 + i] = 5; // diagonal: one per row, col
+    expect(finishedDigits(board).has(5)).toBe(false); // boxes repeat
+    const ok: CellValue[] = new Array<CellValue>(81).fill(0);
+    const cols = [0, 3, 6, 1, 4, 7, 2, 5, 8];
+    cols.forEach((c, r) => (ok[r * 9 + c] = 5));
+    expect(finishedDigits(ok).has(5)).toBe(true);
+    ok[1] = 5; // tenth copy
+    expect(finishedDigits(ok).has(5)).toBe(false);
   });
 });
