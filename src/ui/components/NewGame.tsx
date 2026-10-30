@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import type { Level } from "../../engine/step";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { NewGameDialog, levelLabel } from "./NewGameDialog";
+import { common, newGame as t } from "../strings";
 
 interface NewGameProps {
   pending: boolean;
@@ -27,7 +28,7 @@ export function NewGame({ pending, inProgress, onNewGame, onDaily, isDailySolved
   }, [open]);
 
   return (
-    <div className="new-game" role="group" aria-label="New game">
+    <div className="new-game" role="group" aria-label={t.group}>
       {/* aria-disabled rather than disabled, so focus stays on the button while generating. */}
       <button
         ref={button}
@@ -41,10 +42,10 @@ export function NewGame({ pending, inProgress, onNewGame, onDaily, isDailySolved
           if (!pending) setChoosing(true);
         }}
       >
-        New game
+        {t.button}
       </button>
       <span role="status" className="new-game-status">
-        {pending ? <><span aria-hidden="true">⏳ </span>Generating…</> : ""}
+        {pending ? <><span aria-hidden="true">⏳ </span>{t.generating}</> : ""}
       </span>
       {choosing && (
         <NewGameDialog
@@ -64,10 +65,10 @@ export function NewGame({ pending, inProgress, onNewGame, onDaily, isDailySolved
       )}
       {confirm !== null && (
         <ConfirmDialog
-          title="Abandon this game?"
-          message={`Starting ${confirm === "daily" ? "the daily puzzle" : `a new ${levelLabel(confirm)} game`} discards your progress on this puzzle. It is kept in your history as abandoned.`}
-          confirmLabel="Abandon and start new"
-          cancelLabel="Keep playing"
+          title={t.abandonTitle}
+          message={t.abandonMessage(confirm === "daily" ? t.dailyTarget : t.newLevelTarget(levelLabel(confirm)))}
+          confirmLabel={t.abandonConfirm}
+          cancelLabel={common.keepPlaying}
           onCancel={() => setConfirm(null)}
           onConfirm={() => {
             const level = confirm;

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { display } from "../strings";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
 import { useDrift } from "./useDrift";
@@ -45,7 +46,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   return (
     <div className="display" data-night={night ? "true" : undefined}>
       <main className="display-body" style={{ "--drift-x": `${dx}px`, "--drift-y": `${dy}px` } as React.CSSProperties}>
-        <h1 className="sr-only">Display mode</h1>
+        <h1 className="sr-only">{display.heading}</h1>
         <div className="display-clock">
           <p className="display-time">{formatClockSeconds(now)}</p>
           <p className="display-date">{formatLongDate(now)}</p>

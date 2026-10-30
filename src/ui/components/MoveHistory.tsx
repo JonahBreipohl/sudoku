@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import type { BoardEvent } from "../../state/events";
+import { history } from "../strings";
 import { branchesAtStart, historyEntries } from "../moveHistory";
 
 export function MoveHistory({ nodes, cursor }: { nodes: readonly BoardEvent[]; cursor: number }) {
@@ -8,12 +9,12 @@ export function MoveHistory({ nodes, cursor }: { nodes: readonly BoardEvent[]; c
   return (
     <section className="history" aria-labelledby="history-title">
       <h2 id="history-title" className="panel-title">
-        Moves
+        {history.title}
       </h2>
       {/* Focusable so keyboard users can scroll a long list. */}
-      <div className="history-scroll" tabIndex={0} role="region" aria-label="Move history, newest first">
+      <div className="history-scroll" tabIndex={0} role="region" aria-label={history.scroll}>
         {entries.length === 0 ? (
-          <p className="history-empty">No moves yet.</p>
+          <p className="history-empty">{history.empty}</p>
         ) : (
           <ol className="history-list">
             {entries.map((e) => (
@@ -24,20 +25,20 @@ export function MoveHistory({ nodes, cursor }: { nodes: readonly BoardEvent[]; c
               >
                 <span className="history-step">{e.step}.</span>
                 <span className="history-text">{e.text}</span>
-                {e.undone && <span className="history-tag">undone</span>}
-                {e.current && <span className="history-tag">now</span>}
+                {e.undone && <span className="history-tag">{history.undone}</span>}
+                {e.current && <span className="history-tag">{history.now}</span>}
                 {e.branchPoint && (
                   <span className="history-tag" data-testid="branch-point">
-                    branch point
+                    {history.branchPoint}
                   </span>
                 )}
               </li>
             ))}
             {atStart && (
               <li className="history-item">
-                <span className="history-text">Start</span>
+                <span className="history-text">{history.start}</span>
                 <span className="history-tag" data-testid="branch-point">
-                  branch point
+                  {history.branchPoint}
                 </span>
               </li>
             )}

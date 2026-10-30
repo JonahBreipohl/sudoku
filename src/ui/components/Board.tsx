@@ -1,6 +1,7 @@
 import { type CandidateMask, type Grid } from "../../engine";
 import { highlightsFor } from "../highlight";
 import { Cell, type CellMark } from "./Cell";
+import { boardLabels } from "../strings";
 
 interface BoardProps {
   givens: Grid;
@@ -27,7 +28,7 @@ export function Board({ givens, board, notes, selected, conflicts, wrong, marks,
   const highlights = highlightsFor({ board, notes, conflicts }, selected, lockedDigit);
 
   return (
-    <div className="board" role="grid" aria-label={preview ? "Sudoku board, preview of an earlier move" : "Sudoku board"}
+    <div className="board" role="grid" aria-label={preview ? boardLabels.preview : boardLabels.grid}
       data-preview={preview ? "" : undefined} data-solved={solved ? "" : undefined}>
       {ROWS.map((r) => (
         <div className="board-row" role="row" key={r}>

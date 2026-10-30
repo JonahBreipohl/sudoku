@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { formatWallClock } from "../clock";
+import { clock } from "../strings";
 import { useSecondTick } from "../useSecondTick";
 
 function pageVisible(): boolean {
@@ -18,7 +19,7 @@ export function WallClock() {
   const now = useSecondTick(visible);
   return (
     <p className="panel-clock">
-      <span className="panel-label">Clock</span>
+      <span className="panel-label">{clock.label}</span>
       <span className="panel-time">{formatWallClock(now)}</span>
     </p>
   );

@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { checkMessage } from "../../state/check";
 import { ConfirmDialog } from "./ConfirmDialog";
+import { common, controls as t } from "../strings";
 
 interface ControlsProps {
   canUndo: boolean;
@@ -74,18 +75,18 @@ export function Controls({
   }, [resultOpen]);
   if (paused) return null;
   return (
-    <div className="controls" role="group" aria-label="Game controls">
+    <div className="controls" role="group" aria-label={t.group}>
       <button type="button" className="ctl" disabled={!canUndo || submitted} onClick={onUndo} aria-keyshortcuts="Control+Z">
-        <span aria-hidden="true">↶</span> Undo
+        <span aria-hidden="true">↶</span> {t.undo}
       </button>
       <button type="button" className="ctl" disabled={!canRedo || submitted} onClick={onRedo} aria-keyshortcuts="Control+Shift+Z">
-        <span aria-hidden="true">↷</span> Redo
+        <span aria-hidden="true">↷</span> {t.redo}
       </button>
       <button ref={resetButton} type="button" className="ctl" disabled={!canUndo || submitted} aria-haspopup="dialog" onClick={() => setConfirming(true)}>
-        <span aria-hidden="true">⟲</span> Reset
+        <span aria-hidden="true">⟲</span> {t.reset}
       </button>
       <button type="button" className="ctl" onClick={onPause} aria-keyshortcuts="P">
-        <span aria-hidden="true">❚❚</span> Pause
+        <span aria-hidden="true">❚❚</span> {t.pause}
       </button>
       <button
         type="button"
@@ -94,29 +95,29 @@ export function Controls({
         onClick={onToggleNotes}
         aria-keyshortcuts="N"
       >
-        <span aria-hidden="true">{active ? "✎" : "○"}</span> Notes: {active ? "On" : "Off"}
-        {shiftHeld && !notesMode ? " (Shift)" : ""}
+        <span aria-hidden="true">{active ? "✎" : "○"}</span> {t.notes} {active ? common.on : common.off}
+        {shiftHeld && !notesMode ? t.shiftSuffix : ""}
       </button>
       <button type="button" className={digitFirst ? "ctl ctl--on" : "ctl"} aria-pressed={digitFirst} onClick={onToggleEntry}>
-        <span aria-hidden="true">{digitFirst ? "◉" : "○"}</span> Digit-first: {digitFirst ? "On" : "Off"}
+        <span aria-hidden="true">{digitFirst ? "◉" : "○"}</span> {t.digitFirst} {digitFirst ? common.on : common.off}
       </button>
       <button type="button" className="ctl" onClick={onAutoNotes}>
-        Fill notes
+        {t.fillNotes}
       </button>
       <button type="button" className={autoCandidates ? "ctl ctl--on" : "ctl"} aria-pressed={autoCandidates} onClick={onToggleAuto}>
-        <span aria-hidden="true">{autoCandidates ? "☑" : "☐"}</span> Auto-candidates: {autoCandidates ? "On" : "Off"}
+        <span aria-hidden="true">{autoCandidates ? "☑" : "☐"}</span> {t.autoCandidates} {autoCandidates ? common.on : common.off}
       </button>
       <button type="button" className="ctl" onClick={onCheck}>
-        Check
+        {t.check}
       </button>
       {hintButton}
       {submitted ? (
         <button ref={resultButton} type="button" className="ctl" aria-haspopup="dialog" onClick={onViewResult}>
-          <span aria-hidden="true">✓</span> View result
+          <span aria-hidden="true">✓</span> {t.viewResult}
         </button>
       ) : (
         <button type="button" className="ctl" aria-haspopup="dialog" onClick={() => setSubmitting(true)}>
-          <span aria-hidden="true">✓</span> Submit
+          <span aria-hidden="true">✓</span> {t.submit}
         </button>
       )}
       <div role="status" className={checkResult ? (checkResult.mistakes === 0 ? "check-status check-status--ok" : "check-status check-status--bad") : "check-status"}>
@@ -124,10 +125,10 @@ export function Controls({
       </div>
       {submitting && (
         <ConfirmDialog
-          title="Submit this puzzle?"
-          message="Submitting is final: the clock stops and the board is locked."
-          confirmLabel="Submit"
-          cancelLabel="Keep playing"
+          title={t.submitTitle}
+          message={t.submitMessage}
+          confirmLabel={t.submit}
+          cancelLabel={common.keepPlaying}
           onCancel={() => setSubmitting(false)}
           onConfirm={() => {
             setSubmitting(false);
@@ -137,10 +138,10 @@ export function Controls({
       )}
       {confirming && (
         <ConfirmDialog
-          title="Reset this puzzle?"
-          message="This clears every digit and note back to the givens. You can undo the reset afterwards."
-          confirmLabel="Reset"
-          cancelLabel="Keep playing"
+          title={t.resetTitle}
+          message={t.resetMessage}
+          confirmLabel={t.resetConfirm}
+          cancelLabel={common.keepPlaying}
           onCancel={() => setConfirming(false)}
           onConfirm={() => {
             setConfirming(false);

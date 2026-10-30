@@ -1,17 +1,10 @@
 import type { PuzzleParseFailure } from "../engine";
+import { importErrors } from "./strings";
 
 export type ImportFailure = PuzzleParseFailure | "ungradable" | "worker";
 
-/** Player-facing wording for each codec failure; each says what to fix. */
-export const IMPORT_ERRORS: Record<ImportFailure, string> = {
-  "wrong-length": "A puzzle needs exactly 81 cells (digits, with . or 0 for blanks).",
-  "invalid-characters": "Only the digits 0-9 and . are allowed in a puzzle.",
-  "rule-conflict": "Two equal digits share a row, column or box in this puzzle.",
-  "no-solution": "This puzzle has no solution.",
-  "multiple-solutions": "This puzzle has more than one solution, so it cannot be played.",
-  ungradable: "This puzzle is valid but too hard for the built-in grader, so it cannot be rated.",
-  worker: "The puzzle could not be checked. Please try again.",
-};
+/** Wording lives in strings.ts; re-exported here for the import flow. */
+export const IMPORT_ERRORS: Record<ImportFailure, string> = importErrors as Record<ImportFailure, string>;
 
 export type CopyOutcome = "copied" | "manual";
 

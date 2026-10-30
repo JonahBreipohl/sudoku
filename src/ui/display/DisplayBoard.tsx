@@ -1,6 +1,7 @@
 import { maskDigits } from "../../engine";
 import { cellLabel } from "../components/Cell";
 import { useGame } from "../useGame";
+import { display } from "../strings";
 
 const IDX = Array.from({ length: 9 }, (_, i) => i);
 const NOTE_SLOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;
@@ -10,7 +11,7 @@ export function DisplayBoard() {
   const { game } = useGame();
   return (
     <BoardView
-      label="Current game, read only"
+      label={display.boardLabel}
       board={game.board}
       givens={game.givens}
       notes={game.notes}

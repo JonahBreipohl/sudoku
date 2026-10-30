@@ -1,6 +1,7 @@
 import { memo, useEffect } from "react";
 import { maskDigits, colOf, rowOf, type CandidateMask } from "../../engine";
 import { recordCellCommit } from "../renderProbe";
+import { cellLabels } from "../strings";
 
 export type CellMark = "root" | "support" | "hint" | "hint-unit";
 
@@ -23,14 +24,14 @@ export interface CellProps {
 }
 
 export function cellLabel(cell: number, value: number, given: boolean, notes: CandidateMask, conflict: boolean, wrong = false, mark?: CellMark): string {
-  const where = `Row ${rowOf(cell) + 1}, column ${colOf(cell) + 1}`;
+  const where = cellLabels.position(rowOf(cell) + 1, colOf(cell) + 1);
   let what: string;
-  if (value !== 0) what = `${value}${given ? ", given" : ""}`;
+  if (value !== 0) what = `${value}${given ? `, ${cellLabels.given}` : ""}`;
   else {
     const digits = maskDigits(notes);
-    what = digits.length > 0 ? `empty, notes ${digits.join(" ")}` : "empty";
+    what = digits.length > 0 ? `${cellLabels.empty}, ${cellLabels.notes(digits.join(" "))}` : cellLabels.empty;
   }
-  return `${where}, ${what}${conflict ? ", conflict" : ""}${wrong ? ", wrong" : ""}${mark === "root" ? ", mistake" : mark === "support" ? ", reason for mistake" : ""}`;
+  return `${where}, ${what}${conflict ? `, ${cellLabels.conflict}` : ""}${wrong ? `, ${cellLabels.wrong}` : ""}${mark === "root" ? `, ${cellLabels.mistake}` : mark === "support" ? `, ${cellLabels.reasonForMistake}` : ""}`;
 }
 
 const NOTE_SLOTS = [1, 2, 3, 4, 5, 6, 7, 8, 9] as const;

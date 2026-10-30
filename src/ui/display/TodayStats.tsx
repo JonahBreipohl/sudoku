@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { display } from "../strings";
 import { createLocalStoragePersistence } from "../../state/persistence";
 import { todayStats } from "../../state/today";
 import { formatElapsed } from "../clock";
@@ -17,15 +18,14 @@ export function TodayStats({ now }: { now: number }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [minute, status],
   );
-  const none = "–";
   const items: [string, string][] = [
-    ["Solved today", String(stats.solved)],
-    ["Total time", stats.solved ? formatElapsed(stats.totalMs) : none],
-    ["Best time", stats.bestMs === null ? none : formatElapsed(stats.bestMs)],
-    ["Streak", `${stats.streak} ${stats.streak === 1 ? "day" : "days"}`],
+    [display.solvedToday, String(stats.solved)],
+    [display.totalTime, stats.solved ? formatElapsed(stats.totalMs) : display.none],
+    [display.bestTime, stats.bestMs === null ? display.none : formatElapsed(stats.bestMs)],
+    [display.streak, `${stats.streak} ${stats.streak === 1 ? display.day : display.days}`],
   ];
   return (
-    <section className="display-stats" aria-label="Today's stats">
+    <section className="display-stats" aria-label={display.statsLabel}>
       <dl>
         {items.map(([label, value]) => (
           <div key={label} className="display-stat">

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef } from "react";
 import { SHORTCUT_GROUPS } from "../keyboard";
+import { shortcuts } from "../strings";
 
 /**
  * Keyboard reference on the native <dialog>: showModal() makes the page inert and traps focus,
@@ -29,7 +30,7 @@ export function ShortcutsDialog({ onClose }: { onClose: () => void }) {
       }}
     >
       <h2 id={titleId} className="dialog-title">
-        Keyboard shortcuts
+        {shortcuts.title}
       </h2>
       {SHORTCUT_GROUPS.map((group) => (
         <section key={group.title} className="shortcuts-group">
@@ -50,7 +51,7 @@ export function ShortcutsDialog({ onClose }: { onClose: () => void }) {
       ))}
       <div className="dialog-actions">
         <button type="button" className="ctl dialog-confirm" autoFocus onClick={onClose}>
-          Close
+          {shortcuts.close}
         </button>
       </div>
     </dialog>

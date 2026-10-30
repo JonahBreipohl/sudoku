@@ -1,6 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { dailyLevel } from "../../state/daily";
 import { LEVELS, type Level } from "../../engine/step";
+import { common, newGameDialog as t } from "../strings";
 
 interface NewGameDialogProps {
   onStart: (level: Level) => void;
@@ -38,21 +39,21 @@ export function NewGameDialog({ onStart, onDaily, dailySolved = false, onCancel 
       }}
     >
       <h2 id={titleId} className="dialog-title">
-        Choose a difficulty
+        {t.title}
       </h2>
       {dailySolved ? (
         <button type="button" className="ctl daily-start" aria-disabled="true" data-daily-solved>
           <span aria-hidden="true">✓ </span>
-          Daily puzzle solved today. Next one tomorrow.
+          {t.dailySolved}
         </button>
       ) : (
         <button type="button" className="ctl daily-start" onClick={onDaily}>
           <span aria-hidden="true">★ </span>
-          Daily puzzle ({levelLabel(dailyLevel(new Date()))} today)
+          {t.daily(levelLabel(dailyLevel(new Date())))}
         </button>
       )}
       <fieldset className="level-list">
-        <legend className="sr-only">Difficulty</legend>
+        <legend className="sr-only">{t.legend}</legend>
         {LEVELS.map((l) => (
           <label key={l} className={l === level ? "level-option level-option--on" : "level-option"}>
             <input type="radio" name="level" value={l} checked={l === level} onChange={() => setLevel(l)} />
@@ -62,10 +63,10 @@ export function NewGameDialog({ onStart, onDaily, dailySolved = false, onCancel 
       </fieldset>
       <div className="dialog-actions">
         <button type="button" className="ctl" onClick={onCancel}>
-          Cancel
+          {common.cancel}
         </button>
         <button type="button" className="ctl dialog-confirm" onClick={() => onStart(level)}>
-          Start game
+          {t.start}
         </button>
       </div>
     </dialog>

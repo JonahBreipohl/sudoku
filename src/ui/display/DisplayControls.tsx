@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { display } from "../strings";
 import { createWakeLock, fullscreenSupported, wakeLockSupported, type WakeLockController } from "./wakeLock";
 
 function isFullscreen(): boolean {
@@ -53,12 +54,12 @@ export function DisplayControls() {
     <div className="display-controls">
       {canFullscreen && (
         <button type="button" className="ctl" aria-pressed={full} onClick={toggleFull}>
-          {full ? "Fullscreen: on" : "Fullscreen: off"}
+          {full ? display.fullscreenOn : display.fullscreenOff}
         </button>
       )}
       {canWake && (
         <button type="button" className="ctl" aria-pressed={wanted} onClick={toggleWake}>
-          {wanted ? (awake ? "Keep awake: on" : "Keep awake: waiting") : "Keep awake: off"}
+          {wanted ? (awake ? display.keepAwakeOn : display.keepAwakeWaiting) : display.keepAwakeOff}
         </button>
       )}
     </div>

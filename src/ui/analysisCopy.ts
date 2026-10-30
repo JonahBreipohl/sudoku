@@ -4,12 +4,11 @@
 import { cellName, techniqueInfo } from "../engine";
 import type { CascadeMove, MistakeReport } from "../analysis/report";
 import type { SolveReport } from "../analysis/solve";
+import { analysis, analysisCopy } from "./strings";
 
 type Root = NonNullable<MistakeReport["root"]>;
 
 const list = (cells: readonly number[]): string => cells.map(cellName).join(", ");
-
-const LAYOUT: Record<string, string> = { pad: "the on-screen pad", "number-row": "the number row", numpad: "the numpad" };
 
 /** What the player did, e.g. "You placed 4 in r3c5." */
 export function describeMistake(m: Root["mistake"]): string {
@@ -28,7 +27,7 @@ export function describeDiagnosis(root: Root): string {
     case "conflict":
       return `${m.digit} was already placed in ${list(d.conflictCells)}, which sees ${cell}. The conflict was visible on the board.`;
     case "typo":
-      return `This looks like a slip of the finger: it came ${(d.gapMs / 1000).toFixed(1)} s after your previous move, and ${m.digit} is next to ${d.intended} on ${LAYOUT[d.layout] ?? "the keys"}.`;
+      return `This looks like a slip of the finger: it came ${(d.gapMs / 1000).toFixed(1)} s after your previous move, and ${m.digit} is next to ${d.intended} on ${analysisCopy.layout[d.layout] ?? analysisCopy.layout.keys}.`;
     case "guess":
       return d.stepsTried === 0
         ? `No step at your level led to ${cell} at that point, so this was a guess.`
@@ -45,7 +44,7 @@ export function describeDiagnosis(root: Root): string {
 
 /** The step that was available instead, or a line saying none applied. */
 export function describeAlternative(alt: MistakeReport["alternative"]): string {
-  if (!alt) return "No step at your level was available at that point.";
+  if (!alt) return analysis.noAlternative;
   return `${techniqueInfo(alt.technique).name}: ${alt.explanation}`;
 }
 
@@ -57,36 +56,40 @@ export function describeCascade(c: CascadeMove): string {
 export function formatDuration(ms: number): string {
   const s = Math.round(ms / 1000);
   const m = Math.floor(s / 60);
-  return m > 0 ? `${m} min ${s % 60} s` : `${s} s`;
+  return m > 0 ? analysisCopy.minutes(m, s % 60) : analysisCopy.seconds(s);
 }
 
 /** Lines of the correct-solve analysis. */
 export function solveSummary(r: SolveReport): { label: string; value: string }[] {
   const rows = [
-    { label: "Active time", value: formatDuration(r.time.activeMs) },
-    { label: "Paused time", value: formatDuration(r.time.pausedMs) },
+    { label: analysisCopy.activeTime, value: formatDuration(r.time.activeMs) },
+    { label: analysisCopy.pausedTime, value: formatDuration(r.time.pausedMs) },
     {
-      label: "By phase",
-      value: r.time.phases.map((p, i) => `${["Start", "Middle", "End"][i]} ${formatDuration(p)}`).join(", "),
+      label: analysisCopy.byPhase,
+      value: r.time.phases.map((p, i) => `${analysisCopy.phases[i]} ${formatDuration(p)}`).join(", "),
     },
     {
-      label: "Hardest technique",
-      value: r.hardest ? `${techniqueInfo(r.hardest.technique).name} (${cellName(r.hardest.cell)})` : "None needed",
+      label: analysisCopy.hardest,
+      value: r.hardest
+        ? `${techniqueInfo(r.hardest.technique).name} (${cellName(r.hardest.cell)})`
+        : analysisCopy.noneNeeded,
     },
   ];
   const { checks, hints, autoNotes, reveals } = r.assists;
+  const hintCount = hints.nudge + hints.technique + hints.reveal;
   const used = [
-    checks && `${checks} ${checks === 1 ? "check" : "checks"}`,
-    hints.nudge + hints.technique + hints.reveal > 0 &&
-      `${hints.nudge + hints.technique + hints.reveal} hints`,
-    autoNotes && `${autoNotes} auto-notes`,
-    reveals && `${reveals} revealed`,
+    checks && analysisCopy.check(checks),
+    hintCount > 0 && analysisCopy.hints(hintCount),
+    autoNotes && analysisCopy.autoNotes(autoNotes),
+    reveals && analysisCopy.revealed(reveals),
   ].filter(Boolean);
-  rows.push({ label: "Assists", value: used.length ? used.join(", ") : "None" });
+  rows.push({ label: analysisCopy.assists, value: used.length ? used.join(", ") : analysisCopy.none });
   return rows;
 }
 
 export function describeStall(s: SolveReport["stalls"][number]): string {
-  const base = `${formatDuration(s.durationMs)} before your move`;
-  return s.available ? `${base}; available: ${techniqueInfo(s.available.technique).name}. ${s.available.explanation}` : base;
+  const base = analysisCopy.beforeYourMove(formatDuration(s.durationMs));
+  return s.available
+    ? `${base}; ${analysisCopy.available(techniqueInfo(s.available.technique).name, s.available.explanation)}`
+    : base;
 }

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { copyText, type CopyOutcome } from "../shareCopy";
+import { share } from "../strings";
 
 interface ShareDialogProps {
   /** 81-char puzzle string. */
@@ -25,13 +26,13 @@ function CopyRow({ label, value, onStatus }: { label: string; value: string; onS
             void copyText(value, field.current).then((o: CopyOutcome) =>
               onStatus(
                 o === "copied"
-                  ? `${label} copied.`
-                  : `Copy was blocked. The ${label.toLowerCase()} is selected: press Ctrl+C (Cmd+C on Mac).`,
+                  ? share.copied(label)
+                  : share.blocked(label),
               ),
             )
           }
         >
-          Copy<span className="sr-only"> {label.toLowerCase()}</span>
+          {share.copy}<span className="sr-only"> {label.toLowerCase()}</span>
         </button>
       </div>
     </div>
@@ -61,16 +62,16 @@ export function ShareDialog({ puzzle, url, onClose }: ShareDialogProps) {
       }}
     >
       <h2 id={titleId} className="dialog-title">
-        Share this puzzle
+        {share.title}
       </h2>
-      <CopyRow label="Puzzle string" value={puzzle} onStatus={setStatus} />
-      <CopyRow label="Link" value={url} onStatus={setStatus} />
+      <CopyRow label={share.puzzleString} value={puzzle} onStatus={setStatus} />
+      <CopyRow label={share.link} value={url} onStatus={setStatus} />
       <p role="status" className="share-status">
         {status}
       </p>
       <div className="dialog-actions">
         <button type="button" className="ctl dialog-confirm" onClick={onClose}>
-          Done
+          {share.done}
         </button>
       </div>
     </dialog>

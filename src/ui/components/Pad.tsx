@@ -1,4 +1,5 @@
 import { DIGITS, type Digit, type Grid } from "../../engine";
+import { pad } from "../strings";
 
 interface PadProps {
   board: Grid;
@@ -24,7 +25,7 @@ export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = 
     <div
       className={notesMode ? "pad pad--notes" : "pad"}
       role="group"
-      aria-label={notesMode ? "Number pad, notes mode" : "Number pad"}
+      aria-label={notesMode ? pad.notesGroup : pad.group}
     >
       {DIGITS.map((d) => {
         const remaining = counts[d]!;
@@ -46,7 +47,7 @@ export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = 
                 {remaining === 0 ? "\u2713" : remaining}
               </span>
               <span className="sr-only">
-                {remaining === 0 ? "complete" : `${remaining} remaining`}
+                {remaining === 0 ? pad.complete : pad.remaining(remaining)}
               </span>
             </span>
           </button>
@@ -55,7 +56,7 @@ export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = 
       <button
         type="button"
         className="pad-key pad-key--erase"
-        aria-label="Erase"
+        aria-label={pad.erase}
         onClick={onErase}
       >
         <span className="pad-digit" aria-hidden="true">
