@@ -206,3 +206,21 @@ for (const theme of ["light", "dark"] as const) {
     expect(await scan()).toEqual([]);
   });
 }
+
+test("placement animation marks only the changed cell and not a reload", async ({ page }) => {
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("4");
+  await expect(page.locator(cell(2) + " .digit")).toHaveAttribute("data-pop", "");
+  await expect(page.locator("[data-pop]")).toHaveCount(1);
+  await expect(page.locator(cell(2))).not.toHaveClass(/cell--shake/);
+  // Selecting another cell does not replay anything.
+  await page.locator(cell(3)).click();
+  await expect(page.locator(cell(3) + " .digit")).toHaveCount(0);
+  // A conflicting digit (5 duplicates the given in row 1) shakes.
+  await page.keyboard.press("5");
+  await expect(page.locator(cell(3))).toHaveClass(/cell--shake/);
+  await page.reload();
+  await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
+  await expect(page.locator("[data-pop]")).toHaveCount(0);
+  await expect(page.locator(".cell--shake")).toHaveCount(0);
+});
