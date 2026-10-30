@@ -88,6 +88,7 @@ export const settings = {
     label: "Left-handed layout",
     hint: "Mirror the pad and side panel to the left in landscape and desktop layouts.",
   },
+  haptics: { label: "Haptics", hint: "Light vibration on phones when you place digits, hit conflicts or finish." },
   idleMinutes: "Idle minutes before Display mode",
   idleOff: "0 turns it off.",
   nowPlaying: { label: "Spotify in Display mode", hint: "Show what's playing, with play, pause and skip." },

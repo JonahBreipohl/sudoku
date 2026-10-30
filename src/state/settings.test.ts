@@ -63,6 +63,15 @@ describe("settings store", () => {
     expect(createSettingsStore(persistence).getSnapshot().leftHanded).toBe(true);
   });
 
+  it("persists haptics (default on) across reloads", () => {
+    const { data, persistence } = setup();
+    const store = createSettingsStore(persistence);
+    expect(store.getSnapshot().haptics).toBe(true);
+    store.update({ haptics: false });
+    expect(JSON.parse(data.get(KEYS.settings)!).haptics).toBe(false);
+    expect(createSettingsStore(persistence).getSnapshot().haptics).toBe(false);
+  });
+
   it("migrates an old stored shape: keeps known, drops unknown, fills missing", () => {
     const { persistence } = setup({ theme: "light", oldFlag: true });
     expect(createSettingsStore(persistence).getSnapshot()).toEqual({

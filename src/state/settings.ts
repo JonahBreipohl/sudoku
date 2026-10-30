@@ -17,6 +17,8 @@ export interface Settings {
   /** Minutes without input before idle play switches to Display mode; 0 disables it. */
   idleMinutes: number;
   showTimer: boolean;
+  /** Vibration feedback on coarse-pointer devices that support it. */
+  haptics: boolean;
   /** Spotify now-playing card in Display mode. */
   nowPlaying: boolean;
   /** The owner's Spotify app client ID (public in the PKCE flow, so not a secret); "" when unset. */
@@ -32,6 +34,7 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   leftHanded: false,
   idleMinutes: 10,
   showTimer: true,
+  haptics: true,
   nowPlaying: false,
   spotifyClientId: "",
 };
@@ -56,6 +59,7 @@ const VALIDATORS: { [K in keyof Settings]: (v: unknown) => v is Settings[K] } = 
   leftHanded: isBool,
   idleMinutes: isIdle,
   showTimer: isBool,
+  haptics: isBool,
   nowPlaying: isBool,
   spotifyClientId: isClientId,
 };

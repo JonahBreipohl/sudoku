@@ -65,6 +65,7 @@ import { moveSelection } from "./selection";
 import { describeChange, describeCheck, describeSubmit, describeUnits } from "./announce";
 import { unitsCompletedBy } from "./unitComplete";
 import { useSettings } from "./useSettings";
+import { haptic } from "./haptics";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
@@ -529,6 +530,12 @@ function Game({
     prevNodeCount.current = nodes.length;
     // Only a freshly appended place node sweeps: load, undo, redo and rewind move the cursor
     // over existing nodes without growing the tree.
+    const fresh = grew && cursor === nodes.length - 1;
+    const hapticsOn = settings.haptics;
+    if (fresh && (last?.type === "place" || last?.type === "note")) {
+      const newConflict = [...conflicts].some((c) => !prev.conflicts.has(c));
+      haptic(newConflict ? "conflict" : "place", hapticsOn);
+    }
     if (grew && last?.type === "place" && cursor === nodes.length - 1) {
       const units = unitsCompletedBy(prev.board, board, conflicts, last.cell);
       if (units.length > 0) {
@@ -537,10 +544,11 @@ function Game({
         sweepPhase.current = sweepPhase.current === 0 ? 1 : 0;
         setSweep({ order, phase: sweepPhase.current });
         msg = `${msg ?? ""} ${describeUnits(units)}`.trim();
+        haptic("unit", hapticsOn);
       }
     }
     if (msg) setAnnouncement(msg);
-  }, [board, conflicts, game.record]);
+  }, [board, conflicts, game.record, settings.haptics]);
   useEffect(() => {
     if (!sweep) return;
     const t = window.setTimeout(() => setSweep(null), 800);
@@ -560,8 +568,10 @@ function Game({
   const [seenSubmit, setSeenSubmit] = useState(submitResult);
   if (submitResult !== seenSubmit) {
     setSeenSubmit(submitResult);
-    if (submitResult?.type === "submit")
+    if (submitResult?.type === "submit") {
       setAnnouncement(describeSubmit(submitResult.result));
+      if (submitResult.result === "solved") haptic("solve", settings.haptics);
+    }
   }
   const resultOpen = submitted && !resultDismissed;
   // A correct solve shows its analysis once the result dialog is dismissed; an incorrect one on request.
