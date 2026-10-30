@@ -150,8 +150,13 @@ button {
 .app-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--gutter);
+  justify-content: flex-start;
+  gap: 8px;
+}
+
+/* Two groups: title and game actions on the left, the rest pushed right by this auto margin. */
+.app-header .header-split {
+  margin-left: auto;
 }
 
 .app-header h1 {
@@ -478,6 +483,8 @@ button {
     gap: 8px;
     align-self: stretch;
     min-height: 0;
+    /* The phone thumb-zone auto margin would push the panel below the board's top edge. */
+    margin-top: 0;
   }
   .controls,
   .pad {
@@ -648,6 +655,9 @@ button {
   }
   .app-header [data-display-toggle] {
     margin-left: auto;
+  }
+  .app-header .header-split {
+    margin-left: 0;
   }
   .app-header {
     gap: 0 4px;

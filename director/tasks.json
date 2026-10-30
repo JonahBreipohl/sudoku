@@ -3322,9 +3322,9 @@
         "No horizontal scroll at any width from 600 px up",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Verified by Director: check, build, e2e 307 pass + 1 skipped. Follow-up: no explicit check for widths 600-1023."
     },
     {
       "id": "M11-11",

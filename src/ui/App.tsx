@@ -775,7 +775,7 @@ function Game({
         <ThemeToggle />
         <button
           type="button"
-          className="ctl header-extra"
+          className="ctl header-extra header-split"
           aria-haspopup="dialog"
           onClick={() => setShareOpen(true)}
         >
