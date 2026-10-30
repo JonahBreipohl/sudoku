@@ -236,9 +236,34 @@ export const analysisCopy = {
   autoNotes: (n: number) => `${n} auto-notes`,
   revealed: (n: number) => `${n} revealed`,
   beforeYourMove: (time: string) => `${time} before your move`,
-  available: (technique: string, explanation: string) => `available: ${technique}. ${explanation}`,
+  stallWithAlternative: (time: string, technique: string, explanation: string) =>
+    `${time} before your move; available: ${technique}. ${explanation}`,
   minutes: (m: number, s: number) => `${m} min ${s} s`,
   seconds: (s: number) => `${s} s`,
+  phaseTime: (phase: string, time: string) => `${phase} ${time}`,
+  hardestAt: (technique: string, cell: string) => `${technique} (${cell})`,
+  alternative: (technique: string, explanation: string) => `${technique}: ${explanation}`,
+  mistakePlaced: (digit: number, cell: string, right: number) =>
+    `You placed ${digit} in ${cell}. The right answer is ${right}.`,
+  mistakeNoteOff: (digit: number, cell: string, right: number) =>
+    `You turned off note ${digit} in ${cell}. The right answer there is ${right}.`,
+  consequence: (wrongCell: string, cell: string) =>
+    `This followed from an earlier wrong digit in ${wrongCell}, which hid the answer for ${cell}.`,
+  conflict: (digit: number, cells: string, cell: string) =>
+    `${digit} was already placed in ${cells}, which shares a row, column or box with ${cell}.`,
+  typo: (gapSeconds: string, digit: number, intended: number, layout: string) =>
+    `Looks like a slip of the finger: it came ${gapSeconds} s after your last move, and ${digit} is next to ${intended} on ${layout}.`,
+  guessNoStep: (cell: string) => `No step at your level led to ${cell}, so this was a guess.`,
+  guessStalled: (steps: number, cell: string) =>
+    `Logic at your level ran out after ${steps} ${steps === 1 ? "step" : "steps"} without settling ${cell}, so this was a guess.`,
+  deductionPlaced: (technique: string, digit: number, cell: string, explanation: string) =>
+    `${technique} showed that ${digit} must go in ${cell}: ${explanation}`,
+  deductionEliminated: (technique: string, digit: number, cell: string, explanation: string) =>
+    `${technique} showed that ${digit} cannot go in ${cell}: ${explanation}`,
+  cascadeNote: (digit: number, cell: string, dependsOn: string) =>
+    `turned off note ${digit} in ${cell}, hidden by ${dependsOn}`,
+  cascadePlacement: (digit: number, cell: string, wrong: boolean, dependsOn: string) =>
+    `placed ${digit} in ${cell}${wrong ? " (also wrong)" : ""}, hidden by ${dependsOn}`,
 };
 
 export const display = {
