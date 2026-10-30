@@ -429,3 +429,7 @@ Plan usage: 5h ~38% of 60%, 7d ~52% of 85% (estimate). Next up: M11-09, M11-11. 
 run 20261030-1722 (~30 min): main fast-forwarded from stale shallow checkout. Trunk green (772 tests).
 - M11-09 (feature-dev, sonnet M): pass, need 0.55, actual ~0.55 (estimate; transcripts unmeasured), overhead ~0.15, not reviewed (Q4). check 772, build, e2e 303 pass + 1 skipped. Merged. Follow-ups: menu labels hardcoded in App.tsx; no arrow-key nav in More menu.
 Plan usage: 5h ~47% of 60%, 7d ~53% of 85% (estimate). Next up: M11-10, M11-11. Stopped after one task to keep the run short.
+
+run 20261030-1822 (~35 min): main fast-forwarded from stale shallow checkout. Trunk green (772 tests).
+- M11-10 (feature-dev, sonnet S): subagent reported partial (e2e unconfirmed, machine slow); Director ran check, build and full e2e itself: 307 pass + 1 skipped. Merged. need 0.5, actual ~0.5 (estimate), overhead ~0.2, not reviewed (Q4). Follow-up: no explicit check for widths 600-1023.
+Plan usage: 5h ~48% of 60%, 7d ~54% of 85% (estimate). Next up: M11-11. Stopped after one task to keep the run short.
