@@ -61,6 +61,31 @@ Display is meant for a second screen or a wall display. It shows the clock, the 
 today's stats, drifts slowly to avoid burn-in, and dims at night. Fullscreen and keep-screen-awake
 toggles are part of the Display spec in docs/PLAN.md.
 
+### Light and dark
+
+The sun/moon button in the header (and in Display mode) switches between light and dark in one
+tap. Settings > Theme also offers System, which follows the device.
+
+### Spotify now playing (optional)
+
+Display mode can show what's playing on your Spotify account (on any device): cover, title,
+artist, album, a progress bar, and previous / play-pause / next. Reading works on any account;
+the playback buttons need Spotify Premium and are disabled, with a note, on free accounts.
+Turn it on or off with **Spotify: on/off** in Display mode or in Settings.
+
+One-time setup:
+
+1. At [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard), create an app
+   (any name; tick "Web API").
+2. Open Settings here. Under Spotify, the hint shows this page's address: add exactly that as a
+   Redirect URI in the Spotify app. Spotify doesn't accept `localhost`; when running locally, open
+   the app at `http://127.0.0.1:<port>/` and register that.
+3. Paste the app's Client ID into Settings, then press **Connect Spotify** and approve.
+
+Sign-in uses Authorization Code with PKCE, so there is no secret and no server: tokens stay in
+this browser and are sent only to Spotify. While Spotify is in development mode, only accounts
+you add under the app's User Management can sign in.
+
 ## Develop, test and build
 
 Requires Node 22 or newer.

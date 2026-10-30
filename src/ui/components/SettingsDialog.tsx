@@ -2,6 +2,7 @@ import { useEffect, useId, useRef } from "react";
 import { MAX_IDLE_MINUTES, type Settings } from "../../state/settings";
 import { THEME_ORDER } from "../theme";
 import { common, settings as t } from "../strings";
+import { SpotifySettings } from "../spotify/SpotifySettings";
 
 type BoolKey = {
   [K in keyof Settings]: Settings[K] extends boolean ? K : never;
@@ -121,6 +122,7 @@ export function SettingsDialog({ settings, onChange, onToggleEntry, onToggleAuto
           </span>
         </label>
       </div>
+      <SpotifySettings settings={settings} onChange={onChange} />
       <div className="dialog-actions">
         <button type="button" className="ctl dialog-confirm" autoFocus onClick={onClose}>
           {common.close}

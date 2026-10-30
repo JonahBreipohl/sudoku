@@ -14,6 +14,13 @@ function setup(initial?: unknown) {
 }
 
 describe("normalizeSettings", () => {
+  it("keeps a complete Spotify client ID and drops a malformed one", () => {
+    const id = "0123456789abcdefABCDEF0123456789";
+    expect(normalizeSettings({ spotifyClientId: id, nowPlaying: true })).toMatchObject({ spotifyClientId: id, nowPlaying: true });
+    expect(normalizeSettings({ spotifyClientId: "abc" }).spotifyClientId).toBe("");
+    expect(normalizeSettings({ spotifyClientId: id + "!" }).spotifyClientId).toBe("");
+  });
+
   it("returns defaults for nothing or junk", () => {
     for (const raw of [null, undefined, 5, "x", [], {}]) {
       expect(normalizeSettings(raw)).toEqual(DEFAULT_SETTINGS);

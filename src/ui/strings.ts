@@ -90,6 +90,44 @@ export const settings = {
   },
   idleMinutes: "Idle minutes before Display mode",
   idleOff: "0 turns it off.",
+  nowPlaying: { label: "Spotify in Display mode", hint: "Show what's playing, with play, pause and skip." },
+  spotify: "Spotify",
+  clientId: "Client ID",
+  clientIdHint: "From your app at developer.spotify.com. Add this page as a Redirect URI there:",
+  clientIdInvalid: "A client ID is 32 letters and digits.",
+  localhostNote: "Spotify doesn't accept localhost: open this page at 127.0.0.1 instead.",
+  connect: "Connect Spotify",
+  disconnect: "Disconnect Spotify",
+  connected: "Connected.",
+};
+
+export const themeToggle = {
+  label: "Dark mode",
+  toDark: "Switch to dark mode",
+  toLight: "Switch to light mode",
+};
+
+export const spotify = {
+  label: "Now playing on Spotify",
+  toggleOn: "Spotify: on",
+  toggleOff: "Spotify: off",
+  needsClientId: "Add your Spotify client ID in Settings to show what's playing.",
+  connect: "Connect Spotify",
+  loading: "Connecting to Spotify…",
+  idle: "Nothing playing on Spotify.",
+  error: "Spotify isn't responding. Trying again.",
+  progress: "Track progress",
+  of: "of",
+  previous: "Previous track",
+  next: "Next track",
+  play: "Play",
+  pause: "Pause",
+  onDevice: (name: string) => `On ${name}`,
+  notices: {
+    premium: "Play, pause and skip need Spotify Premium.",
+    noDevice: "Open Spotify on a device first.",
+    failed: "Spotify didn't respond. Try again.",
+  },
 };
 
 export const pad = {

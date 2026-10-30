@@ -63,6 +63,10 @@ for (const size of [{ width: 1280, height: 720 }, { width: 3840, height: 2160 },
 }
 
 test("display is idle between ticks: no rAF loop and no running animations", async ({ page }) => {
+  // Mid drift step at midday: crossing a 5-minute step (or night) during the wait starts the
+  // intended long drift transition, which this test would otherwise count as a running animation.
+  const step = 5 * 60 * 1000;
+  await page.clock.setFixedTime(Math.floor(Date.UTC(2026, 9, 30, 12) / step) * step + step / 2);
   await page.addInitScript(() => {
     const w = window as unknown as { __raf: number };
     w.__raf = 0;

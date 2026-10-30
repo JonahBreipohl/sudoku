@@ -17,6 +17,10 @@ export interface Settings {
   /** Minutes without input before idle play switches to Display mode; 0 disables it. */
   idleMinutes: number;
   showTimer: boolean;
+  /** Spotify now-playing card in Display mode. */
+  nowPlaying: boolean;
+  /** The owner's Spotify app client ID (public in the PKCE flow, so not a secret); "" when unset. */
+  spotifyClientId: string;
 }
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
@@ -28,6 +32,8 @@ export const DEFAULT_SETTINGS: Readonly<Settings> = {
   leftHanded: false,
   idleMinutes: 10,
   showTimer: true,
+  nowPlaying: false,
+  spotifyClientId: "",
 };
 
 export const MAX_IDLE_MINUTES = 240;
@@ -37,6 +43,7 @@ const oneOf =
   (v: unknown): v is T =>
     typeof v === "string" && (allowed as string[]).includes(v);
 const isBool = (v: unknown): v is boolean => typeof v === "boolean";
+const isClientId = (v: unknown): v is string => typeof v === "string" && /^([A-Za-z0-9]{32})?$/.test(v);
 const isIdle = (v: unknown): v is number =>
   typeof v === "number" && Number.isInteger(v) && v >= 0 && v <= MAX_IDLE_MINUTES;
 
@@ -49,6 +56,8 @@ const VALIDATORS: { [K in keyof Settings]: (v: unknown) => v is Settings[K] } = 
   leftHanded: isBool,
   idleMinutes: isIdle,
   showTimer: isBool,
+  nowPlaying: isBool,
+  spotifyClientId: isClientId,
 };
 
 /** Builds complete, valid settings from whatever was stored. */
