@@ -100,3 +100,4 @@ M0 ─ M1 ─┬─ M2 ─┬─ M3 ──────────────�
 | **M8 Hints** | Tiered hints from the step driver. | Hints never contradict the solution and point to mistakes first. |
 | **M9 Display mode and PWA** | Display view, watch puzzle, drift and dimming, fullscreen and wake lock, idle switch, PWA. | Display runs for hours at low CPU; the app works offline and installs. |
 | **M10 Stats, daily, polish, deploy** | Stats, daily puzzle, share/import, completion animation, copy, README, regression sweep, deploy. | Feature-complete, documented, deployed once hosting is answered. |
+| **M11 Feel and polish** | Press and hover feedback, placement pop, unit and digit completion flourishes, haptics, solve moment, smooth dialogs and mode changes, small-phone fit, desktop header, real first puzzle. | Every interaction answers within 150 ms with motion that respects reduced motion and never shifts layout; Display stays calm; fits 360x740 without scrolling. |

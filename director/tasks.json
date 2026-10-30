@@ -10,7 +10,8 @@
     "7": "Check, Submit, and mistake analysis",
     "8": "Hints",
     "9": "Display mode and PWA",
-    "10": "Stats, daily puzzle, polish, deploy"
+    "10": "Stats, daily puzzle, polish, deploy",
+    "11": "Feel and polish"
   },
   "tasks": [
     {
@@ -3051,6 +3052,304 @@
       ],
       "status": "done",
       "attempts": 1
+    },
+    {
+      "id": "M11-01",
+      "title": "Fix the known submit.spec focus flake",
+      "milestone": 11,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "qa-e2e",
+      "deps": [],
+      "files": [
+        "e2e/submit.spec.ts"
+      ],
+      "description": "submit.spec 'New game in the solved result dialog opens the difficulty picker' fails intermittently under full-suite load (toBeFocused received inactive). Find the race (focus restored after the dialog transition, or asserted before it settles) and make the test or the focus handling deterministic. Do this first so the polish tasks below verify against a green suite.",
+      "acceptance": [
+        "Root cause stated in the report (not 'flaky')",
+        "Passes 10 runs in a row with --repeat-each=10 on both projects",
+        "Full e2e green twice in a row"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-02",
+      "title": "Press and hover feedback on every control",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-01"
+      ],
+      "files": [
+        "src/ui/styles.css"
+      ],
+      "description": "Buttons, pad keys and cells currently have no hover or press response. Add: hover tint only under @media (hover: hover) and (pointer: fine); :active press (transform: scale(0.96) plus a slightly deeper background) on .ctl and .pad-key; 120 ms ease-out transitions on background-color, border-color, box-shadow and transform. Cells get a hover tint (fine pointers) and a quick press. Selection, related and same-digit highlights should fade (about 100 ms) instead of snapping. Use existing tokens or add new ones in both light and dark.",
+      "acceptance": [
+        "Every .ctl, .pad-key and gridcell has a visible :active state and (fine pointers only) a :hover state, in light and dark",
+        "Transitions 80-150 ms, ease-out",
+        "Animates only transform, opacity, box-shadow or colors: no layout shift, nothing reflows",
+        "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
+        "Contrast test (src/ui/contrast.test.ts) and axe stay green",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-03",
+      "title": "Digit placement and note pop",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-02"
+      ],
+      "files": [
+        "src/ui/components/Cell.tsx",
+        "src/ui/styles.css"
+      ],
+      "description": "Make entering a digit feel tactile: a newly placed entry scales in from about 0.8 to 1 with a slight overshoot (about 160 ms); a note toggled on fades and scales in (about 120 ms). Animate only when the value actually changes in that cell (key the digit span on its value), not on first render, page load, or theme change. Conflicting entries get a short horizontal shake (about 200 ms, 3 px) in addition to the existing conflict styling.",
+      "acceptance": [
+        "Placing a digit plays the pop once; reloading the page plays nothing",
+        "Placing a conflicting digit plays the shake once",
+        "Undo/redo may replay the pop for the changed cell only",
+        "Animates only transform, opacity, box-shadow or colors: no layout shift, nothing reflows",
+        "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
+        "Unit or e2e test asserts the animation class/attribute appears only on the changed cell",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-04",
+      "title": "Row, column and box completion flourish",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-03"
+      ],
+      "files": [
+        "src/ui/unitComplete.ts",
+        "src/ui/components/Board.tsx",
+        "src/ui/styles.css",
+        "src/ui/announce.ts"
+      ],
+      "description": "When a placement fills a row, column or box with nine digits and no conflicts, sweep a soft highlight across that unit's cells (staggered about 25 ms per cell, about 400 ms total) and announce it to screen readers ('Row 3 complete'). Several units completed by one move all sweep. Judge completion by 'filled with no conflicts', never by comparing to the solution, so it doesn't leak correctness. Put the detection in a pure function, unitComplete.ts, with tests.",
+      "acceptance": [
+        "Pure detection with unit tests: row, column, box, multiple at once, conflicts block it, erasing does not trigger",
+        "Sweep plays once per completing move, not on load or undo",
+        "Animates only transform, opacity, box-shadow or colors: no layout shift, nothing reflows",
+        "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
+        "Announcement goes through the existing live region",
+        "e2e test completes a row and sees the sweep attribute",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-05",
+      "title": "Number pad: finished-digit flourish",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-04"
+      ],
+      "files": [
+        "src/ui/components/Pad.tsx",
+        "src/ui/styles.css"
+      ],
+      "description": "When the ninth copy of a digit is placed (no conflicts), its pad key plays a short check flourish (scale 1 to 1.08 to 1 with a check mark fading in, about 300 ms) before settling into the existing done state. Remaining-count numbers change with a quick fade instead of snapping.",
+      "acceptance": [
+        "Flourish plays once when a digit reaches nine with no conflicts, not on load",
+        "Done state keeps its non-color cue (shape or text)",
+        "Animates only transform, opacity, box-shadow or colors: no layout shift, nothing reflows",
+        "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-06",
+      "title": "Haptic feedback on phones",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-03"
+      ],
+      "files": [
+        "src/ui/haptics.ts",
+        "src/state/settings.ts",
+        "src/ui/components/SettingsDialog.tsx",
+        "src/ui/strings.ts"
+      ],
+      "description": "Add light haptics where the Vibration API exists and the pointer is coarse: about 8 ms on placing a digit or note, a double pulse (about 15, 40, 15 ms) on a conflict, a short pattern on unit completion, and a longer celebratory pattern on solving. Add a 'Haptics' setting (default on) in Settings. haptics.ts wraps navigator.vibrate so it is a silent no-op where unsupported (iOS Safari) and is unit-testable with a fake.",
+      "acceptance": [
+        "haptics.ts unit tests with a fake vibrate: patterns per event, no-op when unsupported or setting off, no-op for fine pointers",
+        "Settings toggle persists; settings tests updated",
+        "No console errors where vibrate is missing",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-07",
+      "title": "Satisfying solve moment",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-04"
+      ],
+      "files": [
+        "src/ui/styles.css",
+        "src/ui/components/Board.tsx",
+        "src/ui/App.tsx"
+      ],
+      "description": "Upgrade the completion ripple: radiate from the last placed cell outward (delay by Chebyshev distance, about 45 ms per ring) with a soft glow, then let the result dialog appear after the ripple finishes (about 900 ms) rather than covering it at once. Total under 1.5 s. Under reduced motion there is no ripple and the dialog opens immediately.",
+      "acceptance": [
+        "Ripple origin is the last placed cell",
+        "Result dialog opens after the ripple (immediately under reduced motion)",
+        "Submit e2e specs still pass (they auto-wait; adjust only if they assert timing)",
+        "Animates only transform, opacity, box-shadow or colors: no layout shift, nothing reflows",
+        "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-08",
+      "title": "Smooth dialogs, pause and mode changes",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-02"
+      ],
+      "files": [
+        "src/ui/styles.css",
+        "src/ui/display/display.css"
+      ],
+      "description": "Dialogs fade and scale in (0.96 to 1, about 160 ms) with a fading backdrop, and fade out on close; use @starting-style and transition-behavior: allow-discrete on <dialog> (fall back to no animation where unsupported). The pause overlay crossfades. Entering and leaving Display mode crossfades (about 200 ms). No animation keeps running after it finishes.",
+      "acceptance": [
+        "Dialogs animate in and out in Chromium; still open and close correctly where @starting-style is unsupported",
+        "Focus handling unchanged (dialog focus specs pass)",
+        "Display mode stays calm: e2e 'display is idle between ticks' still passes",
+        "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
+        "axe green",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-09",
+      "title": "Fit small phones without scrolling",
+      "milestone": 11,
+      "priority": 2,
+      "size": "M",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-01"
+      ],
+      "files": [
+        "src/ui/App.tsx",
+        "src/ui/styles.css",
+        "e2e/layouts.spec.ts"
+      ],
+      "description": "Play scrolls at 375x667 and 360x740 today because the header takes three rows. Under a 600 px container, keep the title, New game, theme switch and Display in the header and move Share, Import, Shortcuts, Stats and Settings into a 'More' menu (a disclosure button opening a small menu; keyboard and screen-reader operable, closes on Escape and outside click). Keep wider layouts unchanged.",
+      "acceptance": [
+        "New e2e cases: 375x667 and 360x740 fit with no vertical or horizontal scroll; board and pad fully visible",
+        "Header is one row under 600 px; every moved action still reachable by keyboard and touch (44 px targets)",
+        "axe green in the open menu",
+        "Existing layout specs pass",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-10",
+      "title": "Calmer desktop header and aligned side panel",
+      "milestone": 11,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-09"
+      ],
+      "files": [
+        "src/ui/styles.css"
+      ],
+      "description": "At desktop widths the header buttons are spread unevenly by space-between and the side panel starts lower than the board. Group the header: title and game actions (New game, Daily badge, theme switch) on the left, the rest right-aligned with even 8 px gaps. Align the side panel's top with the board's top.",
+      "acceptance": [
+        "At 1440x900 and 1024x768: header buttons evenly spaced in two groups; side panel top within 2 px of the board top (e2e assertion)",
+        "No horizontal scroll at any width from 600 px up",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-11",
+      "title": "Start fresh installs on a real puzzle",
+      "milestone": 11,
+      "priority": 3,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-01"
+      ],
+      "files": [
+        "src/ui/App.tsx"
+      ],
+      "description": "A first launch with no saved game opens the hardcoded SAMPLE_EASY puzzle (the well-known Wikipedia example). Start instead on a random Easy puzzle from the puzzle bank (or today's daily if that is simpler and already loaded), keeping the board interactive within the existing 2 s budget. Keep SAMPLE_EASY only as the fallback when the bank can't load.",
+      "acceptance": [
+        "Fresh profile shows a bank puzzle, not SAMPLE_EASY (e2e: givens differ from the sample)",
+        "perf.spec 'interactive within 2 s' passes",
+        "Offline and PWA specs pass",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
     }
   ]
 }
