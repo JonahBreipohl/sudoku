@@ -138,6 +138,10 @@ test("New game in the solved result dialog opens the difficulty picker", async (
   const result = page.getByRole("dialog", { name: /Solved/ });
   await result.getByRole("button", { name: "New game" }).click();
   await expect(page.getByRole("dialog", { name: "Choose a difficulty" })).toBeVisible();
+  // Dismissing the result mounts the lazy analysis panel, whose callback ref focuses it. Wait until
+  // it is mounted (a no-op while the picker keeps the page inert); if it mounted after Escape it
+  // would take focus from the New game button.
+  await expect(page.locator("[data-analysis]")).toBeAttached();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("button", { name: "New game" })).toBeFocused();
 });
