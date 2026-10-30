@@ -595,6 +595,34 @@ button {
   border-style: dashed;
 }
 
+/* Header "More" menu: only under 600px, where the full action row would wrap to extra lines. */
+.more {
+  display: none;
+  position: relative;
+}
+.more-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 20;
+  margin: 4px 0 0;
+  padding: 4px;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 160px;
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+}
+.more-item {
+  width: 100%;
+  text-align: left;
+  padding: 0 12px;
+  font-size: 0.9375rem;
+}
+
 /* Tablet widths: tighter header spacing so it stays one row, and wrap rather than scroll sideways
    if it still doesn't fit. */
 @container (min-width: 600px) and (max-width: 899px) and (min-height: 521px) {
@@ -608,12 +636,31 @@ button {
    targets stay at least 44px tall. */
 @container (max-width: 599px) {
   .app-header {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     justify-content: flex-start;
     gap: 0 8px;
   }
+  .header-extra {
+    display: none;
+  }
+  .more {
+    display: block;
+  }
+  .app-header [data-display-toggle] {
+    margin-left: auto;
+  }
+  .app-header {
+    gap: 0 4px;
+  }
   .app-header h1 {
     margin: 4px 0;
+    font-size: 1.1rem;
+  }
+  /* Short phones (375x667): shrink the board so header, controls and pad fit without scrolling.
+     352px is the header, gaps and the controls plus pad stack at these widths. */
+  .board,
+  .pause-overlay {
+    --size: min(100cqi, 560px, max(200px, calc(100cqb - 352px)));
   }
   .play {
     gap: 8px;
@@ -637,6 +684,13 @@ button {
   .pad-digit {
     font-size: 1.25rem;
     line-height: 1.1;
+  }
+}
+
+/* Very narrow: five header items cannot share one row, so wrap instead of scrolling sideways. */
+@container (max-width: 319px) {
+  .app-header {
+    flex-wrap: wrap;
   }
 }
 

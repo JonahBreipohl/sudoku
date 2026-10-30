@@ -1,5 +1,5 @@
 // Gap-fillers from the M10-08 sweep: must-haves that no other spec exercised directly.
-import { expect, test } from "./fixtures";
+import { expect, test, clickHeaderAction } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
@@ -73,7 +73,7 @@ test("idle time switches Play to Display and pauses the game", async ({ page }) 
 
 test("Stats dialog reports every difficulty level", async ({ page }) => {
   await page.goto("/?test=1");
-  await page.getByRole("button", { name: "Stats", exact: true }).click();
+  await clickHeaderAction(page, "Stats");
   const dialog = page.getByRole("dialog", { name: "Statistics" });
   await expect(dialog).toBeVisible();
   for (const level of ["Easy", "Medium", "Hard", "Expert", "Master"])

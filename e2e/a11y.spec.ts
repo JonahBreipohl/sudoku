@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import { expect, test, clickHeaderAction } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
@@ -21,7 +21,7 @@ for (const theme of ["light", "dark"] as const) {
     await expectNoSeriousViolations(page);
 
     for (const name of ["Settings", "Shortcuts", "Stats"]) {
-      await page.getByRole("button", { name, exact: true }).click();
+      await clickHeaderAction(page, name);
       await expect(page.getByRole("dialog")).toBeVisible();
       await expectNoSeriousViolations(page);
       await page.keyboard.press("Escape");
@@ -65,11 +65,12 @@ test("live region announces placements, conflicts and check results", async ({ p
 });
 
 test("dialogs restore focus to the opener", async ({ page }) => {
-  const settings = page.getByRole("button", { name: "Settings", exact: true });
-  await settings.click();
+  // On phones the opener is the "More" button, which owns the menu item that opened the dialog.
+  const opener = page.getByRole("button", { name: /^(Settings|More)/ });
+  await clickHeaderAction(page, "Settings");
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
-  await expect(settings).toBeFocused();
+  await expect(opener).toBeFocused();
 });
 
 test("reduced motion removes transitions", async ({ page }) => {

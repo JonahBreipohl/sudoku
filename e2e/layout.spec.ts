@@ -37,7 +37,7 @@ for (const size of sizes) {
           page.getByRole("group", { name: /^Number pad/ }),
           page.getByRole("button", { name: /Undo/ }),
           page.getByRole("button", { name: /Pause/ }),
-          page.getByRole("button", { name: "Settings", exact: true }),
+          page.getByRole("button", { name: /^(Settings|More)/ }),
         ];
         for (const region of regions) {
           await expect(region).toBeVisible();
@@ -89,9 +89,14 @@ test.describe("keyboard-only flow", () => {
 
     // Dialogs: open with the keyboard on a focused opener, close with Escape, focus returns.
     for (const name of ["Settings", "Shortcuts"]) {
-      const opener = page.getByRole("button", { name, exact: true });
+      // On phones the action lives in the "More" menu; focus returns to the More button.
+      const more = page.getByRole("button", { name: /^More/ });
+      const phone = await more.isVisible();
+      const opener = phone ? more : page.getByRole("button", { name, exact: true });
       await opener.focus();
       await page.keyboard.press("Enter");
+      if (phone) await page.locator("#more-menu").getByRole("button", { name, exact: true }).focus();
+      if (phone) await page.keyboard.press("Enter");
       const dialog = page.getByRole("dialog", { name });
       await expect(dialog).toBeVisible();
       await page.keyboard.press("Escape");

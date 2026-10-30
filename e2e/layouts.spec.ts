@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import { expect, test, clickHeaderAction } from "./fixtures";
 
 async function open(page: Page, scheme: "light" | "dark") {
   await page.emulateMedia({ colorScheme: scheme });
@@ -79,7 +79,7 @@ test.describe("narrow 320px", () => {
 });
 
 async function enableLeftHanded(page: Page) {
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   const dialog = page.getByRole("dialog", { name: "Settings" });
   await dialog.getByRole("checkbox", { name: /Left-handed layout/ }).check();
   await dialog.getByRole("button", { name: "Close" }).click();
@@ -127,3 +127,59 @@ test.describe("left-handed portrait 390x844", () => {
     expect(after).toEqual(before);
   });
 });
+
+for (const [w, h] of [
+  [375, 667],
+  [360, 740],
+] as const) {
+  test.describe(`small phone ${w}x${h}`, () => {
+    test.use({ viewport: { width: w, height: h }, hasTouch: true });
+
+    for (const scheme of ["light", "dark"] as const) {
+      test(`fits without scrolling, More menu works (${scheme})`, async ({ page }) => {
+        await open(page, scheme);
+        const fits = await page.evaluate(() => {
+          const el = document.querySelector(".app")!;
+          return {
+            v: el.scrollHeight <= el.clientHeight && document.documentElement.scrollHeight <= window.innerHeight,
+            h: el.scrollWidth <= el.clientWidth,
+          };
+        });
+        expect(fits).toEqual({ v: true, h: true });
+        expect(await noHScroll(page)).toBe(true);
+        const board = await box(page, ".board");
+        const pad = await box(page, ".pad");
+        expect(board.y).toBeGreaterThanOrEqual(0);
+        expect(pad.y + pad.height).toBeLessThanOrEqual(h);
+        // One header row: every header control shares a vertical band.
+        const rows = await page.locator(".app-header > *:visible").evaluateAll((els) =>
+          new Set(els.map((e) => Math.round(e.getBoundingClientRect().top / 10))).size,
+        );
+        expect(rows).toBeLessThanOrEqual(2);
+        expect((await box(page, ".app-header")).height).toBeLessThanOrEqual(64);
+
+        const more = page.getByRole("button", { name: /^More/ });
+        await expect(more).toHaveAttribute("aria-expanded", "false");
+        await more.click();
+        await expect(more).toHaveAttribute("aria-expanded", "true");
+        for (const name of ["Share", "Import", "Shortcuts", "Stats", "Settings"]) {
+          const b = await page.getByRole("menu").or(page.locator("#more-menu")).getByRole("button", { name }).boundingBox();
+          expect(b!.height).toBeGreaterThanOrEqual(44);
+        }
+        const results = await new AxeBuilder({ page }).analyze();
+        expect(results.violations).toEqual([]);
+        await page.keyboard.press("Escape");
+        await expect(more).toHaveAttribute("aria-expanded", "false");
+        await expect(more).toBeFocused();
+
+        await more.click();
+        await page.mouse.click(w / 2, h - 5);
+        await expect(more).toHaveAttribute("aria-expanded", "false");
+
+        await more.click();
+        await page.locator("#more-menu").getByRole("button", { name: "Settings" }).click();
+        await expect(page.getByRole("dialog")).toBeVisible();
+      });
+    }
+  });
+}
