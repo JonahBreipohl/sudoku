@@ -550,7 +550,14 @@ function Game({
     showAnalysis ? game.record : null,
   );
   // Callback ref: the panel is lazy, so it may mount after the render that opened it.
-  const analysisRef = useCallback((el: HTMLElement | null) => el?.focus(), []);
+  // It must not steal focus from the New game flow: skip while a dialog is open, and when the
+  // late mount lands after the picker closed and focus already went back to the New game button.
+  const analysisRef = useCallback((el: HTMLElement | null) => {
+    if (!el) return;
+    if (document.querySelector("dialog[open]")) return;
+    if (document.activeElement?.hasAttribute("data-new-game")) return;
+    el.focus();
+  }, []);
   const marks = useMemo(() => {
     if (!showAnalysis || analysis.status !== "ready") return undefined;
     const [root, ...rest] = analysis.result.mistakes.highlight;
