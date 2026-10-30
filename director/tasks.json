@@ -3127,8 +3127,8 @@
         "Unit or e2e test asserts the animation class/attribute appears only on the changed cell",
         "e2e green"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
