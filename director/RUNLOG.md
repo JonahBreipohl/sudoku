@@ -393,3 +393,7 @@ Plan usage: 5h ~3% of 60%, 7d ~50% of 85% (estimate). Next up: nothing ready; M1
 run 20261030-0826 (~20 min): main fast-forwarded 94 commits from stale checkout. Trunk green (754 tests).
 - M11-01 (qa-e2e, sonnet S): pass, need 0.6, actual 0.40, overhead 0.29, not reviewed (Q4). Root cause: lazy Analysis panel mounted after the test's Escape and stole focus; test now waits for it. check 754, build, e2e 291 pass. Merged. Follow-up M11-01a added.
 Plan usage: 5h ~15% of 60%, 7d ~51% of 85% (estimate). Next up: M11-01a, M11-02. Stopped after one task to keep the run short.
+
+run 20261030-0922 (~10 min): main fast-forwarded 98 commits from stale shallow checkout. Trunk green (754 tests).
+- M11-01a (feature-dev, sonnet S): pass, need 0.4, actual 0.175, overhead ~0.07, not reviewed (Q4). check 754, build, e2e 291 pass + 1 skipped. Merged.
+Plan usage: 5h ~11% of 60%, 7d ~51% of 85% (estimate). Next up: M11-02, M11-08. Stopped after one task to keep the run short.

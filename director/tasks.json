@@ -3370,9 +3370,9 @@
         "Test without the wait-for-[data-analysis] workaround passes 10x per project",
         "check, build, e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Analysis ref skips focus when a dialog is open or New game has focus. check 754, build, e2e 291."
     }
   ]
 }
