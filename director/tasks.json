@@ -3370,8 +3370,8 @@
         "Test without the wait-for-[data-analysis] workaround passes 10x per project",
         "check, build, e2e green"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     }
   ]
