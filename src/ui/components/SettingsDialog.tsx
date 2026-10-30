@@ -14,6 +14,7 @@ const TOGGLES: { key: BoolKey; label: string; hint: string }[] = [
   { key: "showTimer", ...t.showTimer },
   { key: "wallClock", ...t.wallClock },
   { key: "leftHanded", ...t.leftHanded },
+  { key: "haptics", ...t.haptics },
 ];
 
 interface Props {
