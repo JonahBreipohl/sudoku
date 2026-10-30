@@ -3,6 +3,7 @@ import { type CandidateMask, type Grid } from "../../engine";
 import { highlightsFor } from "../highlight";
 import { Cell, type CellMark } from "./Cell";
 import { boardLabels } from "../strings";
+import { rippleRings } from "../ripple";
 
 interface BoardProps {
   givens: Grid;
@@ -22,13 +23,17 @@ interface BoardProps {
   /** Plays the one-shot completion animation (CSS only, skipped under reduced motion). */
   solved?: boolean;
   /** Cells to sweep after a move completed a unit: cell to stagger step; phase restarts the animation. */
+  /** Last placed cell; the completion ripple radiates outward from it. */
+  rippleOrigin?: number | null;
   sweep?: { order: ReadonlyMap<number, number>; phase: 0 | 1 } | null;
 }
 
 const ROWS = Array.from({ length: 9 }, (_, i) => i);
 
-export function Board({ givens, board, notes, selected, conflicts, wrong, marks, onSelect, lockedDigit = null, preview = false, solved = false, sweep = null }: BoardProps) {
+export function Board({ givens, board, notes, selected, conflicts, wrong, marks, onSelect, lockedDigit = null, preview = false, solved = false, rippleOrigin = null, sweep = null }: BoardProps) {
   const highlights = highlightsFor({ board, notes, conflicts }, selected, lockedDigit);
+
+  const rings = solved ? rippleRings(rippleOrigin ?? 40) : null;
 
   return (
     <div className="board" role="grid" aria-label={preview ? boardLabels.preview : boardLabels.grid}
@@ -43,7 +48,10 @@ export function Board({ givens, board, notes, selected, conflicts, wrong, marks,
             return (
               <div role="gridcell" key={c} aria-selected={isSelected}
                 data-sweep={sweep?.order.has(cell) ? sweep.phase : undefined}
-                style={sweep?.order.has(cell) ? ({ "--sweep-i": sweep.order.get(cell) } as CSSProperties) : undefined}>
+                style={{
+                  ...(sweep?.order.has(cell) ? { "--sweep-i": sweep.order.get(cell) } : null),
+                  ...(rings ? { "--ring": rings[cell] } : null),
+                } as CSSProperties}>
                 <Cell
                   cell={cell}
                   value={value}

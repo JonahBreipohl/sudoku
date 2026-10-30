@@ -993,25 +993,19 @@ button {
   .cell--shake { animation: cell-shake 200ms ease-in-out; }
 }
 
-/* Completion: a brief row-by-row ripple. Transform and shadow only, so nothing reflows;
-   gated on no-preference so reduced motion gets no animation at all. Total under 1.2 s. */
+/* Completion: a ripple radiating from the last placed cell, 45 ms per Chebyshev ring, with a
+   soft glow. Transform and box-shadow only, so nothing reflows. Gated on no-preference so
+   reduced motion gets no animation at all (the global clamp backs that up). Farthest ring
+   starts at 360 ms and runs 500 ms, so the whole thing ends under 1 s. */
 @keyframes board-solved {
   0%, 100% { transform: scale(1); box-shadow: none; }
-  40% { transform: scale(1.06); box-shadow: inset 0 0 0 3px var(--focus); }
+  40% { transform: scale(1.06); box-shadow: inset 0 0 0 3px var(--focus), 0 0 14px 2px var(--focus); }
 }
 @media (prefers-reduced-motion: no-preference) {
   .board[data-solved] .board-row > [role="gridcell"] {
     animation: board-solved 0.5s ease-in-out both;
-    animation-delay: calc(var(--row, 0) * 70ms);
+    animation-delay: calc(var(--ring, 0) * 45ms);
   }
-  .board[data-solved] .board-row:nth-child(2) { --row: 1; }
-  .board[data-solved] .board-row:nth-child(3) { --row: 2; }
-  .board[data-solved] .board-row:nth-child(4) { --row: 3; }
-  .board[data-solved] .board-row:nth-child(5) { --row: 4; }
-  .board[data-solved] .board-row:nth-child(6) { --row: 5; }
-  .board[data-solved] .board-row:nth-child(7) { --row: 6; }
-  .board[data-solved] .board-row:nth-child(8) { --row: 7; }
-  .board[data-solved] .board-row:nth-child(9) { --row: 8; }
 }
 
 /* Unit completion sweep: a soft ring-and-pulse stepping across the cells, 25 ms apart (about
