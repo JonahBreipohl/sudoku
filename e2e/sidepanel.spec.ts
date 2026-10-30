@@ -82,3 +82,39 @@ test.describe("phone", () => {
     await expect(page.locator(".history-scroll")).toBeHidden();
   });
 });
+
+for (const size of [
+  { width: 1440, height: 900 },
+  { width: 1024, height: 768 },
+]) {
+  test.describe(`header and panel alignment ${size.width}x${size.height}`, () => {
+    test.use({ viewport: size });
+
+    test("header gaps are even and the panel top matches the board", async ({ page }) => {
+      await page.goto("/");
+      const grid = page.getByRole("grid", { name: "Sudoku board" });
+      await expect(grid).toBeVisible();
+      const m = await page.evaluate(() => {
+        const header = document.querySelector(".app-header")!;
+        const kids = [...header.children]
+          .map((el) => el.getBoundingClientRect())
+          .filter((r) => r.width > 0);
+        const gaps = kids.slice(1).map((r, i) => Math.round(r.left - kids[i]!.right));
+        const board = document.querySelector(".board")!.getBoundingClientRect();
+        const side = document.querySelector(".play-side")!.getBoundingClientRect();
+        return {
+          gaps,
+          boardTop: board.top,
+          sideTop: side.top,
+          scrollX: document.documentElement.scrollWidth <= window.innerWidth,
+        };
+      });
+      // Exactly one larger gap (between the two groups); every other gap is 8px.
+      const big = m.gaps.filter((g) => g !== 8);
+      expect(big.length).toBeLessThanOrEqual(1);
+      if (big[0] !== undefined) expect(big[0]).toBeGreaterThan(8);
+      expect(Math.abs(m.sideTop - m.boardTop)).toBeLessThanOrEqual(2);
+      expect(m.scrollX).toBe(true);
+    });
+  });
+}
