@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import { type CandidateMask, type Grid } from "../../engine";
 import { highlightsFor } from "../highlight";
 import { Cell, type CellMark } from "./Cell";
@@ -20,11 +21,13 @@ interface BoardProps {
   preview?: boolean;
   /** Plays the one-shot completion animation (CSS only, skipped under reduced motion). */
   solved?: boolean;
+  /** Cells to sweep after a move completed a unit: cell to stagger step; phase restarts the animation. */
+  sweep?: { order: ReadonlyMap<number, number>; phase: 0 | 1 } | null;
 }
 
 const ROWS = Array.from({ length: 9 }, (_, i) => i);
 
-export function Board({ givens, board, notes, selected, conflicts, wrong, marks, onSelect, lockedDigit = null, preview = false, solved = false }: BoardProps) {
+export function Board({ givens, board, notes, selected, conflicts, wrong, marks, onSelect, lockedDigit = null, preview = false, solved = false, sweep = null }: BoardProps) {
   const highlights = highlightsFor({ board, notes, conflicts }, selected, lockedDigit);
 
   return (
@@ -38,7 +41,9 @@ export function Board({ givens, board, notes, selected, conflicts, wrong, marks,
             const hl = highlights[cell]!;
             const isSelected = hl.selected;
             return (
-              <div role="gridcell" key={c} aria-selected={isSelected}>
+              <div role="gridcell" key={c} aria-selected={isSelected}
+                data-sweep={sweep?.order.has(cell) ? sweep.phase : undefined}
+                style={sweep?.order.has(cell) ? ({ "--sweep-i": sweep.order.get(cell) } as CSSProperties) : undefined}>
                 <Cell
                   cell={cell}
                   value={value}

@@ -1014,6 +1014,28 @@ button {
   .board[data-solved] .board-row:nth-child(9) { --row: 8; }
 }
 
+/* Unit completion sweep: a soft ring-and-pulse stepping across the cells, 25 ms apart (about
+   400 ms in all). Transform and box-shadow only, so nothing reflows; two phases alternate so
+   back-to-back sweeps restart. Reduced motion gets none (and the global clamp backs that up). */
+@keyframes unit-sweep-a {
+  0%, 100% { transform: scale(1); box-shadow: none; }
+  40% { transform: scale(1.04); box-shadow: inset 0 0 0 3px var(--focus); }
+}
+@keyframes unit-sweep-b {
+  0%, 100% { transform: scale(1); box-shadow: none; }
+  40% { transform: scale(1.04); box-shadow: inset 0 0 0 3px var(--focus); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .board [role="gridcell"][data-sweep="0"] {
+    animation: unit-sweep-a 200ms ease-in-out both;
+    animation-delay: calc(var(--sweep-i, 0) * 25ms);
+  }
+  .board [role="gridcell"][data-sweep="1"] {
+    animation: unit-sweep-b 200ms ease-in-out both;
+    animation-delay: calc(var(--sweep-i, 0) * 25ms);
+  }
+}
+
 /* Analysis report */
 .analysis {
   padding: 8px 12px;
