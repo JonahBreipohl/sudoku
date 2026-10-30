@@ -3158,7 +3158,7 @@
         "e2e test completes a row and sees the sweep attribute",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },

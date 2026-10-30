@@ -405,3 +405,7 @@ Plan usage: 5h ~20% of 60%, 7d ~49% of 85% (estimate). Next up: M11-03, M11-08. 
 run 20261030-1124 (~26 min): main fast-forwarded 106 commits from stale shallow checkout. Trunk green (754 tests).
 - M11-03 (feature-dev, sonnet S): pass, need 0.5, actual 0.40, overhead ~0.36, not reviewed (Q4). check 754, build, e2e 293 pass + 1 skipped (a first e2e attempt failed only because two runs overlapped on the port). Merged. Follow-up: note fade-in (.note--in) has no test.
 Plan usage: 5h ~25% of 60%, 7d ~50% of 85% (estimate). Next up: M11-04, M11-06, M11-08. Stopped after one task to keep the run short.
+
+run 20261030-1245 (~20 min): main in sync (already up to date). Trunk green (754 tests).
+- M11-04 (feature-dev, sonnet S): pass, need 0.5, actual 0.58, overhead ~0.22, not reviewed (Q4). check 763, build, e2e 295 pass + 1 skipped. Merged. Follow-up noted: spotify-theme "returning from sign-in" e2e flaky under full-suite load (passes alone).
+Plan usage: 5h ~33% of 60%, 7d ~51% of 85% (estimate). Next up: M11-05, M11-06, M11-07, M11-08. Stopped after one task to keep the run short.
