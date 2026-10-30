@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import { expect, test, clickHeaderAction } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 // SAMPLE_EASY is the default puzzle: cell 0 is a given 5, cells 2-4 are empty peers in row 1.
@@ -8,7 +8,7 @@ const pad = (page: Page) => page.getByRole("group", { name: /^Number pad/ });
 const padKey = (page: Page, d: number) => pad(page).getByRole("button", { name: new RegExp(`^${d}\\b`) });
 
 async function setDigitFirst(page: Page) {
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   await page.getByRole("dialog", { name: "Settings" }).getByRole("radio", { name: "Digit first" }).check();
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);

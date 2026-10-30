@@ -1,4 +1,4 @@
-import { test as base, expect } from "@playwright/test";
+import { test as base, expect, type Page } from "@playwright/test";
 
 /** Fails any test that logs a console error or throws an uncaught page error. */
 export const test = base.extend<{ consoleErrors: string[] }>({
@@ -17,3 +17,14 @@ export const test = base.extend<{ consoleErrors: string[] }>({
 });
 
 export { expect };
+
+/** Clicks a header action, going through the "More" menu when the header is in its phone layout. */
+export async function clickHeaderAction(page: Page, name: string) {
+  const more = page.getByRole("button", { name: /^More/ });
+  if (await more.isVisible()) {
+    await more.click();
+    await page.locator("#more-menu").getByRole("button", { name, exact: true }).click();
+  } else {
+    await page.getByRole("button", { name, exact: true }).click();
+  }
+}

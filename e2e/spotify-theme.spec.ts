@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test } from "./fixtures";
+import { expect, test, clickHeaderAction } from "./fixtures";
 
 const CLIENT_ID = "0123456789abcdef0123456789abcdef";
 // 1x1 transparent PNG for the album cover.
@@ -121,7 +121,7 @@ test("Spotify toggle in Display hides and shows the card", async ({ page }) => {
 
 test("Settings take a client ID and show the redirect URI to register", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   const dialog = page.getByRole("dialog");
   const connect = dialog.getByRole("button", { name: "Connect Spotify" });
   await expect(connect).toBeDisabled();

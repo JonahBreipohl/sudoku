@@ -222,6 +222,8 @@ export const importErrors: Record<string, string> = {
 
 export const app = {
   title: "Sudoku",
+  more: "More",
+  moreMenuLabel: "More actions",
   hintFailed: "Hint could not be computed. Please try again.",
   abandonImportTitle: "Abandon this game?",
   abandonImportConfirm: "Abandon and import",

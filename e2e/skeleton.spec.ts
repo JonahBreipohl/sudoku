@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { SAMPLE_EASY } from "../src/engine/samples";
-import { expect, test } from "./fixtures";
+import { expect, test, clickHeaderAction } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
@@ -60,8 +60,7 @@ test("marks conflicts without relying on color", async ({ page }) => {
 
 test("settings dialog changes the theme by keyboard, persists, and System follows the OS live", async ({ page }) => {
   const html = page.locator("html");
-  await page.getByRole("button", { name: "Settings" }).focus();
-  await page.keyboard.press("Enter");
+  await clickHeaderAction(page, "Settings");
   const dialog = page.getByRole("dialog", { name: "Settings" });
   await expect(dialog).toBeVisible();
   await dialog.getByRole("radio", { name: "Dark" }).focus();
@@ -72,7 +71,7 @@ test("settings dialog changes the theme by keyboard, persists, and System follow
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "light");
 
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   await page.getByRole("radio", { name: "System" }).check();
   await expect(html).not.toHaveAttribute("data-theme", /.+/);
   await page.emulateMedia({ colorScheme: "dark" });
@@ -82,16 +81,16 @@ test("settings dialog changes the theme by keyboard, persists, and System follow
 
   await page.keyboard.press("Escape");
   await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Settings" })).toBeFocused();
+  await expect(page.getByRole("button", { name: /^(Settings|More)/ })).toBeFocused();
 });
 
 test("settings dialog toggles reach the app", async ({ page }) => {
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   const dialog = page.getByRole("dialog", { name: "Settings" });
   await dialog.getByRole("radio", { name: "Digit first" }).check();
   await dialog.getByRole("checkbox", { name: /Show timer/ }).uncheck();
   await page.reload();
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   await expect(page.getByRole("radio", { name: "Digit first" })).toBeChecked();
   await expect(page.getByRole("checkbox", { name: /Show timer/ })).not.toBeChecked();
 });
@@ -99,7 +98,7 @@ test("settings dialog toggles reach the app", async ({ page }) => {
 for (const theme of ["light", "dark"] as const) {
   test(`settings dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme });
-    await page.getByRole("button", { name: "Settings" }).click();
+    await clickHeaderAction(page, "Settings");
     const dialog = page.getByRole("dialog", { name: "Settings" });
     await expect(dialog).toBeVisible();
     const results = await new AxeBuilder({ page }).analyze();
@@ -445,7 +444,7 @@ test("undo and redo shortcuts, and P pauses", async ({ page }) => {
 for (const theme of ["light", "dark"] as const) {
   test(`shortcuts dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme });
-    await page.getByRole("button", { name: "Shortcuts" }).click();
+    await clickHeaderAction(page, "Shortcuts");
     const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
     await expect(dialog).toBeVisible();
     const results = await new AxeBuilder({ page }).analyze();
@@ -573,7 +572,7 @@ test("Check reports on track or a count without digits, and marks wrong cells wi
 
   // With the setting off, the count shows but no cell is marked.
   await page.keyboard.press("9");
-  await page.getByRole("button", { name: "Settings" }).click();
+  await clickHeaderAction(page, "Settings");
   await page.getByRole("checkbox", { name: /Highlight wrong cells/ }).uncheck();
   await page.getByRole("button", { name: "Close" }).click();
   await check.click();

@@ -67,6 +67,7 @@ import { unitsCompletedBy } from "./unitComplete";
 import { prefersReducedMotion, RIPPLE_DIALOG_DELAY_MS } from "./ripple";
 import { useSettings } from "./useSettings";
 import { haptic } from "./haptics";
+import { MoreMenu } from "./components/MoreMenu";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
@@ -774,7 +775,7 @@ function Game({
         <ThemeToggle />
         <button
           type="button"
-          className="ctl"
+          className="ctl header-extra"
           aria-haspopup="dialog"
           onClick={() => setShareOpen(true)}
         >
@@ -782,7 +783,7 @@ function Game({
         </button>
         <button
           type="button"
-          className="ctl"
+          className="ctl header-extra"
           aria-haspopup="dialog"
           disabled={pending}
           onClick={() => setImportOpen(true)}
@@ -791,7 +792,7 @@ function Game({
         </button>
         <button
           type="button"
-          className="ctl"
+          className="ctl header-extra"
           onClick={() => setHelpOpen(true)}
           aria-keyshortcuts="?"
         >
@@ -799,18 +800,27 @@ function Game({
         </button>
         <button
           type="button"
-          className="ctl"
+          className="ctl header-extra"
           onClick={() => setStatsOpen(true)}
         >
           Stats
         </button>
         <button
           type="button"
-          className="ctl"
+          className="ctl header-extra"
           onClick={() => setSettingsOpen(true)}
         >
           Settings
         </button>
+        <MoreMenu
+          items={[
+            { label: "Share", onSelect: () => setShareOpen(true), dialog: true },
+            { label: "Import", onSelect: () => setImportOpen(true), dialog: true, disabled: pending },
+            { label: "Shortcuts", onSelect: () => setHelpOpen(true) },
+            { label: "Stats", onSelect: () => setStatsOpen(true) },
+            { label: "Settings", onSelect: () => setSettingsOpen(true) },
+          ]}
+        />
         <button
           type="button"
           className="ctl"
