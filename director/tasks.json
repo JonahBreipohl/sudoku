@@ -2058,10 +2058,9 @@
         "All component strings come from strings.ts",
         "No behavior changes; check and e2e pass"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 3,
-      "notes": "Attempt 2 partial (161b0d5, check 722 + build + e2e 275 green, pushed). Migrated all but: Board.tsx grid aria-label/preview, Cell.tsx, nested group labels in AnalysisPanel.tsx, row labels/phase names in analysisCopy.ts, rest of TodayStats.tsx. Then light copy edits (sentence case, shorter) with e2e spec updates in same commit (regression.spec.ts matches Statistics, share.spec.ts matches Import a puzzle). Branch has main merged in.",
-      "branch": "task/M10-05"
+      "notes": "Attempt 3 pass (58cdb77): all component strings in strings.ts; wording unchanged."
     },
     {
       "id": "M10-06",
@@ -3029,6 +3028,29 @@
       "status": "done",
       "attempts": 1,
       "notes": ""
+    },
+    {
+      "id": "M10-05a",
+      "title": "Move analysis explanation sentences into strings.ts",
+      "milestone": 10,
+      "priority": 3,
+      "size": "S",
+      "model": "haiku",
+      "agent": "chore-dev",
+      "deps": [
+        "M10-05"
+      ],
+      "files": [
+        "src/ui/strings.ts",
+        "src/ui/analysisCopy.ts"
+      ],
+      "description": "Move the long sentences in describeDiagnosis and describeMistake (src/ui/analysisCopy.ts) into strings.ts; then a light wording pass (sentence case, shorter), updating matching e2e specs in the same commit.",
+      "acceptance": [
+        "No inline user-facing template literals left in analysisCopy.ts",
+        "check and e2e pass"
+      ],
+      "status": "todo",
+      "attempts": 0
     }
   ]
 }
