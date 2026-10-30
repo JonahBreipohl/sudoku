@@ -3242,9 +3242,9 @@
         "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-up: resuming an already-submitted solved game replays the ripple and delays dialog 900ms. No e2e for ripple timing."
     },
     {
       "id": "M11-08",
