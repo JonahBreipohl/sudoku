@@ -3071,8 +3071,8 @@
         "Passes 10 runs in a row with --repeat-each=10 on both projects",
         "Full e2e green twice in a row"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
