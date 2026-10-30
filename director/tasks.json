@@ -3213,7 +3213,7 @@
         "No console errors where vibrate is missing",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
       "notes": ""
     },
