@@ -3298,9 +3298,9 @@
         "Existing layout specs pass",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Merged. Follow-ups: menu labels hardcoded in App.tsx; no arrow-key nav in More menu."
     },
     {
       "id": "M11-10",
