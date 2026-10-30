@@ -51,7 +51,7 @@ test("a quick wrong key next to the right one is diagnosed as a typo", async ({ 
   await play(page, 6, 8, 0); // 9 is the answer; 8 sits beside it on the keys
   const panel = await submitAndAnalyze(page);
   await expect(panel).toContainText("First mistake: r1c7");
-  await expect(panel).toContainText("You placed 8 in r1c7, but the right answer is 9.");
+  await expect(panel).toContainText("You placed 8 in r1c7. The right answer is 9.");
   await expect(panel).toContainText("slip of the finger");
   await noAxeViolations(page);
 });
