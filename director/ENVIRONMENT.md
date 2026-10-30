@@ -84,6 +84,15 @@ Director and subagents, and how long the run took.
 
 ## Tooling repairs
 
+- 2026-10-30: the 10-28 stop came from the scheduled task's own prompt, which did a plain
+  `git fetch` + `git merge --ff-only` before Starting Prompt.txt (and the repo's sync script) was
+  read. The container's checkout was stale (03e34f5, 2026-10-27) and shallow, so it looked
+  unrelated; the "66 local commits" were all already in origin/main (backup/local-main-20261028
+  holds nothing unique). The scheduled task's prompt now unshallows first, fast-forwards when main
+  is an ancestor of origin/main, and otherwise renames the stale main (pushing it as a backup only
+  if it has unique commits) and checks out origin/main. Step 1 of Starting Prompt.txt matches.
+  Tested on a stale depth-1 clone at 03e34f5 and on a truly diverged one.
+
 - 2026-10-28: run "stopped 20261028-run" reported unrelated histories again (66 ahead, 64 behind,
   no merge base) even though the hook existed; it only unshallowed after a failure, and the
   Director's own sync in step 1 didn't use it. sync-trunk.sh now unshallows every time (about a
