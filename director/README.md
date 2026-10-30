@@ -104,7 +104,10 @@ or append a line to `plan-readings.jsonl` and commit it:
 ```
 
 `at` is when you looked (UTC). `resets_at` (when the 5-hour window resets) is optional but makes
-the reading more precise. Readings taken soon after a Director run, while you've used little
+the reading more precise. If you know how much a single Director run used rather than the
+window's total, record that share with the run's dollars from `runs.jsonl`:
+`node scripts/plan-budget.mjs --record --five-hour 3 --director-usd 0.25`
+(`"director_usd": 0.25` in the JSON line). Readings taken soon after a Director run, while you've used little
 yourself, are the most useful. Readings under 3% are ignored. Local runs with the live signal
 record readings by themselves.
 

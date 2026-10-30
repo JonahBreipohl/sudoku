@@ -6,12 +6,14 @@
 //   node scripts/plan-budget.mjs --since <run_start ISO> --log-run <run_id> [--run-usd <n>]
 //   node scripts/plan-budget.mjs --record [--five-hour <pct>] [--seven-day <pct>]
 //                                [--resets-at <ISO|epoch s>] [--at <ISO>] [--source <name>]
+//                                [--director-usd <n>]
 // Common: [--now <ISO>] [--config <file>] [--director <dir>] [--plan-usage <file>]
 //
 // Default: prints JSON with, per window, used_pct, budget_pct, remaining_pct, remaining_usd.
 // --log-run appends this run's spend to director/runs.jsonl (at wrap-up).
 // --record appends a reading to director/plan-readings.jsonl: the given percentages, or the live
-// snapshot when none are given.
+// snapshot when none are given. With --director-usd the percentages are how much that spend used
+// (say, one run's share of the window) rather than the window's total.
 //
 // How much of a window is used:
 // - live: ~/.claude/plan-usage.json (scripts/statusline-snapshot.sh) is fresh and its window has
@@ -82,7 +84,8 @@ export function usdPerPct({ window, readings, runs, prior, count }) {
     // the trailing window length.
     const resets = window === "five_hour" ? toMs(r.resets_at) : NaN;
     const start = Number.isNaN(resets) ? at - ms : resets - ms;
-    const usd = spendStartedIn(runs, start, at);
+    // A reading of how much one run used (director_usd) needs no window spend: it is the ratio.
+    const usd = typeof r.director_usd === "number" ? r.director_usd : spendStartedIn(runs, start, at);
     if (usd > 0) ratios.push(usd / pct);
   }
   const recent = ratios.slice(-count).sort((a, b) => a - b);
@@ -207,6 +210,10 @@ function main() {
       };
     } else {
       if (args["resets-at"]) row.resets_at = args["resets-at"];
+      if (args["director-usd"] !== undefined) {
+        row.director_usd = Number(args["director-usd"]);
+        if (Number.isNaN(row.director_usd)) fail(`cannot parse --director-usd ${args["director-usd"]}`);
+      }
       row.source = args.source || "owner";
     }
     if (Number.isNaN(toMs(row.at))) fail(`cannot parse --at ${row.at}`);

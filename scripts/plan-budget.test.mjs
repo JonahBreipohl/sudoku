@@ -65,6 +65,12 @@ describe("usdPerPct", () => {
     expect(r.readings).toBe(3);
   });
 
+  it("takes a reading of one run's share as that run's dollars over its percent", () => {
+    // Window spend would be b + c = 2.5; the reading says $0.25 alone used 3%.
+    const readings = [{ at: "2026-10-28T06:30:00Z", five_hour_pct: 3, director_usd: 0.25 }];
+    expect(usdPerPct({ window: "five_hour", readings, runs, prior: 0.1, count: 5 }).usd_per_pct).toBeCloseTo(0.25 / 3);
+  });
+
   it("skips readings too small to divide by and windows the Director didn't use", () => {
     const readings = [
       { at: "2026-10-28T06:30:00Z", five_hour_pct: 1 },
