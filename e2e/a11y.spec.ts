@@ -21,7 +21,7 @@ for (const theme of ["light", "dark"] as const) {
     await expectNoSeriousViolations(page);
 
     for (const name of ["Settings", "Shortcuts", "Stats"]) {
-      await page.getByRole("button", { name, exact: true }).click();
+      await clickHeaderAction(page, name);
       await expect(page.getByRole("dialog")).toBeVisible();
       await expectNoSeriousViolations(page);
       await page.keyboard.press("Escape");
