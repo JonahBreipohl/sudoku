@@ -3242,8 +3242,8 @@
         "Respects prefers-reduced-motion: no animation or transition under reduce (the global rule in styles.css already clamps durations; verify it)",
         "e2e green"
       ],
-      "status": "todo",
-      "attempts": 0,
+      "status": "in_progress",
+      "attempts": 1,
       "notes": ""
     },
     {
