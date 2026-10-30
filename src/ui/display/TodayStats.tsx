@@ -18,11 +18,10 @@ export function TodayStats({ now }: { now: number }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [minute, status],
   );
-  const none = "–";
   const items: [string, string][] = [
     [display.solvedToday, String(stats.solved)],
-    [display.totalTime, stats.solved ? formatElapsed(stats.totalMs) : none],
-    [display.bestTime, stats.bestMs === null ? none : formatElapsed(stats.bestMs)],
+    [display.totalTime, stats.solved ? formatElapsed(stats.totalMs) : display.none],
+    [display.bestTime, stats.bestMs === null ? display.none : formatElapsed(stats.bestMs)],
     [display.streak, `${stats.streak} ${stats.streak === 1 ? display.day : display.days}`],
   ];
   return (

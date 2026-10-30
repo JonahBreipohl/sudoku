@@ -36,7 +36,7 @@ export const AnalysisPanel = forwardRef<HTMLElement, AnalysisPanelProps>(functio
       <div className="analysis-head">
         <h2 className="analysis-title">{analysis.title}</h2>
         <button type="button" className="ctl" onClick={onClose}>
-          Close analysis
+          {analysis.close}
         </button>
       </div>
       <Body state={state} onRetry={onRetry} />
@@ -81,7 +81,7 @@ function RewindActions({
     <div className="timeline-row" role="group" aria-label={analysis.rewindGroup}>
       {before !== null && (
         <button type="button" className="ctl" data-testid="rewind-before-mistake" onClick={() => onRewind(before)}>
-          Rewind to before the mistake
+          {analysis.rewindBefore}
         </button>
       )}
       <button
@@ -91,7 +91,7 @@ function RewindActions({
         disabled={s >= length}
         onClick={() => onRewind(s)}
       >
-        Rewind to this move and play on
+        {analysis.rewindHere}
       </button>
     </div>
   );
@@ -101,7 +101,7 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
   if (state.status === "idle" || state.status === "loading")
     return (
       <p className="analysis-note" role="status">
-        Analysing your game…
+        {analysis.analysing}
       </p>
     );
   if (state.status === "error")
@@ -110,7 +110,7 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
         <p className="analysis-note">{state.message}</p>
         {onRetry && (
           <button type="button" className="ctl" onClick={onRetry}>
-            Try again
+            {analysis.retry}
           </button>
         )}
       </div>
@@ -120,7 +120,7 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
     return (
       <>
         <p className="analysis-lead">
-          <span aria-hidden="true">✓ </span>No mistakes on this path.
+          <span aria-hidden="true">{analysis.checkMark}</span>{analysis.noMistakes}
         </p>
         <dl className="analysis-facts">
           {solveSummary(solve).map((r) => (
@@ -147,18 +147,18 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
   return (
     <>
       <p className="analysis-lead">
-        <span aria-hidden="true">! </span>
-        First mistake: {cellName(m.root.mistake.cell)}
+        <span aria-hidden="true">{analysis.mistakeMark}</span>
+        {analysis.firstMistake(cellName(m.root.mistake.cell))}
       </p>
       <p>{describeMistake(m.root.mistake)}</p>
       <p>{describeDiagnosis(m.root)}</p>
       <p className="analysis-key">
-        <span className="key-swatch key-swatch--root" aria-hidden="true" /> Mistake cell (solid frame, “!”)
+        <span className="key-swatch key-swatch--root" aria-hidden="true" /> {analysis.keyRoot}
         {support.length > 0 && (
           <>
             {" "}
-            <span className="key-swatch key-swatch--support" aria-hidden="true" /> Reason cells: {support.map(cellName).join(", ")}{" "}
-            (dashed frame, “◆”)
+            <span className="key-swatch key-swatch--support" aria-hidden="true" /> {analysis.keyReasonCells(support.map(cellName).join(", "))}{" "}
+            {analysis.keyReasonFrame}
           </>
         )}
       </p>
@@ -169,14 +169,14 @@ function Body({ state, onRetry }: { state: AnalysisState; onRetry?: () => void }
           <h3 className="analysis-sub">{analysis.ledTo}</h3>
           <ol className="analysis-list">
             {m.cascade.map((c) => (
-              <li key={c.eventId}>You {describeCascade(c)}</li>
+              <li key={c.eventId}>{analysis.you}{describeCascade(c)}</li>
             ))}
           </ol>
         </>
       )}
       {m.mistakes.length > 1 && (
         <p className="analysis-note">
-          {m.mistakes.length} mistakes in total; later ones often follow from the first.
+          {analysis.totalMistakes(m.mistakes.length)}
         </p>
       )}
     </>

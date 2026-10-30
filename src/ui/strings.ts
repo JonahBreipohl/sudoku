@@ -193,12 +193,52 @@ export const app = {
 export const analysis = {
   label: "Analysis",
   title: "Analysis",
+  close: "Close analysis",
+  analysing: "Analysing your game…",
+  retry: "Try again",
   timeline: "Timeline",
   rewindGroup: "Rewind and keep playing",
+  rewindBefore: "Rewind to before the mistake",
+  rewindHere: "Rewind to this move and play on",
   pauses: "Longest pauses in thinking",
   couldHaveDone: "What you could have done",
   ledTo: "What it led to",
   noAlternative: "No step at your level was available at that point.",
+  noMistakes: "No mistakes on this path.",
+  checkMark: "✓ ",
+  mistakeMark: "! ",
+  firstMistake: (cell: string) => `First mistake: ${cell}`,
+  keyRoot: "Mistake cell (solid frame, “!”)",
+  keyReasonCells: (cells: string) => `Reason cells: ${cells}`,
+  keyReasonFrame: "(dashed frame, “◆”)",
+  you: "You ",
+  totalMistakes: (n: number) => `${n} mistakes in total; later ones often follow from the first.`,
+};
+
+/** Labels for the analysis report's facts and the solve breakdown. */
+export const analysisCopy = {
+  layout: {
+    pad: "the on-screen pad",
+    "number-row": "the number row",
+    numpad: "the numpad",
+    keys: "the keys",
+  } as Record<string, string>,
+  activeTime: "Active time",
+  pausedTime: "Paused time",
+  byPhase: "By phase",
+  phases: ["Start", "Middle", "End"],
+  hardest: "Hardest technique",
+  noneNeeded: "None needed",
+  assists: "Assists",
+  none: "None",
+  check: (n: number) => `${n} ${n === 1 ? "check" : "checks"}`,
+  hints: (n: number) => `${n} hints`,
+  autoNotes: (n: number) => `${n} auto-notes`,
+  revealed: (n: number) => `${n} revealed`,
+  beforeYourMove: (time: string) => `${time} before your move`,
+  available: (technique: string, explanation: string) => `available: ${technique}. ${explanation}`,
+  minutes: (m: number, s: number) => `${m} min ${s} s`,
+  seconds: (s: number) => `${s} s`,
 };
 
 export const display = {
@@ -221,4 +261,23 @@ export const display = {
   streak: "Streak",
   day: "day",
   days: "days",
+  none: "–",
+};
+
+/** Accessible names for the board grid. */
+export const boardLabels = {
+  grid: "Sudoku board",
+  preview: "Sudoku board, preview of an earlier move",
+};
+
+/** Accessible name parts for one cell; joined in Cell.tsx so the order stays fixed. */
+export const cellLabels = {
+  position: (row: number, col: number) => `Row ${row}, column ${col}`,
+  given: "given",
+  empty: "empty",
+  notes: (digits: string) => `notes ${digits}`,
+  conflict: "conflict",
+  wrong: "wrong",
+  mistake: "mistake",
+  reasonForMistake: "reason for mistake",
 };
