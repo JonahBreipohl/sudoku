@@ -3270,9 +3270,9 @@
         "axe green",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-up: pause overlay outgoing fade not animated (node unmounts)."
     },
     {
       "id": "M11-09",

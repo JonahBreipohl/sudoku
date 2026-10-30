@@ -421,3 +421,7 @@ Plan usage: 5h ~45% of 60% (estimate). Next up: M11-07, M11-08. Stopped after on
 run 20261030-1610 (~15 min): main fast-forwarded 122 commits from stale shallow checkout. Trunk green (769 tests).
 - M11-07 (feature-dev, sonnet S): pass, need 0.5, actual ~0.30, overhead ~0.1, not reviewed (Q4). check 772, build, e2e 295 pass + 1 skipped. Merged. Follow-up: resuming a solved game replays ripple and delays dialog; no e2e for ripple.
 Plan usage: 5h ~40% of 60% (estimate). Next up: M11-08, M11-09, M11-11. Stopped after one task to keep the run short.
+
+run 20261030-1650 (~20 min): main fast-forwarded 126 commits from stale shallow checkout. Trunk green (772 tests).
+- M11-08 (feature-dev, sonnet S): pass, need 0.5, actual ~0.35 (estimate; transcripts unmeasured), overhead ~0.15, not reviewed (Q4). check 772, build, e2e 295 pass + 1 skipped. Merged. Follow-up: pause overlay outgoing fade not animated.
+Plan usage: 5h ~38% of 60%, 7d ~52% of 85% (estimate). Next up: M11-09, M11-11. Stopped after one task to keep the run short.
