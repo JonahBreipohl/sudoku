@@ -1,11 +1,11 @@
-# Director status (run 20261030-0258)
+# Director status (run 20261030-0322)
 
 ## Progress
 - M1-M9: all done
-- M10: 8/11 done; M10-05a todo; M10-09 blocked
+- M10: 10/11 done; M10-09 blocked
 
 ## Next ready
-- M10-05a haiku S (need 0.1): move analysis explanation sentences into strings.ts, light wording pass
+- none (M10-09 blocked on Q1)
 
 ## Blocked
 - M10-09 (Q1: hosting; owner will connect their own site later)

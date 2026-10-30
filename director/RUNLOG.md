@@ -385,3 +385,7 @@ stopped 20261028-run: local main has unrelated history to origin/main (66 ahead,
 run 20261030-0258 (~20 min): main in sync (local checkout was detached; checked out main). Trunk green (722 tests).
 - M10-05 (chore-dev, haiku S, attempt 3): pass, need 0.1, actual 0.033, overhead ~0.1, not reviewed (Q4). check 735, build, e2e 275 pass. Merged. Wording pass deferred to new task M10-05a.
 Plan usage: 5h ~0% of 60%, 7d ~73% of 85% (estimate). Next up: M10-05a. M10-09 blocked on Q1.
+
+run 20261030-0322 (~15 min): main in sync. Trunk green (735 tests).
+- M10-05a (chore-dev, haiku S): agent died on a context error after mostly finishing (cost recorded as estimate). Director verified the uncommitted work: check 735, build, e2e 274 pass + known submit.spec flake (passes 3x alone). Committed and merged.
+Plan usage: 5h ~3% of 60%, 7d ~50% of 85% (estimate). Next up: nothing ready; M10-09 blocked on Q1.

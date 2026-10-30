@@ -3049,7 +3049,7 @@
         "No inline user-facing template literals left in analysisCopy.ts",
         "check and e2e pass"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1
     }
   ]
