@@ -239,9 +239,12 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
   const onIdle = useCallback(() => setMode("display"), [setMode]);
   useIdle(appSettings.idleMinutes, !display, onIdle);
   // Game stays mounted (hidden) in Display so selection, notes mode and other local UI state survive the round trip.
+  // Crossfade back from Display only; the first load should not animate.
+  const [visitedDisplay, setVisitedDisplay] = useState(false);
+  if (display && !visitedDisplay) setVisitedDisplay(true);
   return (
     <GameProvider store={store}>
-      <div hidden={display}>
+      <div hidden={display} className={visitedDisplay ? "mode-fade" : undefined}>
         <Game
           key={store.getSnapshot().record.id}
           active={!display}
