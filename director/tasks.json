@@ -3071,9 +3071,9 @@
         "Passes 10 runs in a row with --repeat-each=10 on both projects",
         "Full e2e green twice in a row"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Root cause: lazy Analysis panel mounted after Escape and stole focus; test now waits for [data-analysis]."
     },
     {
       "id": "M11-02",
@@ -3346,6 +3346,29 @@
         "perf.spec 'interactive within 2 s' passes",
         "Offline and PWA specs pass",
         "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": ""
+    },
+    {
+      "id": "M11-01a",
+      "title": "Keep focus on New game after cancelling the picker from the result dialog",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [],
+      "files": [
+        "src/ui/App.tsx",
+        "src/ui/components/NewGame.tsx"
+      ],
+      "description": "Follow-up from M11-01: choosing New game from the result dialog then cancelling can leave focus on the Analysis section if the lazy panel mounts late. Skip the analysis auto-focus while the New game flow or another dialog is active.",
+      "acceptance": [
+        "Focus returns to the New game button after cancelling the picker, deterministically",
+        "Test without the wait-for-[data-analysis] workaround passes 10x per project",
+        "check, build, e2e green"
       ],
       "status": "todo",
       "attempts": 0,
