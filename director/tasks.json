@@ -2058,8 +2058,8 @@
         "All component strings come from strings.ts",
         "No behavior changes; check and e2e pass"
       ],
-      "status": "resume",
-      "attempts": 2,
+      "status": "in_progress",
+      "attempts": 3,
       "notes": "Attempt 2 partial (161b0d5, check 722 + build + e2e 275 green, pushed). Migrated all but: Board.tsx grid aria-label/preview, Cell.tsx, nested group labels in AnalysisPanel.tsx, row labels/phase names in analysisCopy.ts, rest of TodayStats.tsx. Then light copy edits (sentence case, shorter) with e2e spec updates in same commit (regression.spec.ts matches Statistics, share.spec.ts matches Import a puzzle). Branch has main merged in.",
       "branch": "task/M10-05"
     },
