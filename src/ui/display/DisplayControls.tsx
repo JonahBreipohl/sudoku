@@ -6,8 +6,8 @@ function isFullscreen(): boolean {
   return document.fullscreenElement != null;
 }
 
-/** Fullscreen and keep-awake toggles. Each renders nothing where its API is missing. */
-export function DisplayControls() {
+/** Fullscreen and keep-awake toggles (each hidden where its API is missing), then any `children`. */
+export function DisplayControls({ children }: { children?: React.ReactNode }) {
   const canFullscreen = fullscreenSupported(typeof document === "undefined" ? undefined : document);
   const canWake = wakeLockSupported(typeof navigator === "undefined" ? undefined : (navigator as Navigator));
 
@@ -49,7 +49,6 @@ export function DisplayControls() {
     }
   }, []);
 
-  if (!canFullscreen && !canWake) return null;
   return (
     <div className="display-controls">
       {canFullscreen && (
@@ -62,6 +61,7 @@ export function DisplayControls() {
           {wanted ? (awake ? display.keepAwakeOn : display.keepAwakeWaiting) : display.keepAwakeOff}
         </button>
       )}
+      {children}
     </div>
   );
 }

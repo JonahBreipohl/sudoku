@@ -1,5 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { display } from "../strings";
+import { display, spotify } from "../strings";
+import { useSettings } from "../useSettings";
+import { ThemeToggle } from "../components/ThemeToggle";
+import { NowPlayingCard } from "../spotify/NowPlayingCard";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
 import { useDrift } from "./useDrift";
@@ -25,6 +28,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   const now = useSecondTick(visible);
 
   const { dx, dy, night } = useDrift(now);
+  const { settings, update } = useSettings();
 
   const [params] = useState(() => watchParams(window.location.search));
   const [watching, setWatching] = useState(params.enabled);
@@ -51,13 +55,19 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
           <p className="display-time">{formatClockSeconds(now)}</p>
           <p className="display-date">{formatLongDate(now)}</p>
           <TodayStats now={now} />
+          {settings.nowPlaying && <NowPlayingCard clientId={settings.spotifyClientId} now={now} active={visible} />}
         </div>
         {watching ? <WatchPuzzle stepMs={params.stepMs} seed={params.seed} active={visible} /> : <DisplayBoard />}
       </main>
       <button type="button" className="ctl display-watch-toggle" aria-pressed={watching} onClick={() => setWatching((w) => !w)}>
         Watch puzzle
       </button>
-      <DisplayControls />
+      <DisplayControls>
+        <button type="button" className="ctl" aria-pressed={settings.nowPlaying} onClick={() => update({ nowPlaying: !settings.nowPlaying })}>
+          {settings.nowPlaying ? spotify.toggleOn : spotify.toggleOff}
+        </button>
+        <ThemeToggle />
+      </DisplayControls>
       <button ref={buttonRef} type="button" className="ctl display-exit" onClick={onExit} aria-keyshortcuts="Escape">
         Exit Display
       </button>

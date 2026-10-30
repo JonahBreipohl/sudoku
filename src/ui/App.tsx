@@ -64,6 +64,7 @@ import {
 import { moveSelection } from "./selection";
 import { describeChange, describeCheck, describeSubmit } from "./announce";
 import { useSettings } from "./useSettings";
+import { ThemeToggle } from "./components/ThemeToggle";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { useIdle } from "./useIdle";
@@ -712,6 +713,7 @@ function Game({
             <span aria-hidden="true">★ </span>Daily
           </span>
         )}
+        <ThemeToggle />
         <button
           type="button"
           className="ctl"

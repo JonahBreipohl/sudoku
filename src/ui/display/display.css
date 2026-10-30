@@ -294,3 +294,137 @@
   border: 3px solid var(--line-strong);
   font-weight: 700;
 }
+
+/* Spotify now-playing card under the clock. Sized from the display container like the rest. */
+.np {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5cqmin 2.5cqmin;
+  max-width: min(92cqw, 640px);
+  padding: 1.5cqmin 2cqmin;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  text-align: left;
+}
+
+.np-art {
+  width: clamp(64px, 14cqmin, 160px);
+  height: auto;
+  aspect-ratio: 1;
+  flex: none;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
+.np-art-empty {
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  font-size: 2rem;
+  color: var(--text-muted);
+}
+
+.np-meta {
+  flex: 1 1 14rem;
+  min-width: 0;
+}
+
+.np-meta p,
+.np-message {
+  margin: 0;
+}
+
+.np-title {
+  font-size: max(2.4cqmin, 16px);
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.np-artist,
+.np-album,
+.np-device {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+}
+
+.np-bar {
+  height: 6px;
+  margin-top: 8px;
+  border: 1px solid var(--line-strong);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.np-fill {
+  height: 100%;
+  background: var(--line-strong);
+  /* Moves once a second with the clock; no animation in between. */
+}
+
+.np-times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.np-controls {
+  display: flex;
+  gap: 8px;
+  margin: 6px 0 2px;
+}
+
+.np-btn {
+  min-width: var(--touch);
+  padding: 0;
+  font-size: 1.1rem;
+}
+
+.np-play {
+  border: 2px solid var(--line-strong);
+  font-weight: 700;
+}
+
+.np-notice {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.np-notice:empty {
+  display: none;
+}
+
+/* Portrait: compact card (small cover beside the text) and a smaller board, so clock, card and
+   board still fit between the corner controls. */
+@container display (orientation: portrait) {
+  .np {
+    width: min(92cqw, 520px);
+    padding: 8px 10px;
+  }
+  .np-meta {
+    flex-basis: 0;
+  }
+  .np-art {
+    width: clamp(56px, 16cqw, 96px);
+  }
+  .np-album,
+  .np-device {
+    display: none;
+  }
+  .np-controls {
+    margin-bottom: 0;
+  }
+  .display-body:has(.np) .dboard {
+    --dsize: min(84cqw, 36cqh);
+  }
+}
