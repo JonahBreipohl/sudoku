@@ -12,6 +12,11 @@ deploy.
 
 Answer:will switch to local environent later and connect to one of my existing websites
 
+Update 2026-10-31 (owner, via Claude session): hosting on Cloudflare Pages with Git integration
+on the owner's domain. The owner connects the repo in the Cloudflare dashboard; the repo side is
+done (public/_headers, host config excluded from precache, README "Deploy (Cloudflare)"). Keep
+the GitHub Pages workflow disabled. M10-09 is done once the owner confirms the site is live.
+
 ## Q2: Four opus M tasks can't fit a $6 run at the priors (non-blocking)
 
 M2-09 (chains + X-chains), M2-12 (unique rectangles), M3-02 (generate into a band) and M7-04

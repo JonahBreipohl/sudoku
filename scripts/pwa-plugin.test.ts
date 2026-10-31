@@ -6,6 +6,10 @@ describe("precacheList", () => {
     const list = precacheList(["sw.js", "index.html", "puzzles/easy.json", "assets/a-1.js", "assets/a-1.js.map", "manifest.webmanifest"]);
     expect(list).toEqual(["./", "assets/a-1.js", "manifest.webmanifest", "puzzles/easy.json"]);
   });
+
+  it("leaves out host config files, which hosts never serve", () => {
+    expect(precacheList(["_headers", "_redirects", "assets/a-1.js"])).toEqual(["./", "assets/a-1.js"]);
+  });
 });
 
 describe("stampWorker", () => {

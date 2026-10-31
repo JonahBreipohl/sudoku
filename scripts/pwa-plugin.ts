@@ -7,8 +7,12 @@ import { join, relative, sep } from "node:path";
 import { transformWithOxc, type Plugin } from "vite";
 
 /** Paths (relative to the output dir, "./" for the shell) the worker should precache. */
+// Host config files (Cloudflare's _headers and _redirects) are read by the host and never served,
+// so precaching them would 404 and fail the worker's install.
+const HOST_CONFIG = new Set(["_headers", "_redirects"]);
+
 export function precacheList(files: readonly string[]): string[] {
-  const keep = files.filter((f) => f !== "sw.js" && f !== "index.html" && !f.endsWith(".map")).sort();
+  const keep = files.filter((f) => f !== "sw.js" && f !== "index.html" && !f.endsWith(".map") && !HOST_CONFIG.has(f)).sort();
   return ["./", ...keep];
 }
 

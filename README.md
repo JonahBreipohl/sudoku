@@ -86,6 +86,21 @@ Sign-in uses Authorization Code with PKCE, so there is no secret and no server: 
 this browser and are sent only to Spotify. While Spotify is in development mode, only accounts
 you add under the app's User Management can sign in.
 
+## Deploy (Cloudflare)
+
+The app is a static folder, so any static host works. It is set up for Cloudflare:
+
+1. Cloudflare dashboard > Workers & Pages > Create > Pages > Connect to Git, and pick this repo.
+2. Build command `npm run build`, output directory `dist`, and environment variable
+   `NODE_VERSION` = `22`. Every push to `main` then deploys automatically.
+3. Custom domains > add e.g. `sudoku.example.com`. With the domain's DNS on Cloudflare, the
+   record and HTTPS certificate are created for you.
+
+`public/_headers` makes the service worker and page revalidate on every visit, so players get a
+new deploy on their next load, while fingerprinted assets cache for a year. Paths are relative,
+so a subfolder such as `example.com/sudoku/` also works. For Spotify, register the deployed
+address (e.g. `https://sudoku.example.com/`) as a Redirect URI.
+
 ## Develop, test and build
 
 Requires Node 22 or newer.
