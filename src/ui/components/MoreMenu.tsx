@@ -3,7 +3,9 @@ import { app } from "../strings";
 
 export interface MoreItem {
   label: string;
-  onSelect: () => void;
+  /** Plain same-tab link instead of an action. */
+  href?: string;
+  onSelect?: () => void;
   dialog?: boolean;
   disabled?: boolean;
 }
@@ -51,6 +53,11 @@ export function MoreMenu({ items }: { items: MoreItem[] }) {
         <ul id="more-menu" className="more-menu" aria-label={app.moreMenuLabel}>
           {items.map((it) => (
             <li key={it.label}>
+              {it.href ? (
+                <a className="ctl more-item more-link" href={it.href}>
+                  {it.label}
+                </a>
+              ) : (
               <button
                 type="button"
                 className="ctl more-item"
@@ -60,11 +67,12 @@ export function MoreMenu({ items }: { items: MoreItem[] }) {
                   // Dialogs restore focus to the last focused element; the menu item is about to unmount.
                   button.current?.focus();
                   setOpen(false);
-                  it.onSelect();
+                  it.onSelect?.();
                 }}
               >
                 {it.label}
               </button>
+              )}
             </li>
           ))}
         </ul>

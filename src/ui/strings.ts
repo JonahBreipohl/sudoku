@@ -220,8 +220,13 @@ export const importErrors: Record<string, string> = {
   worker: "The puzzle could not be checked. Please try again.",
 };
 
+/** Owner homepage; the only place the host appears, so a different host is a one-line change. */
+export const HOME_URL = "https://jonahbreipohl.com/";
+
 export const app = {
   title: "Sudoku",
+  homeLink: "← Jonah Breipohl",
+  homeMenuLabel: "Jonah Breipohl (home)",
   more: "More",
   moreMenuLabel: "More actions",
   hintFailed: "Hint could not be computed. Please try again.",
