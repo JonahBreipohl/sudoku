@@ -2157,10 +2157,9 @@
         "Workflow enabled per the answer; README links the live URL",
         "CI still runs check and build before deploy"
       ],
-      "status": "blocked",
+      "status": "done",
       "attempts": 0,
-      "notes": "",
-      "blocked_by": "Q1"
+      "notes": " Done 2026-10-31 by the owner: Cloudflare Workers static assets (wrangler.jsonc, Git integration on main) at https://jonahbreipohl.com/. GitHub Pages workflow stays disabled."
     },
     {
       "id": "M1-02a",

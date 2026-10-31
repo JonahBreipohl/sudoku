@@ -15,7 +15,7 @@ Answer:will switch to local environent later and connect to one of my existing w
 Update 2026-10-31 (owner, via Claude session): hosting on Cloudflare Pages with Git integration
 on the owner's domain. The owner connects the repo in the Cloudflare dashboard; the repo side is
 done (public/_headers, host config excluded from precache, README "Deploy (Cloudflare)"). Keep
-the GitHub Pages workflow disabled. M10-09 is done once the owner confirms the site is live.
+the GitHub Pages workflow disabled. M10-09 is done once the owner confirms the site is live. Confirmed live at https://jonahbreipohl.com/ (2026-10-31); M10-09 done.
 
 ## Q2: Four opus M tasks can't fit a $6 run at the priors (non-blocking)
 
