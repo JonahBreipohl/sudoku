@@ -159,6 +159,25 @@ button {
   margin-left: auto;
 }
 
+/* Quiet way back to the owner's homepage; the 44px target comes from the flex row's min-height. */
+.home-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch);
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  text-decoration: none;
+}
+.home-link:hover {
+  text-decoration: underline;
+}
+.more-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+}
+
 .app-header h1 {
   font-size: 1.4rem;
   margin: 12px 0;
@@ -647,7 +666,8 @@ button {
     justify-content: flex-start;
     gap: 0 8px;
   }
-  .header-extra {
+  .header-extra,
+  .home-link {
     display: none;
   }
   .more {

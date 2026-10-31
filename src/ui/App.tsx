@@ -72,7 +72,7 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { useIdle } from "./useIdle";
-import { app, common } from "./strings";
+import { app, common, HOME_URL } from "./strings";
 import {
   modeFromSearch,
   pauseForDisplay,
@@ -759,6 +759,9 @@ function Game({
       data-left-handed={settings.leftHanded ? "" : undefined}
     >
       <header className="app-header">
+        <a className="home-link" href={HOME_URL}>
+          {app.homeLink}
+        </a>
         <h1>{app.title}</h1>
         <NewGame
           pending={pending}
@@ -814,6 +817,7 @@ function Game({
         </button>
         <MoreMenu
           items={[
+            { label: app.homeMenuLabel, href: HOME_URL },
             { label: "Share", onSelect: () => setShareOpen(true), dialog: true },
             { label: "Import", onSelect: () => setImportOpen(true), dialog: true, disabled: pending },
             { label: "Shortcuts", onSelect: () => setHelpOpen(true) },

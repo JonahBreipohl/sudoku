@@ -162,6 +162,10 @@ for (const [w, h] of [
         await expect(more).toHaveAttribute("aria-expanded", "false");
         await more.click();
         await expect(more).toHaveAttribute("aria-expanded", "true");
+        const home = page.locator("#more-menu").getByRole("link", { name: "Jonah Breipohl (home)" });
+        await expect(home).toHaveAttribute("href", "https://jonahbreipohl.com/");
+        expect((await home.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+        expect(await page.locator("#more-menu a, #more-menu button").first().textContent()).toBe("Jonah Breipohl (home)");
         for (const name of ["Share", "Import", "Shortcuts", "Stats", "Settings"]) {
           const b = await page.getByRole("menu").or(page.locator("#more-menu")).getByRole("button", { name }).boundingBox();
           expect(b!.height).toBeGreaterThanOrEqual(44);
@@ -181,5 +185,21 @@ for (const [w, h] of [
         await expect(page.getByRole("dialog")).toBeVisible();
       });
     }
+  });
+}
+
+for (const [w, h] of [
+  [1440, 900],
+  [1024, 768],
+] as const) {
+  test(`home link in header at ${w}x${h}`, async ({ page }) => {
+    await page.setViewportSize({ width: w, height: h });
+    await open(page, "light");
+    const link = page.locator(".app-header").getByRole("link", { name: "← Jonah Breipohl" });
+    await expect(link).toBeVisible();
+    await expect(link).toHaveAttribute("href", "https://jonahbreipohl.com/");
+    expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
+    await link.focus();
+    await expect(link).toBeFocused();
   });
 }
