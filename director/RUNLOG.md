@@ -433,3 +433,8 @@ Plan usage: 5h ~47% of 60%, 7d ~53% of 85% (estimate). Next up: M11-10, M11-11. 
 run 20261030-1822 (~35 min): main fast-forwarded from stale shallow checkout. Trunk green (772 tests).
 - M11-10 (feature-dev, sonnet S): subagent reported partial (e2e unconfirmed, machine slow); Director ran check, build and full e2e itself: 307 pass + 1 skipped. Merged. need 0.5, actual ~0.5 (estimate), overhead ~0.2, not reviewed (Q4). Follow-up: no explicit check for widths 600-1023.
 Plan usage: 5h ~48% of 60%, 7d ~54% of 85% (estimate). Next up: M11-11. Stopped after one task to keep the run short.
+
+run 20261031-0108 (~45 min): main fast-forwarded 146 commits from stale shallow checkout. Trunk green (773 tests).
+- M11-12 (feature-dev, sonnet S): pass, need 0.5, actual ~0.45, overhead ~0.2, not reviewed (Q4). check, build, e2e 309 pass + 1 skipped. Merged. Follow-up: no direct test that online non-root navigation is not stored as shell.
+- M11-13 (feature-dev, sonnet S): pass, need 0.5, actual ~0.5, overhead ~0.2, not reviewed (Q4). check 773, build, e2e 313 pass + 1 skipped. Merged. Follow-ups: no Display-mode e2e for the link.
+Plan usage: 5h ~35% of 60%, 7d ~55% of 85% (estimate). Next up: M11-11. Stopped after two tasks to keep the run short.

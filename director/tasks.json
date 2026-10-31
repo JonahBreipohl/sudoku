@@ -3425,9 +3425,9 @@
         "e2e asserts the href at desktop and phone sizes",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": "Added by the owner's session 2026-10-31. Homepage repo: JonahBreipohl/JonahSite."
+      "notes": "Follow-ups: no dedicated e2e that Display mode hides the link; phone checks at 375x667/360x740."
     }
   ]
 }
