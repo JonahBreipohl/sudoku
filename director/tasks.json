@@ -3372,6 +3372,31 @@
       "status": "done",
       "attempts": 1,
       "notes": "Analysis ref skips focus when a dialog is open or New game has focus. check 754, build, e2e 291."
+    },
+    {
+      "id": "M11-12",
+      "title": "Service worker caches only its own page",
+      "milestone": 11,
+      "priority": 1,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [],
+      "files": [
+        "src/sw.ts",
+        "e2e/offline.spec.ts"
+      ],
+      "description": "src/sw.ts navigate() stores every navigation response as the app shell, and serves the shell for any offline navigation in scope. On a domain shared with other pages (Sudoku first ran at jonahbreipohl.com before moving to sudoku.jonahbreipohl.com) that can cache another page as the shell or show the game in place of another page. Only remember and serve the shell for navigations to the scope root itself (path equal to the registration scope, any query); let other navigations go straight to the network untouched. Same-origin asset caching should likewise stay within the scope path.",
+      "acceptance": [
+        "Online navigation to a non-root path in scope is not stored as the shell (e2e or unit test with a fake fetch/caches)",
+        "Offline navigation to a non-root path is not answered with the game",
+        "Offline reload of the app root still works (offline.spec passes)",
+        "Sub-path deploys (base ./) still work",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Added by the owner's session 2026-10-31 after moving Sudoku to sudoku.jonahbreipohl.com."
     }
   ]
 }
