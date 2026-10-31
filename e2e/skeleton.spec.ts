@@ -12,7 +12,7 @@ async function startNewGame(page: Page) {
 }
 
 test.beforeEach(async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/?test=1");
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 });
 

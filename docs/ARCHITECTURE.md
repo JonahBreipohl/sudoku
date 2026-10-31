@@ -309,4 +309,5 @@ horizontally. Colors are CSS custom properties on `:root` with Light, Dark, and 
   (default `easy`; an unknown value falls back to `easy`).
 - `?seed=<n>` makes generation and the watch puzzle deterministic.
 - `?test=1` exposes `window.__sudoku` with a controllable clock (`advance(ms)`) for e2e; it is
-  ignored unless the build is a test build or the flag is present.
+  ignored unless the build is a test build or the flag is present. It also keeps the first launch on
+  the hardcoded sample puzzle; without it a fresh profile starts on a random Easy bank puzzle.
