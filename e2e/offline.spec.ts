@@ -45,3 +45,14 @@ test("offline reload serves Display mode", async ({ page, context }) => {
   await expect(page.getByRole("region", { name: "Today's stats" })).toBeVisible();
   await context.setOffline(false);
 });
+
+test("offline navigation to another path is not answered with the game", async ({ page, context }) => {
+  await page.goto("/");
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true);
+  await page.goto("/?mode=display"); // a root navigation is still remembered as the shell
+  await context.setOffline(true);
+  await expect(page.goto("/some/other/page")).rejects.toThrow();
+  await expect(page.getByRole("grid", { name: "Sudoku board" })).toHaveCount(0);
+  await context.setOffline(false);
+});
