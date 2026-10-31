@@ -3397,6 +3397,37 @@
       "status": "todo",
       "attempts": 0,
       "notes": "Added by the owner's session 2026-10-31 after moving Sudoku to sudoku.jonahbreipohl.com."
+    },
+    {
+      "id": "M11-13",
+      "title": "Link back to the homepage",
+      "milestone": 11,
+      "priority": 2,
+      "size": "S",
+      "model": "sonnet",
+      "agent": "feature-dev",
+      "deps": [
+        "M11-09"
+      ],
+      "files": [
+        "src/ui/App.tsx",
+        "src/ui/components/MoreMenu.tsx",
+        "src/ui/strings.ts",
+        "src/ui/styles.css",
+        "e2e/layouts.spec.ts"
+      ],
+      "description": "Sudoku now lives at sudoku.jonahbreipohl.com and the owner's homepage at https://jonahbreipohl.com/ has tabs linking here; add the way back. At 600 px and wider, put a small, quiet link '← Jonah Breipohl' just before the Sudoku title in the header (muted text, underline on hover, not competing with the title). Under 600 px, where the header is one row with a More menu, make it the first item in the More menu ('Jonah Breipohl (home)') so the header doesn't grow. Keep the URL in one constant (strings.ts or a small config) so a different host is a one-line change. Same tab, plain link; not shown in Display mode.",
+      "acceptance": [
+        "Link to https://jonahbreipohl.com/ visible in the header at 1440x900 and 1024x768, and as the first More-menu item at 390x844 and 360x740",
+        "Header stays one row under 600 px; existing layout and small-phone fit specs pass",
+        "Keyboard reachable with visible focus; touch target at least 44 px tall; axe green in both themes",
+        "Not rendered in Display mode",
+        "e2e asserts the href at desktop and phone sizes",
+        "e2e green"
+      ],
+      "status": "todo",
+      "attempts": 0,
+      "notes": "Added by the owner's session 2026-10-31. Homepage repo: JonahBreipohl/JonahSite."
     }
   ]
 }
