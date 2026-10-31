@@ -35,7 +35,13 @@ async function remember(request: Request, response: Response): Promise<void> {
   await cache.put(request, response);
 }
 
+// The shell belongs to the scope root alone: on a shared domain, other pages must neither be stored as
+// the shell nor be answered with the game when offline.
+const scopePath = (): string => new URL(sw.registration.scope).pathname;
+const inScope = (url: URL): boolean => url.pathname.startsWith(scopePath());
+
 async function navigate(request: Request): Promise<Response> {
+  if (new URL(request.url).pathname !== scopePath()) return fetch(request);
   try {
     const response = await fetch(request);
     void remember(new Request(scoped("./")), response.clone());
@@ -57,6 +63,8 @@ async function assetOrNetwork(request: Request): Promise<Response> {
 
 sw.addEventListener("fetch", (event) => {
   const { request } = event;
-  if (request.method !== "GET" || new URL(request.url).origin !== sw.location.origin) return;
+  const url = new URL(request.url);
+  if (request.method !== "GET" || url.origin !== sw.location.origin || !inScope(url)) return;
+  if (request.mode === "navigate" && url.pathname !== scopePath()) return;
   event.respondWith(request.mode === "navigate" ? navigate(request) : assetOrNetwork(request));
 });
