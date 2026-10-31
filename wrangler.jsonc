@@ -1,0 +1,10 @@
+// Cloudflare Workers static hosting (the dashboard's Git integration runs `npm run build`, then
+// `npx wrangler deploy`). The app is a plain static folder: no Worker script, just assets.
+// public/_headers is applied by Cloudflare and never served.
+{
+  "name": "sudoku",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}

@@ -88,13 +88,15 @@ you add under the app's User Management can sign in.
 
 ## Deploy (Cloudflare)
 
-The app is a static folder, so any static host works. It is set up for Cloudflare:
+The app is a static folder, so any static host works. It is set up for Cloudflare Workers static
+assets (`wrangler.jsonc` uploads `dist/`):
 
-1. Cloudflare dashboard > Workers & Pages > Create > Pages > Connect to Git, and pick this repo.
-2. Build command `npm run build`, output directory `dist`, and environment variable
-   `NODE_VERSION` = `22`. Every push to `main` then deploys automatically.
-3. Custom domains > add e.g. `sudoku.example.com`. With the domain's DNS on Cloudflare, the
-   record and HTTPS certificate are created for you.
+1. Cloudflare dashboard > Workers & Pages > Create > import this Git repo. Project name `sudoku`
+   (it must match `name` in `wrangler.jsonc`).
+2. Build command `npm run build`, deploy command `npx wrangler deploy`. Every push to `main` then
+   deploys automatically; preview builds give other branches their own test URL.
+3. Settings > Domains & Routes > add a custom domain, e.g. `sudoku.example.com`. With the
+   domain's DNS on Cloudflare, the record and HTTPS certificate are created for you.
 
 `public/_headers` makes the service worker and page revalidate on every visit, so players get a
 new deploy on their next load, while fingerprinted assets cache for a year. Paths are relative,
