@@ -1,20 +1,25 @@
-# Director status (run 20261031-0108)
+# Director status (run 20261031-1106)
 
 ## Progress
-- M1-M11: done except M11-11 (todo) and M10-09 follow-up note (done per Q1)
-- M11: 12/13 done
+- M1-M11: all 133 tasks done. M11: 13/13.
 
 ## Next ready
-- M11-11 (sonnet S, need ~0.5)
+- none (backlog complete)
 
 ## Blocked
 - none
 
 ## Open questions
-- Q6 (hint key; default applied)
+- Q6 (hint key; default applied, non-blocking)
 
 ## Plan usage (estimate)
-- 5h: ~35% of 60%; 7d: ~55% of 85%
+- 5h: ~3% of 60%; 7d: ~47% of 85%. usd_per_pct from prior/readings.
 
 ## Spend
-- This run ~1.4 (API-equivalent)
+- This run ~0.7 (API-equivalent); sonnet S median ~0.45.
+
+## Projection
+- No tasks remain; 0 five-hour windows to finish.
+
+## Follow-ups (not yet tasks)
+- Blank page during easy.json fetch on plain `/`; a skeleton could cover it.

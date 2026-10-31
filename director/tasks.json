@@ -3346,9 +3346,9 @@
         "Offline and PWA specs pass",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": ""
+      "notes": "Follow-up: blank page during easy.json fetch on plain / (skeleton could cover)"
     },
     {
       "id": "M11-01a",
