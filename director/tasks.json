@@ -2159,7 +2159,7 @@
       ],
       "status": "done",
       "attempts": 0,
-      "notes": " Done 2026-10-31 by the owner: Cloudflare Workers static assets (wrangler.jsonc, Git integration on main) at https://jonahbreipohl.com/. GitHub Pages workflow stays disabled."
+      "notes": " Done 2026-10-31 by the owner: Cloudflare Workers static assets (wrangler.jsonc, Git integration on main) at https://jonahbreipohl.com/. GitHub Pages workflow stays disabled. Moved 2026-10-31 to https://sudoku.jonahbreipohl.com/; jonahbreipohl.com is now the owner's homepage (repo JonahBreipohl/JonahSite) with a tab linking here."
     },
     {
       "id": "M1-02a",
