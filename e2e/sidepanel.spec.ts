@@ -13,7 +13,7 @@ for (const size of sizes) {
     for (const scheme of ["light", "dark"] as const) {
       test(`fits without scrolling, panel and history work (${scheme})`, async ({ page }) => {
         await page.emulateMedia({ colorScheme: scheme });
-        await page.goto("/");
+        await page.goto("/?test=1");
         const grid = page.getByRole("grid", { name: "Sudoku board" });
         await expect(grid).toBeVisible();
 
@@ -56,7 +56,7 @@ for (const size of sizes) {
     }
 
     test("history is reached after controls and pad in tab order", async ({ page }) => {
-      await page.goto("/");
+      await page.goto("/?test=1");
       const order = await page.evaluate(() => {
         const sel = [".board [data-cell]", ".controls button", ".pad button", ".history-scroll"];
         const els = [...document.querySelectorAll<HTMLElement>("button, [tabindex='0']")]
@@ -78,7 +78,7 @@ for (const size of sizes) {
 test.describe("phone", () => {
   test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
   test("side panel is not shown or focusable", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("/?test=1");
     await expect(page.locator(".history-scroll")).toBeHidden();
   });
 });
@@ -91,7 +91,7 @@ for (const size of [
     test.use({ viewport: size });
 
     test("header gaps are even and the panel top matches the board", async ({ page }) => {
-      await page.goto("/");
+      await page.goto("/?test=1");
       const grid = page.getByRole("grid", { name: "Sudoku board" });
       await expect(grid).toBeVisible();
       const m = await page.evaluate(() => {

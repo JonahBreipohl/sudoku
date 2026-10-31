@@ -37,6 +37,7 @@ import { createGameStore, newGameRecord } from "../state/store";
 import { newGame, resetGame, type PuzzleSupplier } from "../state/newGame";
 import { dailyLevel, dailyPuzzle, dailySolvedOn } from "../state/daily";
 import { recordFromSearch } from "../state/puzzleParam";
+import { freshStartRecord } from "../state/freshStart";
 import type { CellMark } from "./components/Cell";
 import { Board } from "./components/Board";
 import { SubmitDialog } from "./components/SubmitDialog";
@@ -132,9 +133,41 @@ function makeStore(record?: GameRecord) {
 let sharedPlayed: PlayedStore | null = null;
 const getPlayed = () => (sharedPlayed ??= createPlayedStore());
 
+// A first launch (nothing saved, no ?puzzle= link) starts on a random Easy bank puzzle. ?test=1
+// keeps the deterministic sample so e2e specs that assume it stay synchronous.
+function needsFreshStart(): boolean {
+  return (
+    !testMode &&
+    !persistence.loadCurrent() &&
+    !recordFromSearch(window.location.search, 0)
+  );
+}
+
 export function App({ source }: { source?: PuzzleSource } = {}) {
+  const [fresh, setFresh] = useState<GameRecord | null | undefined>(() =>
+    needsFreshStart() ? undefined : null,
+  );
+  useEffect(() => {
+    if (fresh !== undefined) return;
+    freshStartRecord({
+      fetch: (url) => fetch(url),
+      baseUrl: import.meta.env.BASE_URL + "puzzles/",
+      played: getPlayed(),
+    }).then(setFresh, () => setFresh(null)); // bank unavailable: fall back to the sample
+  }, [fresh]);
+  if (fresh === undefined) return null;
+  return <AppReady source={source} initial={fresh ?? undefined} />;
+}
+
+function AppReady({
+  source,
+  initial,
+}: {
+  source?: PuzzleSource;
+  initial?: GameRecord;
+}) {
   // A saved game, if any, resumes on first mount; "New game" swaps in a fresh store.
-  const [store, setStore] = useState(() => makeStore());
+  const [store, setStore] = useState(() => makeStore(initial));
   const [pending, setPending] = useState(false);
   const puzzleSource = useRef<PuzzleSource | null>(source ?? null);
   const refocusNewGame = useRef(false);
