@@ -3394,9 +3394,9 @@
         "Sub-path deploys (base ./) still work",
         "e2e green"
       ],
-      "status": "in_progress",
+      "status": "done",
       "attempts": 1,
-      "notes": "Added by the owner's session 2026-10-31 after moving Sudoku to sudoku.jonahbreipohl.com."
+      "notes": "Follow-up: no direct test that online non-root navigation is not stored as shell."
     },
     {
       "id": "M11-13",
