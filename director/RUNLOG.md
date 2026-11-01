@@ -442,3 +442,4 @@ Plan usage: 5h ~35% of 60%, 7d ~55% of 85% (estimate). Next up: M11-11. Stopped 
 run 20261031-1106 (~17 min): main already current. Trunk green (773 tests).
 - M11-11 (feature-dev, sonnet S): pass, need 0.5, actual ~0.5 (estimate), overhead ~0.2, not reviewed (Q4). check 776, build, e2e 315 pass + 1 skipped. Merged. Follow-up: blank page during bank fetch on plain /.
 Plan usage: 5h ~3% of 60%, 7d ~47% of 85% (estimate). Backlog complete; next up: none.
+idle 20261101-1216: no ready tasks (backlog 133/133 done); waiting on no blocking questions
