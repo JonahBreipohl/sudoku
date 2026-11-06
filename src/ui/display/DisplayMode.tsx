@@ -10,6 +10,7 @@ import { useDrift } from "./useDrift";
 import { DisplayControls } from "./DisplayControls";
 import { DisplayBoard } from "./DisplayBoard";
 import { TodayStats } from "./TodayStats";
+import { useDisplayScene } from "../scene/bus";
 import "./display.css";
 
 function pageVisible(): boolean {
@@ -27,6 +28,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   const now = useSecondTick(visible);
 
   const { dx, dy, night } = useDrift(now);
+  useDisplayScene(night, dx, dy);
   const { settings, update } = useSettings();
 
   const [settingsOpen, setSettingsOpen] = useState(false);
