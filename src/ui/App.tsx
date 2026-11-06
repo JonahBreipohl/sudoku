@@ -49,6 +49,8 @@ import { prefersReducedMotion, RIPPLE_DIALOG_DELAY_MS } from "./ripple";
 import { useSettings } from "./useSettings";
 import { haptic } from "./haptics";
 import { ThemeToggle } from "./components/ThemeToggle";
+import { Aura } from "./components/Aura";
+import { Icon } from "./icons";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
 import { assistView } from "./assist";
@@ -464,11 +466,16 @@ function Game({
   // Baseline is the submit already in the log at mount, so resuming a submitted game stays silent.
   // Adjusting state during render (not in an effect) keeps it to one render pass.
   const [seenSubmit, setSeenSubmit] = useState(submitResult);
+  // The aura flares once per new solve, never for a game resumed already solved.
+  const [aura, setAura] = useState(false);
   if (submitResult !== seenSubmit) {
     setSeenSubmit(submitResult);
     if (submitResult?.type === "submit") {
       setAnnouncement(describeSubmit(submitResult.result));
-      if (submitResult.result === "solved") haptic("solve", settings.haptics);
+      if (submitResult.result === "solved") {
+        haptic("solve", settings.haptics);
+        setAura(true);
+      }
     }
   }
   const solvedGame =
@@ -593,12 +600,14 @@ function Game({
       <header className="app-header">
         {/* Phones show only the arrow; the name stays as the link's accessible name. */}
         <a className="home-link" href={HOME_URL}>
-          <span aria-hidden="true">←</span> <span className="home-name">{app.homeName}</span>
+          <Icon name="arrowLeft" />
+          <span className="home-name">{app.homeName}</span>
         </a>
         <h1>{app.title}</h1>
         {game.record.source === "daily" && (
           <span className="daily-badge">
-            <span aria-hidden="true">★ </span>Daily
+            <Icon name="star" />
+            Daily
           </span>
         )}
         <NewGame
@@ -657,6 +666,7 @@ function Game({
                   : "check-status"
               }
             >
+              {checkResult && <Icon name={checkResult.mistakes === 0 ? "check" : "x"} />}
               {checkResult ? checkMessage(checkResult.mistakes) : ""}
             </div>
             {currentHint && (
@@ -676,8 +686,7 @@ function Game({
             <p className="keys-hint">
               {noting ? (
                 <strong>
-                  <span aria-hidden="true">✎ </span>
-                  {controlsCopy.notesOn}
+                  <Icon name="pencil" /> {controlsCopy.notesOn}
                 </strong>
               ) : (
                 controlsCopy.keysHint
@@ -689,6 +698,7 @@ function Game({
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
       </div>
+      {aura && <Aura onDone={() => setAura(false)} />}
       {resultOpen && submitResult?.type === "submit" && (
         <SubmitDialog
           result={submitResult.result}

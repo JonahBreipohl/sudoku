@@ -1,102 +1,209 @@
+/* Hanami: 2010s TV anime cel look. Ink outlines, hard offset shadows, flat color, screentone dots.
+   docs/DESIGN.md has the token plan, type roles and the checked-against-the-brief list. */
+
+/* Self-hosted latin subsets (OFL, licenses beside the files). The UI face has one width for every
+   digit at each weight, so the Display clock cannot jitter; the title face is heavy and used only
+   for the wordmark, dialog titles and the solved moment. */
+@font-face {
+  font-family: "M PLUS Rounded 1c";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/m-plus-rounded-1c-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "M PLUS Rounded 1c";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/m-plus-rounded-1c-latin-700-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "M PLUS Rounded 1c";
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url("/fonts/m-plus-rounded-1c-latin-800-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+  font-family: "Dela Gothic One";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/dela-gothic-one-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
 /* Design tokens. Every color in the app comes from these. */
 :root {
-  --bg: #f7f5f0;
-  --surface: #ffffff;
-  --text: #1d1f24;
-  --text-muted: #5b606b;
-  --line: #c9c4b8;
-  --line-strong: #2f3238;
-  --given: #1d1f24;
-  --given-bg: #eceae3;
-  --note: #4a4f5a;
-  --entry: #1f5fbf;
-  --related: #ece7dc;
-  --same: #d6e4fa;
-  --selected: #b8d0f5;
-  --conflict: #b3261e;
-  --conflict-bg: #f8dcd9;
-  --focus: #1f5fbf;
-  --pad-bg: #ffffff;
-  --pad-done: #767c87;
-  --scrim: rgb(29 31 36 / 0.55);
+  /* Day, "spring noon". Surfaces are paper over a blue sky; ink is the outline color. */
+  --bg: #9bd6f6; /* the sky fallback the 3D scene sits on */
+  --surface: #fffafb;
+  --text: #1f1a24;
+  --text-muted: #5a4f5e;
+  --line: #c9b3c2;
+  --line-strong: #1f1a24; /* ink: box lines, outlines, selected frame */
+  --shadow: #1f1a24; /* the hard cel shadow under panels and buttons */
+  --given: #1f1a24;
+  --given-bg: #fbe4ec;
+  --note: #4d4155;
+  --entry: #2d47b8; /* "ai" indigo: entries and everything interactive */
+  --related: #fdeff4;
+  --tone: #e2a1b8; /* screentone dots on related cells */
+  --same: #d3dcfb;
+  --selected: #ffe08a;
+  --conflict: #c0182e; /* vermilion, never pink */
+  --conflict-bg: #ffcdbd;
+  --focus: #2d47b8;
+  --pad-bg: #fffafb;
+  --pad-done: #6a5f70;
+  --btn: #ffe9f0;
+  --btn-hover: #fff6f9;
+  --btn-press: #ffc1d3;
+  --primary: #ffc1d3;
+  --primary-hover: #ffd3e0;
+  --on-primary: #1f1a24;
+  --scrim: rgb(31 26 36 / 0.55);
   --mark-root: #9a4a00;
-  --mark-root-bg: #fbe0c4;
+  --mark-root-bg: #ffe2c2;
   --mark-support: #6a3fa0;
-  --mark-support-bg: #e9dff7;
+  --mark-support-bg: #eadfff;
   --hint: #0b6b5d;
-  --hint-bg: #d3f0e9;
-  --hover: #ebe8df;
-  --press: #dcd8cc;
+  --hint-bg: #d5f3ea;
+  --hover: #fbe4ec;
+  --press: #f7cddb;
+  --speed: #f58fb0; /* manga speed lines behind the solved title */
+  --aura-1: #ff5d96; /* aura flare: hot pink and gold */
+  --aura-2: #ffd36b;
+  /* Scene palette. The 3D scene and its CSS fallback read these. */
+  --sky-top: #4fb3f0;
+  --sky-horizon: #c9ecff;
+  --cloud: #ffffff;
+  --cloud-shade: #b9d9f2;
+  --blossom: #ffc1d3;
+  --blossom-shade: #f58fb0;
+  --blossom-deep: #d9577f;
+  --bark: #3b2630;
 
   --gutter: 16px;
-  --radius: 8px;
+  --radius: 6px;
+  --radius-lg: 10px;
   --touch: 44px;
+  --font-ui: "M PLUS Rounded 1c", ui-rounded, "Hiragino Maru Gothic ProN", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-display: "Dela Gothic One", "M PLUS Rounded 1c", system-ui, sans-serif;
 
   color-scheme: light;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--font-ui);
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --bg: #15171b;
-    --surface: #1e2126;
-    --text: #e8e6e1;
-    --text-muted: #a3a8b2;
-    --line: #3b3f47;
-    --line-strong: #c7c9cf;
-    --given: #f1efea;
-    --given-bg: #292d34;
-    --note: #d0d4dc;
-    --entry: #8cb6ff;
-    --related: #262a31;
-    --same: #2b3a55;
-    --selected: #34507e;
-    --conflict: #ff8a80;
-    --conflict-bg: #4a2422;
-    --focus: #8cb6ff;
-    --pad-bg: #23262c;
-    --pad-done: #6b707a;
-    --scrim: rgb(0 0 0 / 0.65);
+    /* Night, "yozakura": blossoms under lanterns. Outlines become pale rim light. */
+    --bg: #1b1a3f; /* the night sky fallback */
+    --surface: #17152a;
+    --text: #f4eef6;
+    --text-muted: #b8adc4;
+    --line: #3d3860;
+    --line-strong: #e9d7ee;
+    --shadow: #05030d;
+    --given: #f4eef6;
+    --given-bg: #2a2347;
+    --note: #d6cde0;
+    --entry: #8fd0ff;
+    --related: #211d3d;
+    --tone: #4a416f;
+    --same: #4b2f63;
+    --selected: #6b4a16;
+    --conflict: #ff8a8a;
+    --conflict-bg: #4a1c22;
+    --focus: #8fd0ff;
+    --pad-bg: #231f45;
+    --pad-done: #8a7fa0;
+    --btn: #2b2653;
+    --btn-hover: #3a3470;
+    --btn-press: #1d1a3c;
+    --primary: #ffd6e2;
+    --primary-hover: #ffe6ee;
+    --on-primary: #1f1a24;
+    --scrim: rgb(8 6 20 / 0.7);
     --mark-root: #ffb066;
     --mark-root-bg: #5a3412;
     --mark-support: #c9a8ff;
     --mark-support-bg: #3d2f5c;
     --hint: #6fdcc6;
     --hint-bg: #1b4a43;
-    --hover: #2d3139;
-    --press: #383d47;
+    --hover: #2a2550;
+    --press: #1f1b3d;
+    --speed: #c97a9b;
+    --aura-1: #ff86b4;
+    --aura-2: #ffb46b;
+    --sky-top: #0e1233;
+    --sky-horizon: #2a2350;
+    --lantern: #ffb46b;
+    --moon: #fff3d6;
+    --cloud: #3c3566;
+    --cloud-shade: #231e45;
+    --blossom: #ffd6e2;
+    --blossom-shade: #c97a9b;
+    --blossom-deep: #a14a72;
+    --bark: #1a1420;
     color-scheme: dark;
   }
 }
 
 :root[data-theme="dark"] {
-  --bg: #15171b;
-  --surface: #1e2126;
-  --text: #e8e6e1;
-  --text-muted: #a3a8b2;
-  --line: #3b3f47;
-  --line-strong: #c7c9cf;
-  --given: #f1efea;
-  --given-bg: #292d34;
-  --note: #d0d4dc;
-  --entry: #8cb6ff;
-  --related: #262a31;
-  --same: #2b3a55;
-  --selected: #34507e;
-  --conflict: #ff8a80;
-  --conflict-bg: #4a2422;
-  --focus: #8cb6ff;
-  --pad-bg: #23262c;
-  --pad-done: #6b707a;
-  --scrim: rgb(0 0 0 / 0.65);
+  /* Night, "yozakura": blossoms under lanterns. Outlines become pale rim light. */
+  --bg: #1b1a3f; /* the night sky fallback */
+  --surface: #17152a;
+  --text: #f4eef6;
+  --text-muted: #b8adc4;
+  --line: #3d3860;
+  --line-strong: #e9d7ee;
+  --shadow: #05030d;
+  --given: #f4eef6;
+  --given-bg: #2a2347;
+  --note: #d6cde0;
+  --entry: #8fd0ff;
+  --related: #211d3d;
+  --tone: #4a416f;
+  --same: #4b2f63;
+  --selected: #6b4a16;
+  --conflict: #ff8a8a;
+  --conflict-bg: #4a1c22;
+  --focus: #8fd0ff;
+  --pad-bg: #231f45;
+  --pad-done: #8a7fa0;
+  --btn: #2b2653;
+  --btn-hover: #3a3470;
+  --btn-press: #1d1a3c;
+  --primary: #ffd6e2;
+  --primary-hover: #ffe6ee;
+  --on-primary: #1f1a24;
+  --scrim: rgb(8 6 20 / 0.7);
   --mark-root: #ffb066;
   --mark-root-bg: #5a3412;
   --mark-support: #c9a8ff;
   --mark-support-bg: #3d2f5c;
   --hint: #6fdcc6;
   --hint-bg: #1b4a43;
-  --hover: #2d3139;
-  --press: #383d47;
+  --hover: #2a2550;
+  --press: #1f1b3d;
+  --speed: #c97a9b;
+  --aura-1: #ff86b4;
+  --aura-2: #ffb46b;
+  --sky-top: #0e1233;
+  --sky-horizon: #2a2350;
+  --lantern: #ffb46b;
+  --moon: #fff3d6;
+  --cloud: #3c3566;
+  --cloud-shade: #231e45;
+  --blossom: #ffd6e2;
+  --blossom-shade: #c97a9b;
+  --blossom-deep: #a14a72;
+  --bark: #1a1420;
   color-scheme: dark;
 }
 
@@ -133,6 +240,14 @@ button {
   outline-offset: 2px;
 }
 
+/* One brush-ink icon family (src/ui/icons.tsx). Sized in em so a button's font-size scales it. */
+.icon {
+  width: 1.25em;
+  height: 1.25em;
+  flex: none;
+  vertical-align: -0.2em;
+}
+
 .app {
   /* Size containment lets queries see height too (phone landscape); the app owns the viewport
      height, so the page itself never scrolls and the pad can sit at the bottom in portrait. */
@@ -145,6 +260,9 @@ button {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 var(--gutter) var(--gutter);
+  /* Above the sky and the aura layer, which sit behind the app. */
+  position: relative;
+  z-index: 1;
 }
 
 .app-header {
@@ -152,32 +270,63 @@ button {
   align-items: center;
   justify-content: flex-start;
   gap: 8px;
+  padding: 8px 0 6px;
+}
+
+/* Buttons and the way home share one physical look: ink outline, small radius, a hard offset
+   shadow that collapses on press. */
+.ctl,
+.home-link {
+  --fill: var(--btn);
+  --fill-hover: var(--btn-hover);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: var(--touch);
+  padding: 0 14px;
+  white-space: nowrap;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  background-color: var(--fill);
+  color: var(--text);
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--shadow);
+  cursor: pointer;
+}
+.ctl:focus-visible,
+.home-link:focus-visible,
+.pad-key:focus-visible {
+  outline-offset: 4px;
 }
 
 /* Quiet way back to the owner's homepage; the 44px target comes from the flex row's min-height. */
 .home-link {
-  display: inline-flex;
-  align-items: center;
-  /* Flex drops the space between the arrow and the name, so the gap stands in for it. */
-  gap: 0.3em;
-  min-height: var(--touch);
-  color: var(--text-muted);
   font-size: 0.875rem;
   text-decoration: none;
 }
-.home-link:hover {
-  text-decoration: underline;
-}
 
+/* The wordmark is a title card: display face on a blossom plate, ink outline, cel shadow. */
 .app-header h1 {
+  margin: 4px 4px 4px 2px;
+  padding: 3px 12px 4px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 3px 3px 0 var(--shadow);
+  font-family: var(--font-display);
+  font-synthesis: none;
   font-size: 1.4rem;
-  margin: 12px 0;
+  font-weight: 400;
+  line-height: 1.2;
+  transform: rotate(-1.5deg);
 }
 
 /* One size drives the board, the pause card and the controls under them, so their edges line
    up. --chrome is the height the header and controls need; touch screens add the number pad. */
 .play {
-  --chrome: 290px;
+  --chrome: 322px;
   /* An open hint panel needs room too; the board gives it up rather than pushing the pad off. */
   --hint-room: 0px;
   --size: min(100cqi, 640px, max(220px, calc(100cqb - var(--chrome) - var(--hint-room))));
@@ -190,7 +339,7 @@ button {
 }
 @media (hover: none), (pointer: coarse) {
   .play {
-    --chrome: 320px;
+    --chrome: 360px;
   }
 }
 .play:has(.hint-panel) {
@@ -201,14 +350,17 @@ button {
   display: none;
 }
 
-/* Board */
+/* Board: a manga panel. Thick ink frame, thin cell lines, paper fill, hard shadow, no blur. */
 .board {
+  position: relative;
+  z-index: 1;
   width: var(--size);
   aspect-ratio: 1;
   display: grid;
   grid-template-rows: repeat(9, 1fr);
-  border: 3px solid var(--line-strong);
+  border: 4px solid var(--line-strong);
   background: var(--surface);
+  box-shadow: 6px 6px 0 var(--shadow);
   user-select: none;
 }
 
@@ -224,13 +376,13 @@ button {
 }
 
 .board-row > [role="gridcell"]:nth-child(3n) {
-  border-right: 2px solid var(--line-strong);
+  border-right: 3px solid var(--line-strong);
 }
 .board-row > [role="gridcell"]:last-child {
   border-right: 0;
 }
 .board-row:nth-child(3n) > [role="gridcell"] {
-  border-bottom: 2px solid var(--line-strong);
+  border-bottom: 3px solid var(--line-strong);
 }
 .board-row:last-child > [role="gridcell"] {
   border-bottom: 0;
@@ -247,13 +399,20 @@ button {
   line-height: 1;
   cursor: pointer;
 }
+/* Inside the selected frame; the keyboard ring sits just within it. */
+.cell:focus-visible {
+  outline-offset: -3px;
+}
+.cell--selected:focus-visible {
+  outline-offset: -7px;
+}
 
 .cell--given {
   color: var(--given);
   background: var(--given-bg);
-  font-weight: 700;
+  font-weight: 800;
 }
-/* Entered digits are lighter weight and italic, so they differ from givens without color. */
+/* Entered digits are lighter weight and slanted, so they differ from givens without color. */
 .cell--entry {
   font-weight: 400;
   font-style: italic;
@@ -266,7 +425,7 @@ button {
   padding: 8%;
   color: var(--note);
   font-size: calc(var(--size) / 9 * 0.24);
-  font-weight: 500;
+  font-weight: 700;
   font-style: normal;
 }
 .note {
@@ -274,11 +433,15 @@ button {
   place-items: center;
 }
 /* Highlight cues, each distinct without color:
-   selected = thick inset ring; same digit = thin inset ring; related (row/col/box) = diagonal hatch;
-   matching note = bold underlined digit; conflict = wavy underline on the digit. */
+   selected = thick ink frame; same digit = thin inset ring and heavier digit; related (row/col/box)
+   = screentone dots; matching note = heavy underlined digit; conflict = wavy underline on the digit. */
 .cell--related {
   background-color: var(--related);
-  background-image: repeating-linear-gradient(135deg, var(--line) 0 1px, transparent 1px 7px);
+  background-image:
+    radial-gradient(circle at center, var(--tone) 0 0.9px, transparent 1.2px),
+    radial-gradient(circle at center, var(--tone) 0 0.9px, transparent 1.2px);
+  background-size: 6px 6px;
+  background-position: 0 0, 3px 3px;
 }
 .note--match {
   font-weight: 800;
@@ -286,14 +449,15 @@ button {
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-/* Same digit: fill plus an inset ring, so it reads without color. */
+/* Same digit: fill, an inset ring and a heavier digit, so it reads without color. */
 .cell--same {
   background: var(--same);
   box-shadow: inset 0 0 0 2px var(--line-strong);
+  font-weight: 800;
 }
 .cell--selected {
   background: var(--selected);
-  box-shadow: inset 0 0 0 3px var(--focus);
+  box-shadow: inset 0 0 0 4px var(--line-strong);
 }
 /* Conflict: color plus a wavy underline. */
 .cell--conflict {
@@ -325,31 +489,27 @@ button {
   outline: 3px dashed var(--mark-support);
   outline-offset: -4px;
 }
-.cell--mark-root::before,
-.cell--mark-support::before {
+/* Corner badges are icons placed by Cell.tsx; the frame and the badge shape carry the meaning. */
+.cell-badge {
   position: absolute;
-  top: 1px;
-  left: 3px;
-  font-size: 0.55em;
-  font-weight: 800;
-  line-height: 1;
+  top: 2px;
+  width: 0.62em;
+  height: 0.62em;
 }
-.cell--mark-root::before {
-  content: "!";
+.cell-badge--mark {
+  left: 3px;
+}
+.cell-badge--wrong {
+  right: 3px;
+}
+.cell--mark-root .cell-badge {
   color: var(--mark-root);
 }
-.cell--mark-support::before {
-  content: "\25C6";
+.cell--mark-support .cell-badge {
   color: var(--mark-support);
 }
-.cell--wrong::after {
-  content: "\2715";
-  position: absolute;
-  top: 1px;
-  right: 3px;
-  font-size: 0.55em;
-  font-weight: 800;
-  line-height: 1;
+.cell--mark-hint .cell-badge {
+  color: var(--hint);
 }
 /* Hint overlay. Hinted cell: double frame, tint and a "?" badge; cells of a hinted unit: a dotted
    frame only, so the two read apart without color. */
@@ -365,24 +525,21 @@ button {
   outline: 2px dotted var(--hint);
   outline-offset: -3px;
 }
-.cell--mark-hint::before {
-  content: "?";
-  position: absolute;
-  top: 1px;
-  left: 3px;
-  font-size: 0.55em;
-  font-weight: 800;
-  line-height: 1;
-  color: var(--hint);
-}
+/* The hint is a speech bubble: ink outline, cel shadow, its own mint fill. */
 .hint-panel {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 4px 8px 12px;
-  border-left: 4px solid var(--hint);
+  padding: 8px 6px 8px 10px;
+  border: 2px solid var(--line-strong);
   background: var(--hint-bg);
   border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--shadow);
+}
+.hint-panel__mark {
+  flex: none;
+  font-size: 1.4rem;
+  color: var(--hint);
 }
 .hint-panel__body {
   flex: 1 1 auto;
@@ -392,38 +549,35 @@ button {
 .hint-panel__step {
   margin: 0;
   font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-weight: 800;
   color: var(--hint);
 }
 .hint-panel__text {
   margin: 2px 0 0;
-  font-weight: 600;
+  font-weight: 700;
   line-height: 1.35;
 }
 .hint-panel__apply {
   flex: none;
-  font-weight: 700;
+  --fill: var(--primary);
+  --fill-hover: var(--primary-hover);
+  color: var(--on-primary);
 }
 .hint-panel__close {
   flex: none;
   width: var(--touch);
   padding: 0;
-  border-color: transparent;
-  background: transparent;
 }
 /* Check result line; it takes no room until there is a result. */
 .check-status {
   display: flex;
   align-items: center;
-  font-weight: 700;
+  gap: 6px;
+  font-weight: 800;
 }
 .check-status:empty {
   display: none;
 }
-.check-status--bad::before { content: "\2715\00a0"; }
-.check-status--ok::before { content: "\2713\00a0"; }
 
 /* Portrait and desktop are one centered column as wide as the largest board, so the header lines
    up with it. Short landscape screens keep the full width for their side-by-side layout. */
@@ -433,13 +587,19 @@ button {
   }
 }
 
-/* Everything under the board: the toolbar (actions and the assistance switch), a hint, the pad. */
+/* Everything under the board: the toolbar (actions and the assistance switch), a hint, the pad.
+   One opaque paper panel, so the controls never sit directly on the moving scene. */
 /* As wide as the board, but never narrower than the phone column: when the board shrinks to make
    room (for a hint), the controls keep their width instead of wrapping onto more lines. */
 .play-side {
   width: max(var(--size), min(100cqi, 420px));
   display: grid;
   gap: 10px;
+  padding: 10px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: 4px 4px 0 var(--shadow);
 }
 
 .toolbar {
@@ -457,19 +617,8 @@ button {
   gap: 8px;
 }
 
-.ctl {
-  min-height: var(--touch);
-  padding: 0 12px;
-  white-space: nowrap;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  cursor: pointer;
-}
-
-/* Assistance switch: a pill track with a raised thumb. The chosen level is also bold and dotted,
-   so it never reads by the fill alone. The radios cover each option for native focus and keys. */
+/* Assistance switch: a segmented track. The chosen level is filled, bold, outlined and carries a
+   dot, so it never reads by the fill alone. The radios cover each option for native focus and keys. */
 .assist {
   margin: 0;
   padding: 0;
@@ -480,16 +629,18 @@ button {
   float: left;
   margin-right: 8px;
   padding: 0;
-  line-height: calc(var(--touch) + 6px);
+  line-height: calc(var(--touch) + 8px);
   font-size: 0.875rem;
   color: var(--text-muted);
 }
 .assist-track {
   display: inline-flex;
+  gap: 2px;
   padding: 2px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
   background: var(--related);
+  box-shadow: 3px 3px 0 var(--shadow);
 }
 .assist-option {
   position: relative;
@@ -498,7 +649,7 @@ button {
   gap: 2px;
   min-height: var(--touch);
   padding: 0 12px 0 8px;
-  border-radius: 999px;
+  border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
 }
@@ -510,24 +661,24 @@ button {
   cursor: pointer;
 }
 .assist-option--on {
-  background: var(--surface);
-  color: var(--text);
-  font-weight: 700;
-  box-shadow: 0 0 0 1px var(--line-strong);
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 800;
+  box-shadow: 0 0 0 2px var(--line-strong);
 }
 .assist-option:has(input:focus-visible) {
   outline: 3px solid var(--focus);
-  outline-offset: 2px;
+  outline-offset: 4px;
 }
 .assist-dot {
-  display: inline-block;
+  display: inline-grid;
+  place-items: center;
   width: 1em;
-  font-size: 0.625rem;
-  text-align: center;
+  font-size: 0.7rem;
 }
 .assist-help {
   clear: both;
-  margin: 4px 0 0;
+  margin: 6px 0 0;
   font-size: 0.8125rem;
   color: var(--text-muted);
 }
@@ -537,7 +688,7 @@ button {
 .pad {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 @container (min-width: 600px) {
   .pad {
@@ -556,28 +707,31 @@ button {
 }
 
 .pad-key {
+  --fill: var(--pad-bg);
+  --fill-hover: var(--btn-hover);
   position: relative;
   min-height: calc(var(--touch) + 8px);
   min-width: var(--touch);
   display: grid;
   place-items: center;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line-strong);
   border-radius: var(--radius);
-  background: var(--pad-bg);
+  background-color: var(--fill);
+  box-shadow: 3px 3px 0 var(--shadow);
   cursor: pointer;
 }
 
 .pad-digit {
   font-size: 1.5rem;
-  font-weight: 600;
+  font-weight: 800;
 }
 
 /* Only a finished digit shows a mark: a small check in the corner. */
 .pad-count {
   position: absolute;
   top: 2px;
-  right: 6px;
+  right: 5px;
   font-size: 0.75rem;
   color: var(--text-muted);
 }
@@ -588,6 +742,7 @@ button {
 }
 .pad-key--done .pad-digit {
   text-decoration: line-through;
+  text-decoration-thickness: 3px;
 }
 
 .pad--notes .pad-key {
@@ -605,7 +760,7 @@ button {
 @container (max-width: 599px) {
   .home-link {
     min-width: var(--touch);
-    justify-content: center;
+    padding: 0;
     font-size: 1.1rem;
   }
   .home-name {
@@ -617,18 +772,20 @@ button {
     white-space: nowrap;
   }
   .app-header h1 {
-    margin: 8px 0;
     font-size: 1.2rem;
   }
   .play {
-    gap: 8px;
+    gap: 10px;
   }
   .play-side {
     margin-top: auto;
     gap: 8px;
   }
   .ctl {
-    padding: 0 12px;
+    padding: 0 10px;
+  }
+  .controls {
+    gap: 6px;
   }
   .assist-option {
     padding: 0 10px 0 6px;
@@ -663,13 +820,14 @@ button {
   }
   /* Undo, Check and the hint button share one row: drop their decorative icons and some padding. */
   .controls .ctl {
-    padding: 0 10px;
+    padding: 0 8px;
   }
-  .controls .ctl > [aria-hidden="true"] {
+  .controls .ctl > .icon {
     display: none;
   }
   .app-header h1 {
     font-size: 1.05rem;
+    padding: 3px 8px 4px;
   }
   .play {
     --size: min(100cqi, max(200px, calc(100cqb - var(--chrome) - var(--hint-room))));
@@ -683,7 +841,7 @@ button {
     font-size: 1.1rem;
   }
   .play {
-    --size: min(calc(100cqb - 56px), 50cqi);
+    --size: min(calc(100cqb - 62px), 50cqi);
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
@@ -707,19 +865,32 @@ button {
   place-content: center;
   justify-items: center;
   gap: var(--gutter);
-  border: 3px dashed var(--line-strong);
-  background: var(--surface);
+  border: 4px dashed var(--line-strong);
+  background-color: var(--surface);
+  background-image: radial-gradient(circle at center, var(--tone) 0 1px, transparent 1.4px);
+  background-size: 8px 8px;
+  box-shadow: 6px 6px 0 var(--shadow);
   color: var(--text);
   animation: mode-fade 160ms ease-out;
 }
 .pause-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
   margin: 0;
+  padding: 6px 16px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  background: var(--surface);
   font-size: 1.6rem;
-  font-weight: 700;
+  font-weight: 800;
 }
 .pause-resume {
   min-width: 140px;
-  font-weight: 700;
+  --fill: var(--primary);
+  --fill-hover: var(--primary-hover);
+  color: var(--on-primary);
+  font-weight: 800;
 }
 /* Pushes New game and the theme toggle to the right; the title stays left. */
 .new-game {
@@ -730,8 +901,14 @@ button {
   gap: 8px;
 }
 
+/* "Generating…" sits on the sky, so it gets its own paper label. */
 .new-game-status:not(:empty) {
   min-width: 8ch;
+  padding: 4px 10px;
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
+  background: var(--surface);
+  font-weight: 700;
 }
 
 /* Busy, not broken: dashed border and the "Generating" text carry it, not the muted color. */
@@ -744,11 +921,12 @@ button {
 .dialog {
   width: 26rem;
   max-width: calc(100% - 2 * var(--gutter));
-  padding: var(--gutter);
+  padding: 20px;
   border: 3px solid var(--line-strong);
-  border-radius: var(--radius);
+  border-radius: var(--radius-lg);
   background: var(--surface);
   color: var(--text);
+  box-shadow: 6px 6px 0 var(--shadow);
 }
 .dialog::backdrop {
   background: var(--scrim);
@@ -788,23 +966,63 @@ button {
     opacity: 0;
   }
 }
+/* Title-card face: dialog titles are one of its three places. */
 .dialog-title {
-  margin: 0 0 8px;
-  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 10px;
+  font-family: var(--font-display);
+  font-synthesis: none;
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.dialog-title .icon {
+  font-size: 1.1em;
 }
 .dialog-message {
   margin: 0 0 var(--gutter);
+  line-height: 1.5;
 }
 .dialog-actions {
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-end;
-  gap: 8px;
+  gap: 10px;
 }
-/* The destructive choice is named in its label; weight and a heavier border back it up. */
+/* The destructive choice is named in its label; fill, weight and a heavier border back it up. */
 .dialog-confirm {
-  border: 2px solid var(--line-strong);
-  font-weight: 700;
+  --fill: var(--primary);
+  --fill-hover: var(--primary-hover);
+  border-width: 3px;
+  color: var(--on-primary);
+  font-weight: 800;
+}
+
+/* The solved title sits on manga speed lines: static, behind the text, clear in the middle. */
+.dialog-head {
+  position: relative;
+  isolation: isolate;
+  margin: -8px -8px 6px;
+  padding: 16px 8px;
+}
+.dialog-head .dialog-title {
+  margin: 0;
+  justify-content: center;
+  text-align: center;
+}
+.speedlines {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+  fill: var(--speed);
+  opacity: 0.55;
+  -webkit-mask-image: radial-gradient(ellipse 52% 80% at 50% 50%, transparent 45%, #000 100%);
+  mask-image: radial-gradient(ellipse 52% 80% at 50% 50%, transparent 45%, #000 100%);
 }
 
 .dialog--wide {
@@ -815,7 +1033,7 @@ button {
 
 .level-list {
   display: grid;
-  gap: 8px;
+  gap: 10px;
   margin: 0 0 var(--gutter);
   padding: 0;
   border: 0;
@@ -826,27 +1044,34 @@ button {
   gap: 12px;
   min-height: var(--touch);
   padding: 0 12px;
-  border: 1px solid var(--line);
+  border: 2px solid var(--line-strong);
   border-radius: var(--radius);
+  background: var(--btn);
+  box-shadow: 3px 3px 0 var(--shadow);
   cursor: pointer;
 }
-/* Chosen level: heavier border and weight, plus the radio itself, not only a fill. */
+/* Chosen level: heavier border, weight and fill, plus the radio itself, not only a fill. */
 .level-option--on {
-  border: 3px solid var(--line-strong);
-  font-weight: 700;
+  border-width: 3px;
+  background: var(--primary);
+  color: var(--on-primary);
+  font-weight: 800;
 }
 .level-option input {
   width: 20px;
   height: 20px;
   margin: 0;
+  accent-color: var(--entry);
 }
 .level-option:focus-within {
   outline: 3px solid var(--focus, currentColor);
-  outline-offset: 2px;
+  outline-offset: 4px;
 }
 .ctl:disabled {
+  --fill: var(--surface);
   border-style: dashed;
   color: var(--text-muted);
+  box-shadow: none;
   cursor: not-allowed;
 }
 
@@ -858,7 +1083,7 @@ button {
 .settings-group legend {
   padding: 0;
   margin-bottom: 4px;
-  font-weight: 700;
+  font-weight: 800;
 }
 .settings-radio,
 .settings-row {
@@ -891,7 +1116,7 @@ button {
   min-width: 0;
   min-height: var(--touch);
   padding: 0 8px;
-  border: 1px solid var(--line-strong);
+  border: 2px solid var(--line-strong);
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
@@ -899,7 +1124,7 @@ button {
   font-family: ui-monospace, monospace;
 }
 .settings-text[aria-invalid="true"] {
-  border-width: 2px;
+  border-width: 3px;
   border-color: var(--conflict);
 }
 .settings-code {
@@ -914,15 +1139,22 @@ button {
 }
 .theme-toggle {
   min-width: var(--touch);
+  padding: 0;
   font-size: 1.15rem;
   line-height: 1;
 }
+.theme-toggle .icon {
+  font-size: 1.1em;
+}
 
-/* Press and hover feedback. Only colors and transform animate, so nothing reflows.
-   Hover is limited to fine pointers so touch taps never leave a stuck hover tint. */
+/* Press and hover feedback. Only colors, the shadow and transform animate, so nothing reflows.
+   Hover is limited to fine pointers so touch taps never leave a stuck hover tint. The shadow
+   collapses as the button moves into it, so it reads as a physical click. */
 .ctl,
+.home-link,
 .pad-key,
-.cell {
+.cell,
+.level-option {
   transition:
     background-color 120ms ease-out,
     border-color 120ms ease-out,
@@ -931,17 +1163,23 @@ button {
 }
 @media (hover: hover) and (pointer: fine) {
   .ctl:hover:not(:disabled):not([aria-disabled="true"]),
+  .home-link:hover,
   .pad-key:hover:not(:disabled):not([aria-disabled="true"]) {
-    background-color: var(--hover);
+    background-color: var(--fill-hover);
+  }
+  .level-option:hover:not(.level-option--on) {
+    background: var(--btn-hover);
   }
   .cell:hover:not(.cell--selected, .cell--same, .cell--conflict, .cell--mark-root, .cell--mark-support, .cell--mark-hint, .cell--mark-hint-unit) {
     background-color: var(--hover);
   }
 }
 .ctl:active:not(:disabled):not([aria-disabled="true"]),
+.home-link:active,
 .pad-key:active:not(:disabled):not([aria-disabled="true"]) {
-  background-color: var(--press);
-  transform: scale(0.96);
+  background-color: var(--btn-press);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 var(--shadow);
 }
 .cell:active {
   background-color: var(--press);
@@ -1046,18 +1284,103 @@ button {
   .pad-count[data-fade] { animation: pad-check-in 150ms ease-out; }
 }
 
+/* The aura: a flame-like glow behind the board when the puzzle is solved (Aura.tsx puts this
+   layer in the page, behind the app, centered on the board). Transform and opacity only, about
+   2 s, then it is removed. Reduced motion keeps the glow and drops every movement: it fades in
+   and out in place. This deliberately beats the global clamp above, which would hide it. */
+.aura {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.aura-core {
+  position: absolute;
+  left: var(--aura-x);
+  top: var(--aura-y);
+  width: var(--aura-d);
+  height: var(--aura-d);
+  margin: calc(var(--aura-d) / -2) 0 0 calc(var(--aura-d) / -2);
+}
+.aura-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.aura-halo {
+  background: radial-gradient(circle at center, transparent 0 36%, var(--aura-2) 44%, var(--aura-1) 54%, transparent 71%);
+}
+/* Two interleaved tongue rings, masked to a band around the board so they read as flame edges. */
+.aura-tongues {
+  background: repeating-conic-gradient(from 0deg, var(--aura-1) 0 4deg, transparent 4deg 10deg);
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 38%, #000 47%, #000 54%, transparent 70%);
+  mask-image: radial-gradient(circle at center, transparent 0 38%, #000 47%, #000 54%, transparent 70%);
+}
+.aura-tongues--b {
+  background: repeating-conic-gradient(from 5deg, var(--aura-2) 0 3deg, transparent 3deg 13deg);
+  -webkit-mask-image: radial-gradient(circle at center, transparent 0 40%, #000 49%, #000 56%, transparent 74%);
+  mask-image: radial-gradient(circle at center, transparent 0 40%, #000 49%, #000 56%, transparent 74%);
+}
+@keyframes aura-halo {
+  0% { opacity: 0; transform: scale(0.72); }
+  25% { opacity: 0.95; }
+  100% { opacity: 0; transform: scale(1.18); }
+}
+@keyframes aura-flare-a {
+  0% { opacity: 0; transform: scale(0.7) rotate(0deg); }
+  20% { opacity: 1; }
+  55% { opacity: 0.85; transform: scale(1.02) rotate(18deg); }
+  100% { opacity: 0; transform: scale(1.22) rotate(34deg); }
+}
+@keyframes aura-flare-b {
+  0% { opacity: 0; transform: scale(0.64) rotate(0deg); }
+  25% { opacity: 1; }
+  60% { opacity: 0.8; transform: scale(1) rotate(-22deg); }
+  100% { opacity: 0; transform: scale(1.3) rotate(-40deg); }
+}
+@keyframes aura-fade {
+  0% { opacity: 0; }
+  30% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+.aura-halo { animation: aura-halo 2s ease-out both; }
+.aura-tongues { animation: aura-flare-a 2s ease-out both; }
+.aura-tongues--b { animation: aura-flare-b 2s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .aura-halo,
+  .aura-tongues,
+  .aura-tongues--b {
+    animation: aura-fade 2s ease-out both !important;
+    transform: none;
+  }
+}
+
 .daily-start {
   width: 100%;
   margin-bottom: var(--gutter);
-  font-weight: 700;
+  --fill: var(--primary);
+  --fill-hover: var(--primary-hover);
+  color: var(--on-primary);
+  font-weight: 800;
+}
+.daily-start[aria-disabled="true"] {
+  --fill: var(--btn);
+  white-space: normal;
 }
 /* Text plus a star, so the badge never relies on color. */
 .daily-badge {
   display: inline-flex;
   align-items: center;
+  gap: 4px;
   min-height: 32px;
   padding: 0 10px;
   border: 2px solid var(--line-strong);
   border-radius: var(--radius);
-  font-weight: 700;
+  background: var(--primary);
+  color: var(--on-primary);
+  box-shadow: 2px 2px 0 var(--shadow);
+  font-weight: 800;
 }

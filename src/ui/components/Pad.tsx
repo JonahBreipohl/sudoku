@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { DIGITS, type Digit, type Grid } from "../../engine";
 import { pad } from "../strings";
+import { Icon } from "../icons";
 
 interface PadProps {
   board: Grid;
@@ -97,7 +98,7 @@ export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = 
             <span className="pad-digit">{d}</span>
             <span className="pad-count" key={remaining} data-fade={ready ? "" : undefined}>
               <span className="sr-only">, </span>
-              {remaining === 0 && <span aria-hidden="true">{"\u2713"}</span>}
+              {remaining === 0 && <Icon name="check" />}
               <span className="sr-only">
                 {remaining === 0 ? pad.complete : pad.remaining(remaining)}
               </span>
@@ -112,7 +113,7 @@ export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = 
         onClick={onErase}
       >
         <span className="pad-digit" aria-hidden="true">
-          ⌫
+          <Icon name="erase" />
         </span>
       </button>
     </div>

@@ -1,6 +1,7 @@
 import type { Hint } from "../../analysis/hints";
 import type { HintTier } from "../../state/events";
 import { hint as t } from "../strings";
+import { Icon } from "../icons";
 
 const TIER_NUMBER: Record<HintTier, number> = { nudge: 1, technique: 2, reveal: 3 };
 
@@ -42,6 +43,7 @@ export function HintPanel({
 }) {
   return (
     <div className="hint-panel" role="group" aria-label={t.panel} data-tier={hint.tier}>
+      <Icon name="sparkle" className="hint-panel__mark" />
       <div className="hint-panel__body">
         <p className="hint-panel__step">{t.step(TIER_NUMBER[hint.tier])}</p>
         <p className="hint-panel__text">{hint.text}</p>
@@ -52,7 +54,7 @@ export function HintPanel({
         </button>
       )}
       <button type="button" className="ctl hint-panel__close" aria-label={t.close} onClick={onClose}>
-        <span aria-hidden="true">✕</span>
+        <Icon name="x" />
       </button>
     </div>
   );

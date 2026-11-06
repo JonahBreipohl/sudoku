@@ -1,5 +1,6 @@
 import { ASSISTS, type Assist } from "../../state/settings";
 import { assist as t } from "../strings";
+import { Icon } from "../icons";
 
 /**
  * Three-position assistance switch. Native radios give arrow-key movement and one tab stop; the
@@ -20,7 +21,7 @@ export function AssistSwitch({ value, onChange }: { value: Assist; onChange: (a:
               onChange={() => onChange(a)}
             />
             <span aria-hidden="true" className="assist-dot">
-              {a === value ? "●" : ""}
+              {a === value && <Icon name="dot" />}
             </span>
             {t.levels[a]}
           </label>

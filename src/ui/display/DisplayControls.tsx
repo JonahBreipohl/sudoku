@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { display } from "../strings";
+import { Icon } from "../icons";
 import { createWakeLock, fullscreenSupported, wakeLockSupported, type WakeLockController } from "./wakeLock";
 
 function isFullscreen(): boolean {
@@ -53,11 +54,13 @@ export function DisplayControls({ children }: { children?: React.ReactNode }) {
     <div className="display-controls">
       {canFullscreen && (
         <button type="button" className="ctl" aria-pressed={full} onClick={toggleFull}>
+          <Icon name={full ? "shrink" : "expand"} />
           {full ? display.fullscreenOn : display.fullscreenOff}
         </button>
       )}
       {canWake && (
         <button type="button" className="ctl" aria-pressed={wanted} onClick={toggleWake}>
+          <Icon name="eye" />
           {wanted ? (awake ? display.keepAwakeOn : display.keepAwakeWaiting) : display.keepAwakeOff}
         </button>
       )}

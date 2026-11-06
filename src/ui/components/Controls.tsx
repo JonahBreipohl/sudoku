@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { controls as t } from "../strings";
+import { Icon } from "../icons";
 
 interface ControlsProps {
   canUndo: boolean;
@@ -16,10 +17,12 @@ export function Controls({ canUndo, onUndo, onCheck, submitted, hintButton }: Co
   return (
     <div className="controls" role="group" aria-label={t.group}>
       <button type="button" className="ctl" disabled={!canUndo || submitted} onClick={onUndo} aria-keyshortcuts="Control+Z">
-        <span aria-hidden="true">↶</span> {t.undo}
+        <Icon name="undo" />
+        {t.undo}
       </button>
       <button type="button" className="ctl" disabled={submitted} onClick={onCheck}>
-        <span aria-hidden="true">✓</span> {t.check}
+        <Icon name="check" />
+        {t.check}
       </button>
       {hintButton}
     </div>

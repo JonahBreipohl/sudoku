@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef } from "react";
 import { common, newGame, submitDialog as t } from "../strings";
+import { Icon } from "../icons";
+import { SpeedLines } from "./SpeedLines";
 
 interface SubmitDialogProps {
   result: "solved" | "incorrect";
@@ -47,10 +49,13 @@ export function SubmitDialog({ result, time, hints, wrong, blank, onClose, onNew
         onClose();
       }}
     >
-      <h2 id={titleId} className="dialog-title">
-        <span aria-hidden="true">{solved ? "✓ " : "✕ "}</span>
-        {solved ? t.solved : t.notSolved}
-      </h2>
+      <div className={solved ? "dialog-head" : undefined}>
+        {solved && <SpeedLines />}
+        <h2 id={titleId} className="dialog-title">
+          <Icon name={solved ? "check" : "x"} />
+          {solved ? t.solved : t.notSolved}
+        </h2>
+      </div>
       <p id={messageId} className="dialog-message">
         {solved ? t.solvedMessage(time, hints) : t.incorrectMessage(submitSummary(wrong, blank))}
       </p>

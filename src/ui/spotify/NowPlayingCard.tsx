@@ -2,6 +2,7 @@ import { beginLogin } from "./auth";
 import { formatMs, progressAt } from "./api";
 import { useNowPlaying } from "./useNowPlaying";
 import { spotify as t } from "../strings";
+import { Icon } from "../icons";
 
 /**
  * Display mode's Spotify card: cover, title, artist, a progress bar and transport controls.
@@ -27,7 +28,9 @@ export function NowPlayingCard({ clientId, now, active }: { clientId: string; no
     const pct = np.durationMs ? (progress / np.durationMs) * 100 : 0;
     body = (
       <>
-        {np.artUrl ? <img className="np-art" src={np.artUrl} alt="" width={300} height={300} /> : <div className="np-art np-art-empty" aria-hidden="true">♪</div>}
+        {np.artUrl ? <img className="np-art" src={np.artUrl} alt="" width={300} height={300} /> : <div className="np-art np-art-empty" aria-hidden="true">
+            <Icon name="note" />
+          </div>}
         <div className="np-meta">
           <p className="np-title">{np.title}</p>
           <p className="np-artist">{np.artists}</p>
@@ -49,7 +52,7 @@ export function NowPlayingCard({ clientId, now, active }: { clientId: string; no
           </p>
           <div className="np-controls">
             <button type="button" className="ctl np-btn" aria-label={t.previous} disabled={!canControl} onClick={() => control("previous")}>
-              <span aria-hidden="true">⏮</span>
+              <Icon name="prev" />
             </button>
             <button
               type="button"
@@ -58,10 +61,10 @@ export function NowPlayingCard({ clientId, now, active }: { clientId: string; no
               disabled={!canControl}
               onClick={() => control(np.isPlaying ? "pause" : "play")}
             >
-              <span aria-hidden="true">{np.isPlaying ? "❚❚" : "▶"}</span>
+              <Icon name={np.isPlaying ? "pause" : "play"} />
             </button>
             <button type="button" className="ctl np-btn" aria-label={t.next} disabled={!canControl} onClick={() => control("next")}>
-              <span aria-hidden="true">⏭</span>
+              <Icon name="next" />
             </button>
           </div>
           {np.device && <p className="np-device">{t.onDevice(np.device)}</p>}

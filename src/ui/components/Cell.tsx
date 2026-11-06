@@ -2,8 +2,12 @@ import { memo, useEffect, useRef } from "react";
 import { maskDigits, colOf, rowOf, type CandidateMask } from "../../engine";
 import { recordCellCommit } from "../renderProbe";
 import { cellLabels } from "../strings";
+import { Icon, type IconName } from "../icons";
 
 export type CellMark = "root" | "support" | "hint" | "hint-unit";
+
+/** Corner badge per mark, so root, reason and hint differ by shape as well as color. */
+const BADGE: Partial<Record<CellMark, IconName>> = { root: "alert", support: "diamond", hint: "question" };
 
 export interface CellProps {
   cell: number;
@@ -83,6 +87,8 @@ export const Cell = memo(function Cell(p: CellProps) {
           ))}
         </span>
       ) : null}
+      {p.mark && BADGE[p.mark] && <Icon name={BADGE[p.mark]!} className="cell-badge cell-badge--mark" />}
+      {p.wrong && <Icon name="x" className="cell-badge cell-badge--wrong" />}
     </button>
   );
 });

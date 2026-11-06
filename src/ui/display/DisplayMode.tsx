@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { display, spotify } from "../strings";
 import { useSettings } from "../useSettings";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { Icon } from "../icons";
 import { SettingsDialog } from "../components/SettingsDialog";
 import { NowPlayingCard } from "../spotify/NowPlayingCard";
 import { formatClockSeconds, formatLongDate } from "../clock";
@@ -61,14 +62,17 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
       </main>
       <DisplayControls>
         <button type="button" className="ctl" aria-pressed={settings.nowPlaying} onClick={() => update({ nowPlaying: !settings.nowPlaying })}>
+          <Icon name="note" />
           {settings.nowPlaying ? spotify.toggleOn : spotify.toggleOff}
         </button>
         <ThemeToggle />
         <button type="button" className="ctl" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}>
+          <Icon name="sliders" />
           {display.settings}
         </button>
       </DisplayControls>
       <button ref={buttonRef} type="button" className="ctl display-exit" onClick={onExit} aria-keyshortcuts="Escape">
+        <Icon name="arrowLeft" />
         Exit Display
       </button>
       {settingsOpen && <SettingsDialog settings={settings} onChange={update} onClose={() => setSettingsOpen(false)} />}

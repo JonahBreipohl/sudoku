@@ -2,6 +2,7 @@ import { useSyncExternalStore } from "react";
 import { effectiveTheme, toggledTheme } from "../theme";
 import { useSettings } from "../useSettings";
 import { themeToggle as t } from "../strings";
+import { Icon } from "../icons";
 
 const QUERY = "(prefers-color-scheme: dark)";
 
@@ -29,7 +30,7 @@ export function ThemeToggle({ className = "ctl" }: { className?: string }) {
       title={dark ? t.toLight : t.toDark}
       onClick={() => update({ theme: toggledTheme(settings.theme, sys) })}
     >
-      <span aria-hidden="true">{dark ? "☾" : "☀"}</span>
+      <Icon name={dark ? "moon" : "sun"} />
     </button>
   );
 }

@@ -34,25 +34,37 @@
   }
 }
 
+/* The clock, date, stats and card are one manga panel on the scene: opaque paper, ink outline,
+   a hard offset shadow. Text never sits straight on the sky. */
 .display-clock {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 2cqmin;
+  padding: 2.4cqmin 3.6cqmin;
+  border: max(2px, 0.35cqmin) solid var(--line-strong);
+  border-radius: 1.4cqmin;
+  background: var(--surface);
+  box-shadow: max(4px, 0.8cqmin) max(4px, 0.8cqmin) 0 var(--shadow);
 }
 
+/* The UI face gives every digit one width at each weight, so the seconds never nudge the layout;
+   tabular-nums is set as well for faces that need it. The pink offset is a cel shadow. */
 .display-time {
   margin: 0;
   font-size: 18cqmin;
   line-height: 1;
-  font-weight: 300;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
   white-space: nowrap;
+  text-shadow: 0.04em 0.05em 0 var(--blossom-shade);
 }
 
 .display-date {
   margin: 0;
   font-size: 4.5cqmin;
+  font-weight: 700;
   color: var(--text-muted);
 }
 
@@ -89,8 +101,8 @@
   display: grid;
   grid-template-rows: repeat(9, 1fr);
   background: var(--surface);
-  border: 0.3cqmin solid var(--line-strong);
-  border-radius: 1cqmin;
+  border: max(3px, 0.5cqmin) solid var(--line-strong);
+  box-shadow: max(5px, 0.9cqmin) max(5px, 0.9cqmin) 0 var(--shadow);
   container-type: size;
   container-name: dboard;
 }
@@ -113,13 +125,13 @@
 }
 
 .dcell:nth-child(3n) {
-  border-right: 0.5cqmin solid var(--line-strong);
+  border-right: max(2px, 0.45cqmin) solid var(--line-strong);
 }
 .dcell:last-child {
   border-right: 0;
 }
 .dboard-row:nth-child(3n) > .dcell {
-  border-bottom: 0.5cqmin solid var(--line-strong);
+  border-bottom: max(2px, 0.45cqmin) solid var(--line-strong);
 }
 .dboard-row:last-child > .dcell {
   border-bottom: 0;
@@ -128,7 +140,7 @@
 .dcell--given {
   background: var(--given-bg);
   color: var(--given);
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .dcell--entry {
@@ -144,7 +156,7 @@
   text-underline-offset: 0.6cqmin;
 }
 
-/* Notes are subdued: small, muted, light weight. */
+/* Notes are subdued: small, muted, regular weight. */
 .dnotes {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -154,7 +166,7 @@
   padding: 4%;
   box-sizing: border-box;
   font-size: 2.4cqmin;
-  font-weight: 300;
+  font-weight: 400;
   color: var(--text-muted);
   text-align: center;
   align-items: center;
@@ -219,7 +231,7 @@
 .display-stat dd {
   margin: 0;
   font-size: max(3cqmin, 16px);
-  font-weight: 600;
+  font-weight: 800;
   font-variant-numeric: tabular-nums;
 }
 
@@ -232,7 +244,7 @@
   }
 }
 
-/* Bottom corner controls; pressed state gets a heavy border and weight in addition to the label text. */
+/* Bottom corner controls; pressed state gets a heavy border, a fill and weight in addition to the label text. */
 .display-controls {
   position: absolute;
   bottom: var(--gutter);
@@ -243,22 +255,25 @@
 }
 
 .display-controls .ctl[aria-pressed="true"] {
-  border: 3px solid var(--line-strong);
-  font-weight: 700;
+  --fill: var(--primary);
+  --fill-hover: var(--primary-hover);
+  border-width: 3px;
+  color: var(--on-primary);
+  font-weight: 800;
 }
 
-/* Spotify now-playing card under the clock. Sized from the display container like the rest. */
+/* Spotify now-playing card under the clock. It lives inside the clock panel, so it is flat: a
+   dashed ink rule above it, no card of its own. Sized from the display container like the rest. */
 .np {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
   gap: 1.5cqmin 2.5cqmin;
+  align-self: stretch;
   max-width: min(92cqw, 640px);
-  padding: 1.5cqmin 2cqmin;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
+  padding: 2cqmin 0 0;
+  border-top: 2px dashed var(--line-strong);
   text-align: left;
 }
 
@@ -267,14 +282,16 @@
   height: auto;
   aspect-ratio: 1;
   flex: none;
-  border-radius: 4px;
+  border: 2px solid var(--line-strong);
+  border-radius: var(--radius);
+  box-shadow: 3px 3px 0 var(--shadow);
   object-fit: cover;
 }
 
 .np-art-empty {
   display: grid;
   place-items: center;
-  border: 1px solid var(--line);
+  background: var(--related);
   font-size: 2rem;
   color: var(--text-muted);
 }
@@ -291,7 +308,7 @@
 
 .np-title {
   font-size: max(2.4cqmin, 16px);
-  font-weight: 700;
+  font-weight: 800;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -307,16 +324,16 @@
 }
 
 .np-bar {
-  height: 6px;
+  height: 10px;
   margin-top: 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: 3px;
+  border: 2px solid var(--line-strong);
+  border-radius: 999px;
   overflow: hidden;
 }
 
 .np-fill {
   height: 100%;
-  background: var(--line-strong);
+  background: var(--entry);
   /* Moves once a second with the clock; no animation in between. */
 }
 
@@ -340,15 +357,19 @@
   font-size: 1.1rem;
 }
 
+/* The one transport button that matters most is filled and a little heavier. */
 .np-play {
-  border: 2px solid var(--line-strong);
-  font-weight: 700;
+  --fill: var(--primary);
+  --fill-hover: var(--primary-hover);
+  border-width: 3px;
+  color: var(--on-primary);
 }
 
 .np-notice {
   flex-basis: 100%;
   margin: 0;
   font-size: 0.875rem;
+  font-weight: 700;
   text-align: center;
 }
 
@@ -360,8 +381,11 @@
    board still fit between the corner controls. */
 @container display (orientation: portrait) {
   .np {
-    width: min(92cqw, 520px);
-    padding: 8px 10px;
+    width: min(84cqw, 480px);
+    padding: 10px 0 0;
+  }
+  .display-clock {
+    padding: 1.6cqmin 3cqmin;
   }
   .np-meta {
     flex-basis: 0;
@@ -377,6 +401,6 @@
     margin-bottom: 0;
   }
   .display-body:has(.np) .dboard {
-    --dsize: min(84cqw, 36cqh);
+    --dsize: min(84cqw, 33cqh);
   }
 }

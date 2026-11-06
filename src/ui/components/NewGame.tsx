@@ -3,6 +3,7 @@ import type { Level } from "../../engine/step";
 import { ConfirmDialog } from "./ConfirmDialog";
 import { NewGameDialog, levelLabel } from "./NewGameDialog";
 import { common, newGame as t } from "../strings";
+import { Icon } from "../icons";
 
 interface NewGameProps {
   pending: boolean;
@@ -45,7 +46,7 @@ export function NewGame({ pending, inProgress, onNewGame, onDaily, isDailySolved
         {t.button}
       </button>
       <span role="status" className="new-game-status">
-        {pending ? <><span aria-hidden="true">⏳ </span>{t.generating}</> : ""}
+        {pending ? <><Icon name="hourglass" /> {t.generating}</> : ""}
       </span>
       {choosing && (
         <NewGameDialog

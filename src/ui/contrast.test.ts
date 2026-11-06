@@ -67,6 +67,26 @@ const PAIRS: [string, string, number][] = [
   ["focus", "surface", 3],
   ["line-strong", "bg", 3],
   ["line-strong", "surface", 3],
+  // Buttons: label, outline and the pointer states over the button fill.
+  ["text", "btn", 4.5],
+  ["text", "btn-hover", 4.5],
+  ["text", "btn-press", 4.5],
+  ["text-muted", "btn", 4.5],
+  ["text-muted", "pad-bg", 4.5],
+  ["line-strong", "btn", 3],
+  ["focus", "btn", 3],
+  ["conflict", "btn", 3],
+  ["entry", "btn", 3],
+  // Filled primary controls, selected segments and the wordmark plate.
+  ["on-primary", "primary", 4.5],
+  ["on-primary", "primary-hover", 4.5],
+  // Hint panel and the cell hover/press tints.
+  ["text", "hint-bg", 4.5],
+  ["hint", "hint-bg", 4.5],
+  ["text", "hover", 4.5],
+  ["text", "press", 4.5],
+  ["given", "hover", 3],
+  ["entry", "hover", 3],
 ];
 
 describe.each([

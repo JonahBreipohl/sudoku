@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { dailyLevel } from "../../state/daily";
 import { LEVELS, type Level } from "../../engine/step";
 import { common, newGameDialog as t } from "../strings";
+import { Icon } from "../icons";
 
 interface NewGameDialogProps {
   onStart: (level: Level) => void;
@@ -43,12 +44,12 @@ export function NewGameDialog({ onStart, onDaily, dailySolved = false, onCancel 
       </h2>
       {dailySolved ? (
         <button type="button" className="ctl daily-start" aria-disabled="true" data-daily-solved>
-          <span aria-hidden="true">✓ </span>
+          <Icon name="check" />
           {t.dailySolved}
         </button>
       ) : (
         <button type="button" className="ctl daily-start" onClick={onDaily}>
-          <span aria-hidden="true">★ </span>
+          <Icon name="star" />
           {t.daily(levelLabel(dailyLevel(new Date())))}
         </button>
       )}
