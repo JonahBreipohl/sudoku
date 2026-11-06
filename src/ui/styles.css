@@ -771,8 +771,15 @@ button {
     clip-path: inset(50%);
     white-space: nowrap;
   }
+  .app-header {
+    gap: 6px;
+  }
   .app-header h1 {
+    margin: 4px 2px;
     font-size: 1.2rem;
+  }
+  .new-game {
+    gap: 0;
   }
   .play {
     gap: 10px;
@@ -826,8 +833,15 @@ button {
     display: none;
   }
   .app-header h1 {
+    margin: 4px 0;
     font-size: 1.05rem;
-    padding: 3px 8px 4px;
+    padding: 3px 7px 4px;
+  }
+  .new-game .ctl {
+    padding: 0 8px;
+  }
+  .app-header {
+    gap: 4px;
   }
   .play {
     --size: min(100cqi, max(200px, calc(100cqb - var(--chrome) - var(--hint-room))));

@@ -103,3 +103,22 @@ for (const scheme of ["light", "dark"] as const) {
     });
   }
 }
+
+test("clock digits are one width, so the seconds never nudge the layout", async ({ page }) => {
+  // Same AM suffix and digit count in every sample, so only the digit shapes differ.
+  const widths: number[] = [];
+  for (const iso of ["2026-11-06T10:00:00", "2026-11-06T11:11:11", "2026-11-06T10:58:48"]) {
+    await page.clock.setFixedTime(new Date(iso));
+    await page.goto("/?mode=display");
+    const time = page.locator(".display-time");
+    await expect(time).toBeVisible();
+    await page.evaluate(() => document.fonts.load('800 40px "M PLUS Rounded 1c"').then(() => document.fonts.ready));
+    widths.push(await time.evaluate((el) => {
+      const r = document.createRange();
+      r.selectNodeContents(el);
+      return r.getBoundingClientRect().width;
+    }));
+  }
+  const [first, ...rest] = widths;
+  for (const w of rest) expect(Math.abs(w - first!)).toBeLessThan(0.5);
+});

@@ -56,6 +56,8 @@
   line-height: 1;
   font-weight: 800;
   font-variant-numeric: tabular-nums;
+  /* Kerning would tuck "11" closer than "10", which is exactly the jitter this avoids. */
+  font-kerning: none;
   letter-spacing: 0;
   white-space: nowrap;
   text-shadow: 0.04em 0.05em 0 var(--blossom-shade);
