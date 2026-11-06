@@ -23,7 +23,7 @@ import {
   WebGLRenderer,
   type IUniform,
 } from "three";
-import { compose, type Composition, type Layout } from "./compose";
+import { CLOUD_CURLS, compose, type Composition, type Layout } from "./compose";
 import { burstMs, MAX_PETALS, petalPose, planGust, planStorm, type Petal } from "./gusts";
 import { sceneBus, sceneStats, type SceneRequest } from "./bus";
 import type { Rect } from "./geom";
@@ -87,6 +87,8 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     uCloudInfo: { value: Array.from({ length: glsl.MAX_CLOUDS }, () => new Vector4()) },
     uCloudBound: { value: Array.from({ length: glsl.MAX_CLOUDS }, () => new Vector3()) },
     uCloudBody: { value: Array.from({ length: glsl.MAX_CLOUDS }, () => new Vector4()) },
+    uCloudRound: { value: new Array<number>(glsl.MAX_CLOUDS).fill(0) },
+    uCurls: { value: Array.from({ length: glsl.MAX_CURLS }, () => new Vector4()) },
     uCloudCount: { value: 0 },
     uMoonPos: { value: new Vector3() },
     uLanternPos: { value: new Vector3() },
@@ -226,8 +228,15 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     return mesh;
   }
 
+  let lastLayout = "";
   function recompose() {
-    comp = compose(layout());
+    const l = layout();
+    // Observers report sizes that have not really changed (an initial callback, a relayout to the
+    // same box); only a new layout earns a new frame.
+    const key = JSON.stringify(l, (_k, v: unknown) => (typeof v === "number" ? Math.round(v) : v));
+    if (comp && key === lastLayout) return;
+    lastLayout = key;
+    comp = compose(l);
     for (const o of [branch, hull]) if (o) { still.remove(o); o.geometry.dispose(); }
     if (flowers) { still.remove(flowers); flowers.geometry.dispose(); flowers.dispose(); }
     const geo = buildBranch(comp);
@@ -241,6 +250,9 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     const infos = skyU.uCloudInfo!.value as Vector4[];
     const bounds = skyU.uCloudBound!.value as Vector3[];
     const bodies = skyU.uCloudBody!.value as Vector4[];
+    const rounds = skyU.uCloudRound!.value as number[];
+    const curls = skyU.uCurls!.value as Vector4[];
+    for (const c of curls) c.set(0, 0, 0, 0);
     let n = 0;
     let clouds = 0;
     for (const cl of comp.clouds) {
@@ -252,9 +264,11 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
       const [bx, by, bw, bh] = cl.body;
       const R = Math.max(Math.hypot(Math.abs(bx - cx) + bw, Math.abs(by - cy) + bh), ...list.map(([x, y, r]) => Math.hypot(x - cx, y - cy) + r));
       bodies[clouds]!.set(bx, by, bw, bh);
+      rounds[clouds] = cl.round;
+      cl.curls.slice(0, CLOUD_CURLS).forEach(([x, y, r, a], k) => curls[clouds * CLOUD_CURLS + k]!.set(x, y, r, a));
       infos[clouds]!.set(cl.base, n, list.length, cl.shade);
       bounds[clouds]!.set(cx, cy, R);
-      for (const [x, y, r, front] of list) circles[n++]!.set(x, y, r, front);
+      for (const [x, y, r] of list) circles[n++]!.set(x, y, r, 0);
       clouds++;
     }
     skyU.uCloudCount!.value = clouds;
@@ -273,6 +287,8 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     const h = host.clientHeight;
     if (w === 0 || h === 0) return false;
     const r = dpr();
+    // Re-assigning the canvas size clears it even when nothing changed, so skip that case.
+    if (w === size.w && h === size.h && r === renderer.getPixelRatio()) return false;
     size = { w, h };
     renderer.setPixelRatio(r);
     renderer.setSize(w, h, false);
@@ -283,6 +299,7 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     camera.right = w;
     camera.bottom = -h;
     camera.updateProjectionMatrix();
+    stillDirty = true;
     return true;
   }
 

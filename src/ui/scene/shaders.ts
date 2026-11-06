@@ -1,10 +1,11 @@
 // GLSL for the Hanami scene. Everything is drawn in CSS px, flat cel tones with hard band edges,
 // and ink lines antialiased from signed distances (smoothstep over fwidth).
 
-import { CLOUD_BUMPS } from "./compose";
+import { CLOUD_BUMPS, CLOUD_CURLS, CURL_SPAN } from "./compose";
 
 export const MAX_CIRCLES = 56;
 export const MAX_CLOUDS = 4;
+export const MAX_CURLS = MAX_CLOUDS * CLOUD_CURLS;
 
 /** Full-screen triangle pair in clip space; the fragment works from gl_FragCoord. */
 export const screenVert = /* glsl */ `
@@ -30,34 +31,41 @@ uniform vec4 uCircles[${MAX_CIRCLES}];
 uniform vec4 uCloudInfo[${MAX_CLOUDS}];
 uniform vec3 uCloudBound[${MAX_CLOUDS}];
 uniform vec4 uCloudBody[${MAX_CLOUDS}];
+uniform float uCloudRound[${MAX_CLOUDS}];
+uniform vec4 uCurls[${MAX_CURLS}];
 uniform int uCloudCount;
 uniform vec3 uMoonPos;
 uniform vec3 uLanternPos;
 
 float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
 
-// uCloudInfo: (flat underside y, first lobe, lobe count, shade reach); uCloudBody: box centre,
-// half size. \`arc\` is the distance to the upper outline of the nearest front lobe, for the inner
-// ink lines where one lobe overlaps another.
-float cloudSd(vec2 p, vec4 info, vec4 body, out float arc) {
-  vec2 q = abs(p - body.xy) - body.zw;
-  float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0);
+// uCloudInfo: (flat underside y, first lobe, lobe count, shade reach); uCloudBody: rounded box
+// centre and half size, with corner radius \`rnd\`.
+float cloudSd(vec2 p, vec4 info, vec4 body, float rnd) {
+  vec2 q = abs(p - body.xy) - body.zw + rnd;
+  float d = length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - rnd;
   int start = int(info.y + 0.5);
   int count = int(info.z + 0.5);
-  float front = 1e5;
-  float back = 1e5;
   for (int i = 0; i < ${CLOUD_BUMPS}; i++) {
     if (i >= count) break;
     vec4 c = uCircles[start + i];
-    float di = length(p - c.xy) - c.z;
-    d = min(d, di);
-    if (c.w > 0.5) {
-      if (p.y < c.y) front = min(front, abs(di));
-    } else back = min(back, di);
+    d = min(d, length(p - c.xy) - c.z);
   }
-  arc = back < 0.0 ? front : 1e5;
   // Cumulus sit on a flat, level underside.
   return max(d, p.y - info.x);
+}
+
+// A brush curl: an arc of radius |c.z| about c.xy from angle c.w, sweeping CURL_SPAN radians
+// (backwards when c.z < 0). Full width where it leaves the silhouette, drawn to a point at the end.
+float curl(vec2 p, vec4 c, float aa) {
+  if (c.z == 0.0) return 0.0;
+  vec2 v = p - c.xy;
+  float da = (atan(v.y, v.x) - c.w) * sign(c.z);
+  da = mod(da + 3.14159265, 6.2831853) - 3.14159265;
+  float t = da / ${CURL_SPAN};
+  if (t < 0.0 || t > 1.0) return 0.0;
+  float w = uLine * 0.95 * pow(1.0 - t, 1.3);
+  return 1.0 - smoothstep(w * 0.5 - aa, w * 0.5 + aa, abs(length(v) - abs(c.z)));
 }
 
 void main() {
@@ -101,20 +109,19 @@ void main() {
     vec3 bound = uCloudBound[ci];
     if (length(px - bound.xy) - bound.z > uLine + 2.0) continue;
     vec4 body = uCloudBody[ci];
-    float arc;
-    float d = cloudSd(px, info, body, arc);
+    float rnd = uCloudRound[ci];
+    float d = cloudSd(px, info, body, rnd);
     if (d > uLine + 2.0) continue;
     // One hard shade band: anything whose neighbour toward the lower right is outside the cloud.
-    float arc2;
-    float s = cloudSd(px + vec2(0.55, 0.85) * info.w, info, body, arc2);
+    float s = cloudSd(px + vec2(0.55, 0.85) * info.w, info, body, rnd);
     vec3 cc = mix(uCloud, uCloudShade, smoothstep(-aa, aa, s));
     cc = mix(cc, uLantern, lg * 0.45 * uNight);
     col = mix(col, cc, 1.0 - smoothstep(-aa, aa, d));
     col = mix(col, uInk, 1.0 - smoothstep(uLine * 0.5 - aa, uLine * 0.5 + aa, abs(d)));
-    // Inner lobe lines are finer than the silhouette and stop short of it.
-    // They curl in from the silhouette only a short way, like a brush flick.
-    float inner = (1.0 - smoothstep(uLine * 0.3 - aa, uLine * 0.3 + aa, arc)) * step(d, -uLine * 2.0) * step(-uLine * 12.0, d);
-    col = mix(col, uInk, inner);
+    // Curls grow out of the silhouette into the cloud, never out into the sky.
+    float ink = 0.0;
+    for (int k = 0; k < ${CLOUD_CURLS}; k++) ink = max(ink, curl(px, uCurls[ci * ${CLOUD_CURLS} + k], aa));
+    col = mix(col, uInk, ink * step(d, 0.0));
   }
   gl_FragColor = vec4(col, 1.0);
 }

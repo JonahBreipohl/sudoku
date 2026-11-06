@@ -23,15 +23,21 @@ export interface Blossom {
 }
 
 /**
- * A cel cumulus: a body box [cx, cy, halfW, halfH] in union with lobes [cx, cy, r, front], all cut
- * flat at `base` (its underside). Front lobes draw their outline over the lobes behind them.
+ * A cel cumulus: a rounded body box [cx, cy, halfW, halfH] (corner radius `round`) in union with
+ * lobes [cx, cy, r], all cut flat at `base` (its underside).
  */
 export interface Cloud {
   body: [number, number, number, number];
-  circles: [number, number, number, number][];
+  round: number;
+  circles: [number, number, number][];
   base: number;
   /** How far the hard shade band reaches in from the lower-right edges, px. */
   shade: number;
+  /**
+   * Two or three tapered ink curls [cx, cy, r, angle]: the lower arc of an upper lobe where it
+   * overlaps the lobe beneath, the way a background painter marks one puff in front of another.
+   */
+  curls: [number, number, number, number][];
 }
 
 export interface Composition {
@@ -105,12 +111,10 @@ export function compose(l: Layout, seed = 7): Composition {
         { points: [[w + 50, h * 0.14], [w - R * 0.4, h * 0.2], [w - R * 0.72, h * 0.18], [w - R * 0.86, h * 0.12]], base: 10 * s, tip: 1.8 * s },
         { points: [[w - R * 0.3, h * 0.19], [w - R * 0.38, h * 0.29], [w - R * 0.32, h * 0.37]], base: 4 * s, tip: 1.3 * s },
       );
-      clouds.push(cumulus(w - R * 0.42, h * 0.43, R * 0.56, h * 0.53, rand));
+      clouds.push(cumulus(w - R * 0.42, h * 0.43, R * 0.56, h * 0.53, rand, l.view));
     }
-    // Cumulus towers rise off the bottom edge in the gutters. The middle stays open sky: the
-    // controls' small text sits on the pale horizon there, which keeps it easy to read.
-    clouds.push(cumulus(L * 0.34, h * 0.6, L * 1.05, h * 1.5, rand));
-    if (R >= MIN_GUTTER) clouds.push(cumulus(w - R * 0.3, h * 0.68, R * 0.95, h * 1.5, rand));
+    // A low cumulus bank along the bottom edge: only its lobe tops rise into view.
+    clouds.push(bank(w * 0.5, h * 0.82, w * 1.2, l.view, rand));
     moon = { x: L * 0.52, y: h * 0.25, r: clamp(L * 0.16, 34, 70) };
     horizon = h * 0.88;
   } else if (kind === "band") {
@@ -123,7 +127,7 @@ export function compose(l: Layout, seed = 7): Composition {
       { points: [[w * 0.62, cy - bh * 0.04], [w * 0.57, cy + bh * 0.22], [w * 0.62, cy + bh * 0.4]], base: 4.5 * s, tip: 1.3 * s },
       { points: [[w * 0.33, cy - bh * 0.1], [w * 0.29, cy - bh * 0.3], [w * 0.34, cy - bh * 0.44]], base: 4 * s, tip: 1.2 * s },
     );
-    clouds.push(cumulus(w * 0.5, top + bh * 0.5, w * 1.3, h * 1.5, rand, bh * 0.3));
+    clouds.push(bank(w * 0.5, top + bh * 0.6, w * 1.5, l.view, rand));
     moon = { x: w * 0.2, y: cy - bh * 0.08, r: clamp(bh * 0.26, 26, 52) };
     horizon = bottom + 30;
   } else if (kind === "display") {
@@ -137,9 +141,9 @@ export function compose(l: Layout, seed = 7): Composition {
       { points: [[end * 0.58, top * 0.45], [end * 0.68, top * 0.22], [end * 0.76, top * 0.08]], base: 5 * s, tip: 1.4 * s },
       { points: [[w + 50, h * 0.96], [w - (w - board.x - board.w) * 0.6 - 40, h * 0.92], [board.x + board.w * 0.78, h * 0.95]], base: 8 * s, tip: 1.6 * s },
     );
-    // A cumulus tower rises behind the clock, so its text stands on a calm, light ground.
-    clouds.push(cumulus(text.x + text.w * 0.5, text.y - 90 * s, text.w * 2.1, h * 1.5, rand));
-    clouds.push(cumulus(board.x + board.w * 0.5, board.y + board.h - 40, board.w * 1.25, h * 1.5, rand));
+    // A cumulus tower rises behind the clock, and the low bank runs in front of its foot.
+    clouds.push(cumulus(text.x + text.w * 0.5, text.y - 90 * s, text.w * 2.1, h * 0.98, rand, l.view, text.y - 12));
+    clouds.push(bank(w * 0.5, h * 0.86, w * 1.2, l.view, rand));
     moon = { x: end * 0.62, y: top * 0.42, r: clamp(h * 0.075, 36, 90) };
     horizon = h * 0.92;
   } else {
@@ -147,7 +151,7 @@ export function compose(l: Layout, seed = 7): Composition {
     limbs.push(
       { points: [[w + 40, -10], [w * 0.86, h * 0.05], [w * 0.74, h * 0.07], [w * 0.66, h * 0.05]], base: 8 * s, tip: 1.4 * s },
     );
-    clouds.push(cumulus(w * 0.2, h * 0.78, w * 0.5, h * 1.5, rand));
+    clouds.push(bank(w * 0.5, h * 0.84, w * 1.2, l.view, rand));
     moon = { x: w * 0.12, y: h * 0.12, r: 30 * s };
   }
 
@@ -197,48 +201,137 @@ export function compose(l: Layout, seed = 7): Composition {
 }
 
 /** Lobes per cloud; the sky shader's per-cloud loop has the same bound. */
-export const CLOUD_BUMPS = 14;
+export const CLOUD_BUMPS = 12;
+/** Curls per cloud; the sky shader reserves this many slots per cloud. */
+export const CLOUD_CURLS = 3;
+
+/** How far each curl sweeps along its lobe, radians; the shader uses the same value. */
+export const CURL_SPAN = 0.42;
+
+const inside = (circles: Cloud["circles"], x: number, y: number, skip: number[]) =>
+  circles.some(([cx, cy, r], k) => !skip.includes(k) && Math.hypot(x - cx, y - cy) < r - 1);
 
 /**
- * A cel cumulus whose crown reaches `top`, `width` wide, standing on `base` (often far below the
- * screen): lobes along a dome, two billows down each flank, and a solid body filling the rest.
+ * Curls start in a valley of the silhouette, where a big lobe meets its smaller neighbour, and
+ * follow the big lobe's edge a short way into the cloud: one puff drawn in front of the next.
+ * Stored as [cx, cy, r, start angle] with r negative when the sweep runs the other way.
  */
-function cumulus(cx: number, top: number, width: number, base: number, rand: () => number, maxDome = Infinity): Cloud {
+function curlsFor(circles: Cloud["circles"], floor: number, view: View): Cloud["curls"] {
+  const found: { big: number; lobe: number; curl: Cloud["curls"][number] }[] = [];
+  for (let i = 0; i + 1 < circles.length; i++) {
+    const a = circles[i]!;
+    const b = circles[i + 1]!;
+    const [F, O, fi, oi] = a[2] >= b[2] ? [a, b, i, i + 1] : [b, a, i + 1, i];
+    const d = Math.hypot(O[0] - F[0], O[1] - F[1]);
+    if (d >= F[2] + O[2] || d <= Math.abs(F[2] - O[2]) || F[2] < O[2] * 1.15) continue;
+    // Upper intersection of the two circles: the valley on the silhouette.
+    const along = (F[2] * F[2] - O[2] * O[2] + d * d) / (2 * d);
+    const hgt = Math.sqrt(Math.max(0, F[2] * F[2] - along * along));
+    const ux = (O[0] - F[0]) / d;
+    const uy = (O[1] - F[1]) / d;
+    const mx = F[0] + ux * along;
+    const my = F[1] + uy * along;
+    const p1: Pt = [mx + uy * hgt, my - ux * hgt];
+    const p2: Pt = [mx - uy * hgt, my + ux * hgt];
+    const [px, py] = p1[1] < p2[1] ? p1 : p2;
+    // A valley hidden inside a third lobe is not on the silhouette; one off screen is not seen.
+    if (inside(circles, px, py, [fi, oi])) continue;
+    if (px < 8 || px > view.w - 8 || py > view.h - 24) continue;
+    const start = Math.atan2(py - F[1], px - F[0]);
+    // Sweep the way that runs inside the smaller neighbour.
+    const probe = start + 0.25;
+    const dir = Math.hypot(F[0] + Math.cos(probe) * F[2] - O[0], F[1] + Math.sin(probe) * F[2] - O[1]) < O[2] ? 1 : -1;
+    const end = start + dir * CURL_SPAN;
+    if (F[1] + Math.sin(end) * F[2] > floor) continue;
+    found.push({ big: F[2], lobe: fi, curl: [F[0], F[1], dir * F[2], start] });
+  }
+  const used = new Set<number>();
+  const out: Cloud["curls"] = [];
+  for (const f of found.sort((x, y) => y.big - x.big)) {
+    if (out.length >= CLOUD_CURLS || used.has(f.lobe)) continue;
+    used.add(f.lobe);
+    out.push(f.curl);
+  }
+  return out;
+}
+
+/**
+ * A cel cumulus tower whose crown reaches `top`, `width` wide, standing on `base`: lobes of
+ * varied size along a dome, a crown puff, and a rounded body under them.
+ */
+function cumulus(cx: number, top: number, width: number, base: number, rand: () => number, view: View, curlFloor = Infinity): Cloud {
   const height = base - top;
   const n = 7;
   const r = (width / (n + 1)) * 0.95;
-  const dome = Math.min(height * 0.45, width * 0.22, maxDome);
+  const dome = Math.min(height * 0.45, width * 0.22);
   const circles: Cloud["circles"] = [];
   for (let i = 0; i < n; i++) {
     const t = (i + 0.5) / n;
     const crown = Math.sin(t * Math.PI);
-    const ri = r * (0.72 + 0.5 * crown) * (0.88 + rand() * 0.24);
+    const ri = r * (0.66 + 0.5 * crown) * (0.8 + rand() * 0.4);
     const x = cx + (t - 0.5) * (width - 2 * r) + (rand() - 0.5) * r * 0.3;
     const y = top + dome * (1 - Math.pow(crown, 0.9)) + (rand() - 0.5) * r * 0.25;
-    circles.push([x, y + ri, ri, i % 2]);
+    circles.push([x, y + ri, ri]);
   }
   // A crown puff, off-centre, so the silhouette is not symmetric.
   const rc = r * 1.05;
-  circles.push([cx + (rand() - 0.25) * width * 0.2, top + rc * 0.75, rc, 1]);
+  circles.splice(Math.floor(n / 2), 0, [cx + (rand() - 0.25) * width * 0.2, top + rc * 0.75, rc]);
   // The body starts at the lobes' centre line, so no sky shows between lobes and body.
   const shoulder = top + dome * 0.6 + r * 0.8;
-  const half = width * 0.5 - r * 0.7;
-  for (const side of [-1, 1])
-    for (const k of [0, 1]) {
-      const rf = r * (1.15 + rand() * 0.25);
-      circles.push([cx + side * (half - rf * 0.35 + k * r * 0.25), shoulder + rf * (0.7 + k * 1.6), rf, k]);
-    }
+  const halfW = width * 0.5 - r * 0.5;
+  const halfH = (base - shoulder) / 2;
   return {
-    body: [cx, (shoulder + base) / 2 + 10, half - r * 0.3, (base - shoulder) / 2 + 10],
+    body: [cx, shoulder + halfH, halfW, halfH],
+    // Rounded so any visible flank or underside curves away instead of ending in a straight cut.
+    round: Math.min(halfW, halfH, r * 1.6),
     circles,
     base,
-    shade: Math.min(height, width * 0.5) * 0.2,
+    shade: Math.min(height * 0.2, r * 0.5),
+    curls: curlsFor(circles, curlFloor, view),
+  };
+}
+
+/**
+ * A low bank wider than the screen, so its ends are never seen: lobes of uneven size whose tops
+ * rise to about `top`, over a body that runs down past the bottom edge (`bottom`).
+ */
+function bank(cx: number, top: number, width: number, view: View, rand: () => number): Cloud {
+  const n = Math.round(clamp(width / 210, 6, 8));
+  const r = (width / (n + 1)) * 0.95;
+  const circles: Cloud["circles"] = [];
+  for (let i = 0; i < n; i++) {
+    const t = (i + 0.5) / n;
+    // Uneven puffs, none much bigger than the rest: a bank, not a row of bubbles.
+    const ri = r * (0.72 + rand() * 0.42);
+    const x = cx + (t - 0.5) * width + (rand() - 0.5) * r * 0.5;
+    const y = top + (r * 1.15 - ri) * 0.6 + rand() * r * 0.3;
+    circles.push([x, y + ri, ri]);
+  }
+  // Small cauliflower heads on the three biggest puffs break up the round tops.
+  const heads = [...circles].sort((a, b) => b[2] - a[2]).slice(0, CLOUD_BUMPS - n);
+  for (const [x, y, ri] of heads) {
+    const side = rand() < 0.5 ? -1 : 1;
+    const rh = ri * (0.38 + rand() * 0.12);
+    circles.push([x + side * ri * 0.45, y - ri * 0.82 + rh * 0.35, rh]);
+  }
+  const shoulder = top + r * 1.1;
+  const base = view.h + r * 2;
+  const halfH = (base - shoulder) / 2 + 20;
+  return {
+    body: [cx, shoulder + halfH, width * 0.5, halfH],
+    round: 0,
+    circles,
+    base,
+    shade: r * 0.45,
+    curls: curlsFor(circles.slice(0, n), Infinity, view),
   };
 }
 
 /** Screen y of a cloud's upper outline at `x` (Infinity where the cloud is absent). */
 export function cloudTopAt(c: Cloud, x: number): number {
-  let top = Math.abs(x - c.body[0]) <= c.body[2] ? c.body[1] - c.body[3] : Infinity;
+  const [bx, by, hw, hh] = c.body;
+  const dx0 = Math.abs(x - bx) - (hw - c.round);
+  let top = Math.abs(x - bx) > hw ? Infinity : dx0 <= 0 ? by - hh : by - hh + c.round - Math.sqrt(Math.max(0, c.round * c.round - dx0 * dx0));
   for (const [cx, cy, r] of c.circles) {
     const dx = Math.abs(x - cx);
     if (dx < r) top = Math.min(top, cy - Math.sqrt(r * r - dx * dx));

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { sceneBus } from "./bus";
+import { along, rng, type Pt } from "./geom";
 import "./scene.css";
 
 /** One five-petal flower of radius 1 as an SVG path: notched petals around the centre. */
@@ -17,12 +18,45 @@ function flowerPath(): string {
 }
 const FLOWER = flowerPath();
 
-/** Where the fallback's flowers sit on its 600 x 420 branch drawing: [x, y, radius]. */
-const FLOWERS: [number, number, number][] = [
-  [150, 92, 17], [182, 112, 14], [128, 120, 13], [262, 132, 18], [298, 150, 15], [236, 160, 13],
-  [372, 168, 17], [404, 190, 14], [350, 200, 12], [470, 206, 16], [500, 226, 13], [92, 186, 15],
-  [118, 222, 13], [70, 238, 12], [330, 92, 14], [356, 66, 12], [532, 250, 11], [440, 236, 12],
+/** The fallback branch on its 600 x 420 drawing: [polyline, ink width, bark width]. */
+const LIMBS: [Pt[], number, number][] = [
+  [[[-30, 40], [120, 72], [260, 138], [400, 186], [560, 250]], 26, 20],
+  [[[120, 80], [105, 160], [70, 240]], 12, 7],
+  [[[280, 145], [330, 95], [360, 62]], 9, 4.5],
+  [[[420, 190], [450, 225], [470, 238]], 7, 3],
 ];
+/** A smooth path through the points (Catmull-Rom as cubic Béziers), so twigs bend, not kink. */
+function toPath(pts: Pt[]): string {
+  const p = (i: number) => pts[Math.max(0, Math.min(pts.length - 1, i))]!;
+  let d = `M${p(0)[0]} ${p(0)[1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [a, b, c, e] = [p(i - 1), p(i), p(i + 1), p(i + 2)];
+    const c1 = [b[0] + (c[0] - a[0]) / 6, b[1] + (c[1] - a[1]) / 6];
+    const c2 = [c[0] - (e[0] - b[0]) / 6, c[1] - (e[1] - b[1]) / 6];
+    d += `C${c1.map((v) => v.toFixed(1)).join(" ")} ${c2.map((v) => v.toFixed(1)).join(" ")} ${c[0]} ${c[1]}`;
+  }
+  return d;
+}
+
+/** Seeded clusters hanging under the twigs, like the 3D composition's: [x, y, radius]. */
+const FLOWERS: [number, number, number][] = (() => {
+  const rand = rng(11);
+  const out: [number, number, number][] = [];
+  LIMBS.forEach(([pts], li) => {
+    for (let f = li === 0 ? 0.3 : 0.35; f <= 1; f += li === 0 ? 0.11 : 0.28) {
+      const [cx, cy] = along(pts, f);
+      for (let i = 0, n = 3 + Math.floor(rand() * 3); i < n; i++) {
+        const a = rand() * Math.PI * 2;
+        const d = 8 + rand() * 20;
+        out.push([cx + Math.cos(a) * d, cy + Math.abs(Math.sin(a)) * d + 4, 13 + rand() * 8]);
+      }
+    }
+  });
+  return out;
+})();
+
+/** A cumulus bank's lobe tops along the bottom edge (1200 x 160, stretched to the width). */
+const BANK = "M0 160V78C30 40 92 40 118 70C140 22 232 16 262 62C290 40 340 44 356 70C384 18 486 12 512 66C540 46 592 48 606 74C640 28 734 26 760 70C790 50 836 52 852 78C880 30 972 22 1004 68C1030 44 1084 46 1100 72C1128 40 1180 42 1200 64V160Z";
 
 function whenIdle(fn: () => void): () => void {
   let timer = 0;
@@ -43,6 +77,21 @@ function whenIdle(fn: () => void): () => void {
 function canTry(): boolean {
   const conn = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
   return !conn?.saveData && typeof WebGL2RenderingContext !== "undefined";
+}
+
+/**
+ * WebGL2 on a real GPU. A software rasterizer (SwiftShader, llvmpipe) draws the full-screen sky on
+ * the CPU and stalls the page for a second or more, so those keep the CSS still instead.
+ * `?scene=webgl` forces the scene anyway (docs/ARCHITECTURE.md, "Testing hooks").
+ */
+function hardwareGl(): boolean {
+  if (new URLSearchParams(window.location.search).get("scene") === "webgl") return true;
+  const gl = document.createElement("canvas").getContext("webgl2");
+  if (!gl) return false;
+  const info = gl.getExtension("WEBGL_debug_renderer_info");
+  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
+  gl.getExtension("WEBGL_lose_context")?.loseContext();
+  return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
 }
 
 /**
@@ -72,6 +121,7 @@ export function SceneLayer() {
     let cancelled = false;
     const cancelIdle = canTry()
       ? whenIdle(() => {
+          if (cancelled || !hardwareGl()) return;
           import("./runtime").then(
             (m) => {
               if (cancelled || !host.current) return;
@@ -105,20 +155,21 @@ export function SceneLayer() {
             </symbol>
           </defs>
           <g className="scene-fb-branch">
-            <path d="M-30 40C80 70 160 100 260 140S440 200 560 250" strokeWidth="26" />
-            <path d="M120 80C110 140 100 190 70 240" strokeWidth="12" />
-            <path d="M280 145C300 110 330 80 360 62" strokeWidth="9" />
-            <path d="M420 190C440 215 450 232 470 238" strokeWidth="7" />
+            {LIMBS.map(([pts, ink], i) => (
+              <path key={i} d={toPath(pts)} strokeWidth={ink} />
+            ))}
           </g>
           <g className="scene-fb-bark">
-            <path d="M-30 40C80 70 160 100 260 140S440 200 560 250" strokeWidth="20" />
-            <path d="M120 80C110 140 100 190 70 240" strokeWidth="7" />
-            <path d="M280 145C300 110 330 80 360 62" strokeWidth="4.5" />
-            <path d="M420 190C440 215 450 232 470 238" strokeWidth="3" />
+            {LIMBS.map(([pts, , bark], i) => (
+              <path key={i} d={toPath(pts)} strokeWidth={bark} />
+            ))}
           </g>
           {FLOWERS.map(([x, y, r], i) => (
             <use key={i} href="#scene-flower" x={x - r * 1.15} y={y - r * 1.15} width={r * 2.3} height={r * 2.3} />
           ))}
+        </svg>
+        <svg className="scene-fb-bank" viewBox="0 0 1200 160" preserveAspectRatio="none" focusable="false">
+          <path d={BANK} />
         </svg>
       </div>
       <div className="scene-canvas" ref={host} />
