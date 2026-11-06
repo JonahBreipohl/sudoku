@@ -52,6 +52,8 @@ import { ThemeToggle } from "./components/ThemeToggle";
 import { Aura } from "./components/Aura";
 import { Icon } from "./icons";
 import { GameProvider, useGame } from "./useGame";
+import { SceneLayer } from "./scene/SceneLayer";
+import { sceneGust, sceneStorm } from "./scene/bus";
 import { useVisibility } from "./useVisibility";
 import { assistView } from "./assist";
 import { formatElapsed } from "./clock";
@@ -132,8 +134,12 @@ export function App({ source }: { source?: PuzzleSource } = {}) {
       played: getPlayed(),
     }).then(setFresh, () => setFresh(null)); // bank unavailable: fall back to the sample
   }, [fresh]);
-  if (fresh === undefined) return null;
-  return <AppReady source={source} initial={fresh ?? undefined} />;
+  return (
+    <>
+      <SceneLayer />
+      {fresh !== undefined && <AppReady source={source} initial={fresh ?? undefined} />}
+    </>
+  );
 }
 
 function AppReady({
@@ -449,6 +455,7 @@ function Game({
         setSweep({ order, phase: sweepPhase.current });
         msg = `${msg ?? ""} ${describeUnits(units)}`.trim();
         haptic("unit", hapticsOn);
+        sceneGust(units.flatMap((u) => u.cells));
       }
     }
     if (msg) setAnnouncement(msg);
@@ -475,6 +482,7 @@ function Game({
       if (submitResult.result === "solved") {
         haptic("solve", settings.haptics);
         setAura(true);
+        sceneStorm(submitResult);
       }
     }
   }

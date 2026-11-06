@@ -317,3 +317,13 @@ horizontally. Colors are CSS custom properties on `:root` with Light, Dark, and 
 - `?test=1` exposes `window.__sudoku` with a controllable clock (`advance(ms)`) for e2e; it is
   ignored unless the build is a test build or the flag is present. It also keeps the first launch on
   the hardcoded sample puzzle; without it a fresh profile starts on a random Easy bank puzzle.
+- `?test=1` also exposes `window.__sudokuScene` for the Hanami scene (src/ui/scene/):
+  `frames()` counts frames drawn, `looping()` says whether the petal loop is running, and
+  `ready()` says whether the WebGL canvas has drawn its first frame. The scene renders on demand
+  (one frame at start, then only on theme change, resize, Display drift or mode change), and loops
+  only while petals fly after a completed unit (about 2.5 s) or a solve (about 4 s), so e2e can
+  assert that `frames()` holds still while nothing happens.
+- `?scene=webgl` forces the three.js scene on a software WebGL renderer (SwiftShader, llvmpipe).
+  Without it those keep the CSS sky and SVG branch, as do browsers without WebGL2 or with
+  save-data on. Headless Chromium is such a renderer, so e2e/scene.spec.ts and scene screenshots
+  pass it; the rest of the suite runs on the CSS still.
