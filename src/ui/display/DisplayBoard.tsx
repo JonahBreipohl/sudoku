@@ -26,8 +26,6 @@ export interface BoardViewProps {
   givens: readonly number[];
   notes: readonly number[];
   conflicts?: ReadonlySet<number>;
-  /** Cells to outline (the watch puzzle's current step). */
-  marked?: ReadonlySet<number>;
 }
 
 export function BoardView({
@@ -36,7 +34,6 @@ export function BoardView({
   givens,
   notes: allNotes,
   conflicts,
-  marked,
 }: BoardViewProps) {
   return (
     <div className="dboard" role="grid" aria-label={label} aria-readonly="true">
@@ -53,7 +50,6 @@ export function BoardView({
               "dcell",
               given ? "dcell--given" : value !== 0 ? "dcell--entry" : "",
               conflict && "dcell--conflict",
-              marked?.has(cell) && "dcell--step",
             ]
               .filter(Boolean)
               .join(" ");

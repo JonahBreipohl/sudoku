@@ -2,29 +2,21 @@ import {
   useCallback,
   useEffect,
   useMemo,
-  useReducer,
   useRef,
   useState,
   lazy,
   Suspense,
 } from "react";
-import {
-  findConflicts,
-  parseGrid,
-  puzzleUrl,
-  UNITS,
-  type Digit,
-} from "../engine";
+import { UNITS, type Digit } from "../engine";
 import type { Hint } from "../analysis/hints";
 import type { HintTier } from "../state/events";
 import { HintButton, HintPanel } from "./components/HintButton";
-import { marksAtStep } from "./timeline";
 import type { Level } from "../engine/step";
 import { SAMPLE_EASY } from "../engine/samples";
 import { createLocalStoragePersistence } from "../state/persistence";
-import { checkBoard } from "../state/check";
+import { checkBoard, checkMessage, wrongCells } from "../state/check";
 import { hasProgress } from "../state/progress";
-import { isPaused } from "../state/timer";
+import { activeMs, isPaused } from "../state/timer";
 import type { GameRecord } from "../state/events";
 import {
   createPlayedStore,
@@ -32,9 +24,10 @@ import {
   type PlayedStore,
   type PuzzleSource,
 } from "../state/puzzles";
+import type { Assist } from "../state/settings";
 import { getEngineClient } from "../workers/client";
 import { createGameStore, newGameRecord } from "../state/store";
-import { newGame, resetGame, type PuzzleSupplier } from "../state/newGame";
+import { newGame, type PuzzleSupplier } from "../state/newGame";
 import { dailyLevel, dailyPuzzle, dailySolvedOn } from "../state/daily";
 import { recordFromSearch } from "../state/puzzleParam";
 import { freshStartRecord } from "../state/freshStart";
@@ -43,37 +36,24 @@ import { Board } from "./components/Board";
 import { SubmitDialog } from "./components/SubmitDialog";
 import { submitErrors } from "../state/store";
 import { Controls } from "./components/Controls";
-import { ShareDialog } from "./components/ShareDialog";
-import { ImportDialog, type ImportedPuzzle } from "./components/ImportDialog";
-import { ConfirmDialog } from "./components/ConfirmDialog";
+import { AssistSwitch } from "./components/AssistSwitch";
 import { PauseOverlay } from "./components/PauseOverlay";
 import { NewGame } from "./components/NewGame";
 import { Pad } from "./components/Pad";
-import { useAnalysis } from "./useAnalysis";
-import { replayRecord } from "../analysis/replay";
-import { SidePanel } from "./components/SidePanel";
-import { SettingsDialog } from "./components/SettingsDialog";
 import { actionForKey } from "./keyboard";
-import { ShortcutsDialog } from "./components/ShortcutsDialog";
-import { StatsDialog } from "./components/StatsDialog";
 import { cellCommitCounts } from "./renderProbe";
-import {
-  initialInputMode,
-  inputModeReducer,
-  tapForLockedDigit,
-} from "./inputMode";
 import { moveSelection } from "./selection";
 import { describeChange, describeCheck, describeSubmit, describeUnits } from "./announce";
 import { unitsCompletedBy } from "./unitComplete";
 import { prefersReducedMotion, RIPPLE_DIALOG_DELAY_MS } from "./ripple";
 import { useSettings } from "./useSettings";
 import { haptic } from "./haptics";
-import { MoreMenu } from "./components/MoreMenu";
 import { ThemeToggle } from "./components/ThemeToggle";
 import { GameProvider, useGame } from "./useGame";
 import { useVisibility } from "./useVisibility";
-import { useIdle } from "./useIdle";
-import { app, common, HOME_URL } from "./strings";
+import { assistView } from "./assist";
+import { formatElapsed } from "./clock";
+import { app, assist as assistCopy, controls as controlsCopy, HOME_URL } from "./strings";
 import {
   modeFromSearch,
   pauseForDisplay,
@@ -82,14 +62,9 @@ import {
 } from "./display/mode";
 
 // ?test=1 exposes a controllable clock for e2e (docs/ARCHITECTURE.md, "Testing hooks").
-// Split out of the initial bundle: Display mode and the analysis panel are not needed to start solving.
+// Split out of the initial bundle: Display mode is not needed to start solving.
 const DisplayMode = lazy(() =>
   import("./display/DisplayMode").then((m) => ({ default: m.DisplayMode })),
-);
-const AnalysisPanel = lazy(() =>
-  import("./components/AnalysisPanel").then((m) => ({
-    default: m.AnalysisPanel,
-  })),
 );
 
 const NO_CELLS: ReadonlySet<number> = new Set();
@@ -222,25 +197,6 @@ function AppReady({
       dailyLevel(date),
     );
   }, [start]);
-  const onImport = useCallback(
-    (p: ImportedPuzzle) => {
-      start(
-        {
-          nextPuzzle: () =>
-            Promise.resolve({
-              id: `import-${Date.now()}`,
-              puzzle: p.puzzle,
-              solution: p.solution,
-              level: p.level,
-              score: p.score,
-              source: "import" as const,
-            }),
-        },
-        p.level,
-      );
-    },
-    [start],
-  );
   useVisibility(store);
   const [mode, setModeState] = useState<AppMode>(() =>
     modeFromSearch(window.location.search),
@@ -260,18 +216,15 @@ function AppReady({
       requestAnimationFrame(() =>
         document
           .querySelector<HTMLElement>(
-            next === "display" ? ".display-exit" : "[data-display-toggle]",
+            next === "display" ? ".display-exit" : '.cell[tabindex="0"]',
           )
           ?.focus(),
       );
     },
     [store],
   );
+  // Display has no button in the minimal Play screen; it is reached with ?mode=display.
   const display = mode === "display";
-  // Idle in Play pauses the game and shows Display; returning leaves it paused until resumed.
-  const { settings: appSettings } = useSettings();
-  const onIdle = useCallback(() => setMode("display"), [setMode]);
-  useIdle(appSettings.idleMinutes, !display, onIdle);
   // Game stays mounted (hidden) in Display so selection, notes mode and other local UI state survive the round trip.
   // Crossfade back from Display only; the first load should not animate.
   const [visitedDisplay, setVisitedDisplay] = useState(false);
@@ -285,8 +238,6 @@ function AppReady({
           pending={pending}
           onNewGame={onNewGame}
           onDaily={onDaily}
-          onImport={onImport}
-          onDisplay={() => setMode("display")}
         />
       </div>
       {display && (
@@ -298,58 +249,44 @@ function AppReady({
   );
 }
 
+
 function Game({
   active,
   pending,
   onNewGame,
   onDaily,
-  onImport,
-  onDisplay,
 }: {
   active: boolean;
   pending: boolean;
   onNewGame: (level: Level) => void;
   onDaily: () => void;
-  onImport: (p: ImportedPuzzle) => void;
-  onDisplay: () => void;
 }) {
   const { game, dispatch } = useGame();
   // Selection is UI state; board state lives in the store.
   const [selected, setSelected] = useState<number | null>(null);
+  // Notes have no on-screen button: N toggles them and Shift+digit writes one, on a keyboard.
   const [notesMode, setNotesMode] = useState(false);
   const [shiftHeld, setShiftHeld] = useState(false);
-  const [helpOpen, setHelpOpen] = useState(false);
-  const [statsOpen, setStatsOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
-  const [shareOpen, setShareOpen] = useState(false);
-  const [importOpen, setImportOpen] = useState(false);
-  const [importConfirm, setImportConfirm] = useState<ImportedPuzzle | null>(
-    null,
-  );
   const { settings, update } = useSettings();
   const { givens, board, notes, conflicts } = game;
-  const [entry, entryDispatch] = useReducer(
-    inputModeReducer,
-    settings.entryMode,
-    initialInputMode,
-  );
-  const digitFirst = entry.mode === "digit-first";
+  const view = assistView(settings.assist);
+  const onAssist = useCallback((a: Assist) => update({ assist: a }), [update]);
   const noting = notesMode || shiftHeld;
   const paused = isPaused(game.record) && game.record.status === "playing";
+  const submitted = game.record.status === "submitted";
   const refocusBoard = useRef(false);
   const pausedRef = useRef(paused);
   useEffect(() => {
     pausedRef.current = paused;
   }, [paused]);
-  const onPause = useCallback(() => {
-    if (!pausedRef.current) dispatch({ type: "pause" });
-  }, [dispatch]);
+  // There is no Pause button any more, but a game saved while paused still opens paused.
   const onResume = useCallback(() => {
     if (!pausedRef.current) return;
     refocusBoard.current = true;
     dispatch({ type: "resume" });
   }, [dispatch]);
   const onHintRef = useRef<() => void>(noop);
+  const dismissHintRef = useRef<() => void>(noop);
   const act = useCallback(
     (
       action: NonNullable<ReturnType<typeof actionForKey>>,
@@ -358,39 +295,26 @@ function Game({
     ) => {
       // Input is ignored while a new puzzle generates: the swap would discard it.
       if (pending && action.type !== "move") return;
-      if (action.type === "help") {
-        setHelpOpen(true);
-        return;
-      }
-      if (action.type === "pause") {
-        if (pausedRef.current) onResume();
-        else onPause();
-        return;
-      }
-      if (action.type === "hint") {
-        onHintRef.current();
-        return;
-      }
-      if (action.type === "undo" || action.type === "redo") {
-        dispatch({ type: action.type });
-        return;
-      }
-      if (action.type === "move") {
-        setSelected((cell) => moveSelection(cell ?? 0, action.direction));
-        return;
-      }
-      if (action.type === "escape") {
-        entryDispatch({ type: "unlock" });
-        return;
-      }
-      if (action.type === "toggle-notes") {
-        setNotesMode((on) => !on);
-        return;
-      }
-      if (digitFirst && action.type === "place" && !noting) {
-        // Digit-first: a digit key or pad button locks it; cells are filled by tapping them.
-        entryDispatch({ type: "digit", digit: action.digit });
-        return;
+      switch (action.type) {
+        case "hint":
+          onHintRef.current();
+          return;
+        case "undo":
+        case "redo":
+          dispatch({ type: action.type });
+          return;
+        case "move":
+          setSelected((cell) => moveSelection(cell ?? 0, action.direction));
+          return;
+        case "toggle-notes":
+          setNotesMode((on) => !on);
+          return;
+        case "escape":
+          dismissHintRef.current();
+          return;
+        case "pause":
+        case "help":
+          return;
       }
       if (selected === null) return;
       if (action.type === "note" || (action.type === "place" && noting)) {
@@ -409,17 +333,7 @@ function Game({
         });
       else dispatch({ type: "erase", cell: selected });
     },
-    [
-      selected,
-      dispatch,
-      noting,
-      board,
-      notes,
-      pending,
-      onPause,
-      onResume,
-      digitFirst,
-    ],
+    [selected, dispatch, noting, board, notes, pending],
   );
 
   useEffect(() => {
@@ -434,9 +348,6 @@ function Game({
         if (e.key === "Enter") {
           e.preventDefault();
           onResume();
-        } else if (action?.type === "pause" || action?.type === "help") {
-          e.preventDefault();
-          act(action);
         }
         return;
       }
@@ -478,81 +389,31 @@ function Game({
     if (el && document.activeElement?.closest(".board")) el.focus();
   }, [selected]);
 
-  // Cells are memoized on onSelect, so the handler stays stable and reads current state via a ref.
-  const tapState = {
-    pending,
-    noting,
-    digitFirst,
-    entry,
-    board,
-    notes,
-    givens,
-    dispatch,
-  };
-  const tapRef = useRef(tapState);
-  useEffect(() => {
-    tapRef.current = tapState;
-  });
-  const onSelectCell = useCallback((cell: number) => {
-    setSelected(cell);
-    const t = tapRef.current;
-    if (t.pending) return;
-    if (t.noting && t.digitFirst && t.entry.locked !== null) {
-      if (t.board[cell] !== 0) return;
-      const on = (t.notes[cell]! & (1 << (t.entry.locked - 1))) === 0;
-      t.dispatch({ type: "note", cell, digit: t.entry.locked, on });
-      return;
-    }
-    const tap = tapForLockedDigit(
-      t.entry,
-      t.board[cell] ?? 0,
-      t.givens[cell] !== 0,
-    );
-    if (tap?.type === "place")
-      t.dispatch({
-        type: "place",
-        cell,
-        digit: tap.digit,
-        input: "digit-first",
-      });
-    else if (tap?.type === "erase") t.dispatch({ type: "erase", cell });
-  }, []);
-  const onToggleEntry = useCallback(() => {
-    const mode = digitFirst ? "cell-first" : "digit-first";
-    entryDispatch({ type: "set-mode", mode });
-    update({ entryMode: mode });
-  }, [digitFirst, update]);
-
+  // Cells are memoized on onSelect, so it must stay stable.
+  const onSelectCell = useCallback((cell: number) => setSelected(cell), []);
   const onDigit = useCallback(
     (digit: Digit) => act({ type: "place", digit }, "pad"),
     [act],
   );
   const onErase = useCallback(() => act({ type: "erase" }), [act]);
-
   const onUndo = useCallback(() => {
     if (!pending) dispatch({ type: "undo" });
   }, [dispatch, pending]);
-  const onRedo = useCallback(() => {
-    if (!pending) dispatch({ type: "redo" });
-  }, [dispatch, pending]);
-  const onReset = useCallback(() => {
-    if (!pending) resetGame({ dispatch });
-  }, [dispatch, pending]);
-  const onAutoNotes = useCallback(() => {
-    if (!pending) dispatch({ type: "auto-notes" });
-  }, [dispatch, pending]);
-  const onToggleAuto = useCallback(() => {
-    if (pending) return;
-    const autoCandidates = !settings.autoCandidates;
-    update({ autoCandidates });
-    dispatch({ type: "settings-assist", autoCandidates });
-    if (autoCandidates) dispatch({ type: "auto-notes" });
-  }, [settings.autoCandidates, update, dispatch, pending]);
+
+  // Hard hides conflicts everywhere: on the board, in announcements and in haptics.
+  const shownConflicts = view.conflicts ? conflicts : NO_CELLS;
+  const liveWrong = useMemo(
+    () =>
+      view.liveWrong
+        ? wrongCells(game.record.puzzle, game.record.solution, board)
+        : [],
+    [view.liveWrong, game.record.puzzle, game.record.solution, board],
+  );
 
   // Polite live region: placements and conflicts are diffed from the board, completion comes from the submit event; Check
   // results are announced by their own handler. Resume/new-game remounts start with a fresh baseline.
   const [announcement, setAnnouncement] = useState("");
-  const prevView = useRef({ board, conflicts });
+  const prevView = useRef({ board, conflicts: shownConflicts });
   const prevNodeCount = useRef(game.record.nodes.length);
   // Cells of units a placement just completed, mapped to their sweep order. Alternating the
   // phase restarts the CSS animation when two moves in a row complete units.
@@ -560,21 +421,24 @@ function Game({
   const sweepPhase = useRef<0 | 1>(0);
   useEffect(() => {
     const prev = prevView.current;
-    let msg = describeChange(prev, { board, conflicts });
-    prevView.current = { board, conflicts };
-    const { nodes, cursor } = game.record;
+    let msg = describeChange(prev, { board, conflicts: shownConflicts });
+    prevView.current = { board, conflicts: shownConflicts };
+    const { nodes, cursor, solution } = game.record;
     const last = nodes[cursor];
     const grew = nodes.length > prevNodeCount.current;
     prevNodeCount.current = nodes.length;
-    // Only a freshly appended place node sweeps: load, undo, redo and rewind move the cursor
-    // over existing nodes without growing the tree.
+    // Only a freshly appended place node sweeps: load, undo and redo move the cursor over
+    // existing nodes without growing the tree.
     const fresh = grew && cursor === nodes.length - 1;
     const hapticsOn = settings.haptics;
+    const wrongPlace =
+      fresh && last?.type === "place" && view.liveWrong && String(last.digit) !== solution[last.cell];
+    if (wrongPlace) msg = `${msg ?? ""} ${assistCopy.wrong}`.trim();
     if (fresh && (last?.type === "place" || last?.type === "note")) {
-      const newConflict = [...conflicts].some((c) => !prev.conflicts.has(c));
-      haptic(newConflict ? "conflict" : "place", hapticsOn);
+      const newConflict = [...shownConflicts].some((c) => !prev.conflicts.has(c));
+      haptic(newConflict || wrongPlace ? "conflict" : "place", hapticsOn);
     }
-    if (grew && last?.type === "place" && cursor === nodes.length - 1) {
+    if (fresh && last?.type === "place") {
       const units = unitsCompletedBy(prev.board, board, conflicts, last.cell);
       if (units.length > 0) {
         const order = new Map<number, number>();
@@ -586,18 +450,14 @@ function Game({
       }
     }
     if (msg) setAnnouncement(msg);
-  }, [board, conflicts, game.record, settings.haptics]);
+  }, [board, conflicts, shownConflicts, game.record, settings.haptics, view.liveWrong]);
   useEffect(() => {
     if (!sweep) return;
     const t = window.setTimeout(() => setSweep(null), 800);
     return () => window.clearTimeout(t);
   }, [sweep]);
 
-  const submitted = game.record.status === "submitted";
   const [resultDismissed, setResultDismissed] = useState(false);
-  const onSubmit = useCallback(() => {
-    if (!pending) dispatch({ type: "submit" });
-  }, [pending, dispatch]);
   const submitResult = [...game.record.log]
     .reverse()
     .find((e) => e.type === "submit");
@@ -611,7 +471,6 @@ function Game({
       if (submitResult.result === "solved") haptic("solve", settings.haptics);
     }
   }
-  // A correct solve shows its analysis once the result dialog is dismissed; an incorrect one on request.
   const solvedGame =
     submitResult?.type === "submit" && submitResult.result === "solved";
   // Let the completion ripple play before the dialog covers it; reduced motion opens at once.
@@ -624,75 +483,6 @@ function Game({
   }, [rippleWait, submitResult]);
   const resultOpen = submitted && !resultDismissed && !rippleWait;
   const lastPlaced = [...game.record.nodes].reverse().find((n) => n.type === "place");
-  const [analysisRequested, setAnalysisRequested] = useState(false);
-  const [analysisClosed, setAnalysisClosed] = useState(false);
-  const showAnalysis =
-    submitted &&
-    !resultOpen &&
-    !analysisClosed &&
-    (analysisRequested || solvedGame);
-  const { state: analysis, refetch: refetchAnalysis } = useAnalysis(
-    showAnalysis ? game.record : null,
-  );
-  // Callback ref: the panel is lazy, so it may mount after the render that opened it.
-  // It must not steal focus from the New game flow: skip while a dialog is open, and when the
-  // late mount lands after the picker closed and focus already went back to the New game button.
-  const analysisRef = useCallback((el: HTMLElement | null) => {
-    if (!el) return;
-    if (document.querySelector("dialog[open]")) return;
-    if (document.activeElement?.hasAttribute("data-new-game")) return;
-    el.focus();
-  }, []);
-  const marks = useMemo(() => {
-    if (!showAnalysis || analysis.status !== "ready") return undefined;
-    const [root, ...rest] = analysis.result.mistakes.highlight;
-    if (root === undefined) return undefined;
-    const m = new Map<number, "root" | "support">(
-      rest.map((c) => [c, "support"]),
-    );
-    m.set(root, "root");
-    return m;
-  }, [showAnalysis, analysis]);
-  // Timeline preview: a step short of the end shows an earlier position, read-only and local to
-  // the UI; the store is never touched.
-  const [previewStep, setPreviewStep] = useState<number | null>(null);
-  // Step k keeps the first k path events; the store reopens the submitted game on that node.
-  const onRewind = useCallback(
-    (step: number) => {
-      const path = replayRecord(game.record).path;
-      if (step < 0 || step > path.length) return;
-      dispatch({ type: "rewind", to: step === 0 ? -1 : path[step - 1]!.id });
-      setPreviewStep(null);
-      setAnalysisRequested(false);
-      setAnalysisClosed(false);
-      setResultDismissed(false);
-    },
-    [game.record, dispatch],
-  );
-  const timeline = useMemo(
-    () =>
-      showAnalysis && analysis.status === "ready"
-        ? replayRecord(game.record)
-        : null,
-    [showAnalysis, analysis.status, game.record],
-  );
-  const preview =
-    timeline && previewStep !== null && previewStep < timeline.path.length
-      ? (timeline.states[previewStep] ?? null)
-      : null;
-  const previewConflicts = useMemo(
-    () => (preview ? findConflicts([...preview.board]) : NO_CELLS),
-    [preview],
-  );
-  const previewMarks =
-    preview && analysis.status === "ready" && timeline
-      ? marksAtStep(
-          marks,
-          analysis.result.mistakes.root?.mistake.index ?? null,
-          timeline.path.length,
-          previewStep ?? 0,
-        )
-      : marks;
   const errors = useMemo(
     () => submitErrors(game.record, board),
     [game.record, board],
@@ -711,35 +501,41 @@ function Game({
     setChecked({ key: checkKey, mistakes, wrong });
     setAnnouncement(describeCheck(mistakes));
   }, [pending, game.record, board, dispatch, checkKey]);
-  // A result describes one board position; any edit, undo or rewind makes it stale.
+  // A result describes one board position; any edit or undo makes it stale.
   const checkResult = checked && checked.key === checkKey ? checked : null;
   const wrongSet = useMemo(
     () =>
-      settings.checkHighlighting && checkResult
-        ? new Set(checkResult.wrong)
+      liveWrong.length > 0 || checkResult
+        ? new Set([...liveWrong, ...(checkResult?.wrong ?? [])])
         : undefined,
-    [settings.checkHighlighting, checkResult],
+    [liveWrong, checkResult],
   );
 
-  // Escalation is per board position: any edit, undo or rewind changes the key and starts over.
+  // Escalation is per board position: any edit or undo changes the key and starts over.
   const [hintState, setHintState] = useState<{
     key: string;
     hint: Hint;
   } | null>(null);
   const [hintBusy, setHintBusy] = useState(false);
+  // Leaving Easy hides a hint already on screen.
   const currentHint =
-    hintState && hintState.key === checkKey ? hintState.hint : null;
+    view.hints && hintState && hintState.key === checkKey ? hintState.hint : null;
   const hintKeyRef = useRef(checkKey);
   useEffect(() => {
     hintKeyRef.current = checkKey;
   }, [checkKey]);
+  // Each press goes one tier further; once the answer shows there is nothing more to ask for.
+  const nextTier: HintTier | null = !currentHint
+    ? "nudge"
+    : currentHint.tier === "nudge"
+      ? "technique"
+      : currentHint.tier === "technique"
+        ? "reveal"
+        : null;
   const onHint = useCallback(() => {
-    if (pending || hintBusy || submitted || pausedRef.current) return;
-    const tier: HintTier = !currentHint
-      ? "nudge"
-      : currentHint.tier === "nudge"
-        ? "technique"
-        : "reveal";
+    if (!view.hints || pending || hintBusy || submitted || pausedRef.current) return;
+    const tier = nextTier;
+    if (!tier) return;
     const key = checkKey;
     setHintBusy(true);
     getEngineClient()
@@ -750,22 +546,28 @@ function Game({
           dispatch({ type: "hint", tier, step: h.logId });
           setHintState({ key, hint: h });
           setAnnouncement(h.text);
+          // A hint about one cell selects it, so the player can type the fix straight away.
+          const focus = h.kind === "mistake" || (h.units.length === 0 && h.cells.length === 1) ? h.cells[0] : undefined;
+          if (focus !== undefined) setSelected(focus);
         },
         () => setAnnouncement(app.hintFailed),
       )
       .finally(() => setHintBusy(false));
   }, [
+    view.hints,
     pending,
     hintBusy,
     submitted,
-    currentHint,
+    nextTier,
     checkKey,
     game.record,
     dispatch,
   ]);
+  const onDismissHint = useCallback(() => setHintState(null), []);
   useEffect(() => {
     onHintRef.current = onHint;
-  }, [onHint]);
+    dismissHintRef.current = onDismissHint;
+  }, [onHint, onDismissHint]);
   const onApplyHint = useCallback(() => {
     const p = currentHint?.placement;
     if (!currentHint || !p) return;
@@ -787,15 +589,18 @@ function Game({
   }, [currentHint]);
 
   return (
-    <div
-      className="app"
-      data-left-handed={settings.leftHanded ? "" : undefined}
-    >
+    <div className="app">
       <header className="app-header">
+        {/* Phones show only the arrow; the name stays as the link's accessible name. */}
         <a className="home-link" href={HOME_URL}>
-          {app.homeLink}
+          <span aria-hidden="true">←</span> <span className="home-name">{app.homeName}</span>
         </a>
         <h1>{app.title}</h1>
+        {game.record.source === "daily" && (
+          <span className="daily-badge">
+            <span aria-hidden="true">★ </span>Daily
+          </span>
+        )}
         <NewGame
           pending={pending}
           inProgress={hasProgress(game.record)}
@@ -803,69 +608,7 @@ function Game({
           onDaily={onDaily}
           isDailySolved={() => dailySolvedOn(new Date(), [...persistence.list(), game.record])}
         />
-        {game.record.source === "daily" && (
-          <span className="daily-badge">
-            <span aria-hidden="true">★ </span>Daily
-          </span>
-        )}
         <ThemeToggle />
-        <button
-          type="button"
-          className="ctl header-extra header-split"
-          aria-haspopup="dialog"
-          onClick={() => setShareOpen(true)}
-        >
-          Share
-        </button>
-        <button
-          type="button"
-          className="ctl header-extra"
-          aria-haspopup="dialog"
-          disabled={pending}
-          onClick={() => setImportOpen(true)}
-        >
-          Import
-        </button>
-        <button
-          type="button"
-          className="ctl header-extra"
-          onClick={() => setHelpOpen(true)}
-          aria-keyshortcuts="?"
-        >
-          Shortcuts
-        </button>
-        <button
-          type="button"
-          className="ctl header-extra"
-          onClick={() => setStatsOpen(true)}
-        >
-          Stats
-        </button>
-        <button
-          type="button"
-          className="ctl header-extra"
-          onClick={() => setSettingsOpen(true)}
-        >
-          Settings
-        </button>
-        <MoreMenu
-          items={[
-            { label: app.homeMenuLabel, href: HOME_URL },
-            { label: "Share", onSelect: () => setShareOpen(true), dialog: true },
-            { label: "Import", onSelect: () => setImportOpen(true), dialog: true, disabled: pending },
-            { label: "Shortcuts", onSelect: () => setHelpOpen(true) },
-            { label: "Stats", onSelect: () => setStatsOpen(true) },
-            { label: "Settings", onSelect: () => setSettingsOpen(true) },
-          ]}
-        />
-        <button
-          type="button"
-          className="ctl"
-          data-display-toggle
-          onClick={onDisplay}
-        >
-          Display
-        </button>
       </header>
       <main className="play">
         {paused ? (
@@ -873,107 +616,84 @@ function Game({
         ) : (
           <Board
             givens={givens}
-            board={preview ? [...preview.board] : board}
-            notes={preview ? preview.notes : notes}
-            selected={preview ? null : selected}
-            conflicts={preview ? previewConflicts : conflicts}
-            wrong={preview ? undefined : wrongSet}
-            marks={previewMarks ?? hintMarks}
-            preview={preview !== null}
-            solved={solvedGame && preview === null}
+            board={board}
+            notes={notes}
+            selected={selected}
+            conflicts={shownConflicts}
+            wrong={wrongSet}
+            marks={hintMarks}
+            solved={solvedGame}
             rippleOrigin={lastPlaced?.type === "place" ? lastPlaced.cell : null}
-            sweep={preview ? null : sweep}
-            onSelect={preview ? noop : onSelectCell}
-            lockedDigit={entry.locked}
+            sweep={sweep}
+            onSelect={onSelectCell}
           />
         )}
-        <div className="play-side">
-          <Controls
-            canUndo={game.canUndo}
-            canRedo={game.canRedo}
-            onUndo={onUndo}
-            onRedo={onRedo}
-            onReset={onReset}
-            notesMode={notesMode}
-            shiftHeld={shiftHeld}
-            autoCandidates={settings.autoCandidates}
-            onToggleNotes={() => setNotesMode((on) => !on)}
-            onAutoNotes={onAutoNotes}
-            onToggleAuto={onToggleAuto}
-            onPause={onPause}
-            paused={paused}
-            digitFirst={digitFirst}
-            onToggleEntry={onToggleEntry}
-            onCheck={onCheck}
-            onSubmit={onSubmit}
-            submitted={submitted}
-            onViewResult={() => setResultDismissed(false)}
-            resultOpen={resultOpen}
-            checkResult={checkResult}
-            hintButton={
-              <HintButton
-                busy={hintBusy}
-                disabled={submitted || pending}
-                onHint={onHint}
+        {!paused && (
+          <div className="play-side">
+            <div className="toolbar">
+              <Controls
+                canUndo={game.canUndo}
+                onUndo={onUndo}
+                onCheck={onCheck}
+                submitted={submitted}
+                hintButton={
+                  view.hints ? (
+                    <HintButton
+                      busy={hintBusy}
+                      disabled={submitted || pending}
+                      next={nextTier}
+                      onHint={onHint}
+                    />
+                  ) : undefined
+                }
               />
-            }
-          />
-          {!paused && currentHint && (
-            <HintPanel
-              hint={currentHint}
-              canApply={!submitted}
-              onApply={onApplyHint}
-            />
-          )}
-          {showAnalysis && (
-            <Suspense fallback={null}>
-              <AnalysisPanel
-                ref={analysisRef}
-                state={analysis}
-                onRetry={refetchAnalysis}
-                path={timeline?.path}
-                step={previewStep ?? undefined}
-                onStep={setPreviewStep}
-                onRewind={onRewind}
-                onClose={() => {
-                  setAnalysisClosed(true);
-                  setAnalysisRequested(false);
-                  setPreviewStep(null);
-                }}
+              <AssistSwitch value={settings.assist} onChange={onAssist} />
+            </div>
+            <div
+              role="status"
+              className={
+                checkResult
+                  ? `check-status check-status--${checkResult.mistakes === 0 ? "ok" : "bad"}`
+                  : "check-status"
+              }
+            >
+              {checkResult ? checkMessage(checkResult.mistakes) : ""}
+            </div>
+            {currentHint && (
+              <HintPanel
+                hint={currentHint}
+                canApply={!submitted}
+                onApply={onApplyHint}
+                onClose={onDismissHint}
               />
-            </Suspense>
-          )}
-          {!paused && (
+            )}
             <Pad
               board={board}
               onDigit={onDigit}
               onErase={onErase}
               notesMode={noting}
-              lockedDigit={digitFirst ? entry.locked : null}
             />
-          )}
-          <SidePanel
-            record={game.record}
-            showTimer={settings.showTimer}
-            wallClock={settings.wallClock}
-          />
-        </div>
+            <p className="keys-hint">
+              {noting ? (
+                <strong>
+                  <span aria-hidden="true">✎ </span>
+                  {controlsCopy.notesOn}
+                </strong>
+              ) : (
+                controlsCopy.keysHint
+              )}
+            </p>
+          </div>
+        )}
       </main>
       <div className="sr-only" aria-live="polite" aria-atomic="true">
         {announcement}
       </div>
-      {settingsOpen && (
-        <SettingsDialog
-          settings={settings}
-          onChange={update}
-          onToggleEntry={onToggleEntry}
-          onToggleAuto={onToggleAuto}
-          onClose={() => setSettingsOpen(false)}
-        />
-      )}
       {resultOpen && submitResult?.type === "submit" && (
         <SubmitDialog
           result={submitResult.result}
+          time={formatElapsed(activeMs(game.record, submitResult.at))}
+          hints={game.record.log.filter((e) => e.type === "hint").length}
           wrong={errors.wrong}
           blank={errors.blank}
           onClose={() => setResultDismissed(true)}
@@ -986,52 +706,6 @@ function Game({
                 ?.click(),
             );
           }}
-          onAnalyze={() => {
-            setAnalysisClosed(false);
-            setAnalysisRequested(true);
-            setResultDismissed(true);
-          }}
-        />
-      )}
-      {shareOpen && (
-        <ShareDialog
-          puzzle={game.record.puzzle}
-          url={puzzleUrl(
-            parseGrid(game.record.puzzle),
-            window.location.origin + window.location.pathname,
-          )}
-          onClose={() => setShareOpen(false)}
-        />
-      )}
-      {importOpen && (
-        <ImportDialog
-          onCancel={() => setImportOpen(false)}
-          onImport={(p) => {
-            setImportOpen(false);
-            if (hasProgress(game.record)) setImportConfirm(p);
-            else onImport(p);
-          }}
-        />
-      )}
-      {importConfirm && (
-        <ConfirmDialog
-          title={app.abandonImportTitle}
-          message={app.abandonImportMessage(importConfirm.level)}
-          confirmLabel={app.abandonImportConfirm}
-          cancelLabel={common.keepPlaying}
-          onCancel={() => setImportConfirm(null)}
-          onConfirm={() => {
-            const p = importConfirm;
-            setImportConfirm(null);
-            onImport(p);
-          }}
-        />
-      )}
-      {helpOpen && <ShortcutsDialog onClose={() => setHelpOpen(false)} />}
-      {statsOpen && (
-        <StatsDialog
-          loadArchive={persistence.list}
-          onClose={() => setStatsOpen(false)}
         />
       )}
     </div>

@@ -1,5 +1,12 @@
 # Product plan
 
+> **Minimal Play (November 2026).** Play was cut back to the board, New game, theme, Undo, Check,
+> an Easy / Medium / Hard assistance switch (hints / live wrong-digit marks / nothing), and a 1-9
+> pad on touch screens only. Share, Import, Stats, Shortcuts, Settings, Redo/Reset/Pause buttons,
+> notes and digit-first buttons, the side panel and the mistake-analysis panel were removed from
+> Play, and Display's self-solving watch puzzle was removed. Hints were kept and reworded for
+> players (plain cell names, a sentence on each technique, a button that names the next step). The plan below is the original scope and is kept for history.
+
 ## Vision
 
 One app, two modes.

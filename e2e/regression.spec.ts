@@ -1,5 +1,5 @@
 // Gap-fillers from the M10-08 sweep: must-haves that no other spec exercised directly.
-import { expect, test, clickHeaderAction } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
@@ -53,30 +53,11 @@ test("a hidden tab logs hidden then visible so the timer stops", async ({ page }
   await expect.poll(async () => (await types()).at(-1)).toBe("visible");
 });
 
-test("wall clock shows in the desktop side panel and is absent on phones", async ({ page }, info) => {
-  await page.goto("/?test=1");
-  await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
-  const clock = page.locator(".panel-clock").filter({ hasText: "Clock" });
-  if (info.project.name === "desktop") await expect(clock).toBeVisible();
-  else await expect(clock).toBeHidden();
-});
-
-test("idle time switches Play to Display and pauses the game", async ({ page }) => {
+test("idle time no longer leaves Play for Display", async ({ page }) => {
   await page.clock.install();
   await page.goto("/");
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
   await page.clock.fastForward("11:00");
-  await expect(page.locator(".display-time")).toBeVisible();
-  await page.getByRole("button", { name: "Exit Display" }).click();
-  await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
-});
-
-test("Stats dialog reports every difficulty level", async ({ page }) => {
-  await page.goto("/?test=1");
-  await clickHeaderAction(page, "Stats");
-  const dialog = page.getByRole("dialog", { name: "Statistics" });
-  await expect(dialog).toBeVisible();
-  for (const level of ["Easy", "Medium", "Hard", "Expert", "Master"])
-    await expect(dialog).toContainText(level);
-  await expect(dialog).toContainText("Daily puzzle");
+  await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
+  await expect(page.locator(".display-time")).toHaveCount(0);
 });

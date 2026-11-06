@@ -92,13 +92,12 @@ export function Pad({ board, onDigit, onErase, notesMode = false, lockedDigit = 
               });
             }}
           >
-            {/* The accessible name comes from the content: "4, 7 remaining" or "4, complete". */}
+            {/* The accessible name comes from the content: "4, 7 remaining" or "4, complete". Only a
+                finished digit shows a visible mark, to keep the pad quiet. */}
             <span className="pad-digit">{d}</span>
             <span className="pad-count" key={remaining} data-fade={ready ? "" : undefined}>
               <span className="sr-only">, </span>
-              <span aria-hidden="true">
-                {remaining === 0 ? "\u2713" : remaining}
-              </span>
+              {remaining === 0 && <span aria-hidden="true">{"\u2713"}</span>}
               <span className="sr-only">
                 {remaining === 0 ? pad.complete : pad.remaining(remaining)}
               </span>

@@ -120,32 +120,62 @@ function stepFocus(step: Step): { cells: number[]; units: number[]; where: strin
   const target = step.placements[0]?.cell ?? step.eliminations[0]?.cell ?? step.cells[0]!;
   const unit = step.units?.[0];
   if (step.technique !== "naked-single" && unit !== undefined) return { cells: [], units: [unit], where: unitName(unit) };
-  return { cells: [target], units: [], where: cellName(target) };
+  return { cells: [target], units: [], where: plainCell(target) };
 }
 
+/** One plain sentence on what each technique means, shown with its name at the technique tier. */
+export const TECHNIQUE_TIPS: Record<TechniqueId, string> = {
+  "naked-single": "Rule out every digit already in its row, column and box: only one is left.",
+  "hidden-single": "One digit has just one place left in this area.",
+  pointing: "In this box, a digit can only go in one row or column, so it can't go elsewhere along that line.",
+  claiming: "In this line, a digit can only go in one box, so it can't go elsewhere in that box.",
+  "naked-pair": "Two cells here can only hold the same two digits, so no other cell here can hold them.",
+  "hidden-pair": "Two digits fit only in the same two cells here, so those cells hold nothing else.",
+  "naked-triple": "Three cells here can only hold three digits between them, so no other cell here can hold them.",
+  "hidden-triple": "Three digits fit only in the same three cells here, so those cells hold nothing else.",
+  "naked-quad": "Four cells here can only hold four digits between them, so no other cell here can hold them.",
+  "hidden-quad": "Four digits fit only in the same four cells here, so those cells hold nothing else.",
+  "x-wing": "A digit has two spots in each of two lines, and they line up, so it can't go elsewhere in the crossing lines.",
+  swordfish: "Like an X-Wing over three lines: a digit's spots line up, so it can't go elsewhere in the crossing lines.",
+  "xy-wing": "A two-digit cell and two partners force a digit into one of two cells, so any cell seeing both loses it.",
+  "xyz-wing": "Like an XY-Wing where the middle cell also holds the shared digit, so cells seeing all three lose it.",
+  "simple-coloring": "Follow a digit's either-or pairs; one side would contradict itself, so its cells lose the digit.",
+  "x-chain": "A chain of either-or links for one digit: cells that see both ends can't hold it.",
+  "xy-chain": "A chain of two-digit cells: cells that see both ends can't hold the digit at the ends.",
+  "w-wing": "Two matching two-digit cells joined by a link, so cells seeing both lose the other digit.",
+  "unique-rectangle": "A puzzle has one solution, so a pattern that would allow two can't happen: one digit is ruled out.",
+};
+
+/** "row 5, column 3": hints are read by players, so they avoid the r5c3 shorthand. */
+const plainCell = (cell: number) => cellName(cell).replace(/^r(\d)c(\d)$/, "row $1, column $2");
+/** Rewrites r5c3 references in engine explanations the same way. */
+export const plainText = (text: string) => text.replace(/\br(\d)c(\d)\b/g, "row $1, column $2");
+
 function mistakeHint(tier: HintTier, board: readonly CellValue[], m: Mistaken): Hint {
-  const at = cellName(m.cell);
+  const at = plainCell(m.cell);
   const base = { tier, kind: "mistake" as const, units: [], technique: null, step: null, logId: "mistake" };
   if (m.value === 0) {
     const texts: Record<HintTier, string> = {
       nudge: `Check the notes in ${at}.`,
       technique: `The notes in ${at} rule out a digit that belongs there.`,
-      reveal: `${at} is ${m.truth}; its notes leave it out.`,
+      reveal: `${capital(at)} is ${m.truth}; its notes leave it out.`,
     };
     return { ...base, text: texts[tier], cells: [m.cell], placement: tier === "reveal" ? { cell: m.cell, digit: m.truth } : null };
   }
-  if (tier === "nudge") return { ...base, text: `Check ${at}.`, cells: [m.cell], placement: null };
+  if (tier === "nudge") return { ...base, text: `Something is off in ${at}.`, cells: [m.cell], placement: null };
   if (tier === "technique") {
     // A clash the player can already see is the most specific thing to say; otherwise say only
     // that the value is wrong, keeping the true digit for the reveal.
     const clashes = PEERS[m.cell]!.filter((p) => board[p] === m.value).sort((a, b) => a - b);
     const text = clashes.length
-      ? `The ${m.value} in ${at} clashes with the ${m.value} in ${clashes.map(cellName).join(", ")}.`
-      : `The ${m.value} in ${at} is wrong.`;
+      ? `The ${m.value} in ${at} clashes with the ${m.value} in ${clashes.map(plainCell).join("; ")}.`
+      : `The ${m.value} in ${at} doesn't belong there.`;
     return { ...base, text, cells: [m.cell, ...clashes], placement: null };
   }
-  return { ...base, text: `${at} is ${m.truth}, not ${m.value}.`, cells: [m.cell], placement: { cell: m.cell, digit: m.truth } };
+  return { ...base, text: `${capital(at)} is ${m.truth}, not ${m.value}.`, cells: [m.cell], placement: { cell: m.cell, digit: m.truth } };
 }
+
+const capital = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 /** Longest reveal line the hint panel is meant to show; chain explanations are condensed to it. */
 export const MAX_REVEAL_TEXT = 160;
@@ -178,6 +208,21 @@ export function condenseExplanation(explanation: string, limit: number = MAX_REV
   return text.slice(0, room - 3) + "...";
 }
 
+/** Longest hint line the panel shows, after cell references are spelled out. */
+export const MAX_HINT_TEXT = 220;
+
+/**
+ * The step's explanation in plain words within MAX_HINT_TEXT. Spelling out cells lengthens the
+ * text, so the engine wording is condensed harder until the plain version fits.
+ */
+export function plainReveal(explanation: string): string {
+  for (let limit = MAX_REVEAL_TEXT; limit > 40; limit -= 10) {
+    const text = capital(plainText(condenseExplanation(explanation, limit)));
+    if (text.length < MAX_HINT_TEXT) return text;
+  }
+  return capital(plainText(condenseExplanation(explanation, 40))).slice(0, MAX_HINT_TEXT - 4) + "...";
+}
+
 function stepHint(tier: HintTier, step: Step): Hint {
   const name = techniqueInfo(step.technique).name;
   const focus = stepFocus(step);
@@ -186,11 +231,11 @@ function stepHint(tier: HintTier, step: Step): Hint {
     return { ...base, text: `Look at ${focus.where}.`, cells: focus.cells, units: focus.units, technique: null, step: null, placement: null };
   }
   if (tier === "technique") {
-    return { ...base, text: `${name} in ${focus.where}.`, cells: focus.cells, units: focus.units, technique: step.technique, step: null, placement: null };
+    return { ...base, text: `${name} in ${focus.where}. ${TECHNIQUE_TIPS[step.technique]}`, cells: focus.cells, units: focus.units, technique: step.technique, step: null, placement: null };
   }
   return {
     ...base,
-    text: `${condenseExplanation(step.explanation)}.`,
+    text: `${plainReveal(step.explanation)}.`,
     cells: step.cells,
     units: step.units ?? [],
     technique: step.technique,

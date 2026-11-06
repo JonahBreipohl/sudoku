@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test, clickHeaderAction } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
@@ -10,6 +10,9 @@ test.beforeEach(async ({ page }) => {
 });
 
 async function expectNoSeriousViolations(page: Page) {
+  // Scan the settled screen: axe counts opacity, so a fade-in still running (the paused screen's
+  // 160 ms mode-fade) can read as low contrast.
+  await page.waitForFunction(() => document.getAnimations().every((a) => a.playState !== "running"));
   const results = await new AxeBuilder({ page }).analyze();
   const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
   expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
@@ -20,23 +23,21 @@ for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
     await expectNoSeriousViolations(page);
 
-    for (const name of ["Settings", "Shortcuts", "Stats"]) {
-      await clickHeaderAction(page, name);
-      await expect(page.getByRole("dialog")).toBeVisible();
-      await expectNoSeriousViolations(page);
-      await page.keyboard.press("Escape");
-      await expect(page.getByRole("dialog")).toHaveCount(0);
-    }
-
-    await page.locator(cell(2)).click();
-    await page.keyboard.press("4");
-    await page.getByRole("button", { name: /Reset/ }).click();
+    await page.getByRole("button", { name: "New game" }).click();
     await expect(page.getByRole("dialog")).toBeVisible();
     await expectNoSeriousViolations(page);
     await page.keyboard.press("Escape");
     await expect(page.getByRole("dialog")).toHaveCount(0);
 
-    await page.getByRole("button", { name: /Pause/ }).click();
+    for (const level of ["Easy", "Hard"]) {
+      await page.getByRole("radio", { name: level }).check();
+      await expectNoSeriousViolations(page);
+    }
+
+    // No Pause button any more, but a game saved while paused still opens on the paused screen.
+    await page.evaluate(() =>
+      (window as unknown as { __sudoku: { store: { dispatch(c: unknown): void } } }).__sudoku.store.dispatch({ type: "pause" }),
+    );
     await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
     await expectNoSeriousViolations(page);
   });
@@ -65,9 +66,8 @@ test("live region announces placements, conflicts and check results", async ({ p
 });
 
 test("dialogs restore focus to the opener", async ({ page }) => {
-  // On phones the opener is the "More" button, which owns the menu item that opened the dialog.
-  const opener = page.getByRole("button", { name: /^(Settings|More)/ });
-  await clickHeaderAction(page, "Settings");
+  const opener = page.getByRole("button", { name: "New game" });
+  await opener.click();
   await expect(page.getByRole("dialog")).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(opener).toBeFocused();

@@ -9,6 +9,11 @@ const cell = (n: number) => `[data-cell="${n}"]`;
 type Hook = { advance(ms: number): void; store: { getSnapshot(): { record: { log: MetaEvent[] } } } };
 const advance = (page: Page, ms: number) =>
   page.evaluate((n) => (window as unknown as { __sudoku: Hook }).__sudoku.advance(n), ms);
+// There is no Pause button; a game saved while paused is the way players meet the paused screen.
+const pause = (page: Page) =>
+  page.evaluate(() =>
+    (window as unknown as { __sudoku: { store: { dispatch(c: unknown): void } } }).__sudoku.store.dispatch({ type: "pause" }),
+  );
 const logOf = (page: Page) =>
   page.evaluate(() => (window as unknown as { __sudoku: Hook }).__sudoku.store.getSnapshot().record.log);
 
@@ -20,7 +25,7 @@ test.beforeEach(async ({ page }) => {
 test("pause removes the grid from the DOM and the controls, and resume brings the board back", async ({ page }) => {
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
-  await page.getByRole("button", { name: /Pause/ }).click();
+  await pause(page);
   const region = page.getByRole("region", { name: "Game paused" });
   await expect(region).toBeVisible();
   await expect(page.getByRole("grid")).toHaveCount(0);
@@ -36,7 +41,7 @@ test("the paused minute does not count toward the timer", async ({ page }) => {
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
   await advance(page, 30_000);
-  await page.getByRole("button", { name: /Pause/ }).click();
+  await pause(page);
   await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
   await advance(page, 600_000);
   await page.getByRole("button", { name: "Resume" }).click();
@@ -80,7 +85,7 @@ test("reload resumes board, notes and the elapsed time", async ({ page }) => {
 test("a game paused before reload is still paused after it", async ({ page }) => {
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
-  await page.getByRole("button", { name: /Pause/ }).click();
+  await pause(page);
   await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
   await page.reload();
   await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
@@ -92,7 +97,7 @@ test("a game paused before reload is still paused after it", async ({ page }) =>
 for (const theme of ["light", "dark"] as const) {
   test(`paused screen is accessible in ${theme} theme`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: theme });
-    await page.getByRole("button", { name: /Pause/ }).click();
+    await pause(page);
     await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
     const results = await new AxeBuilder({ page }).analyze();
     const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");

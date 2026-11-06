@@ -34,20 +34,23 @@ for (const size of sizes) {
 
         const regions = [
           page.getByRole("grid", { name: "Sudoku board" }),
-          page.getByRole("group", { name: /^Number pad/ }),
           page.getByRole("button", { name: /Undo/ }),
-          page.getByRole("button", { name: /Pause/ }),
-          page.getByRole("button", { name: /^(Settings|More)/ }),
+          page.getByRole("button", { name: /Check/ }),
+          page.getByRole("radiogroup", { name: "Assistance" }),
+          page.getByRole("button", { name: "New game" }),
+          // Touch screens get the 1-9 pad; a mouse-and-keyboard computer gets the typing hint.
+          size.touch ? page.getByRole("group", { name: /^Number pad/ }) : page.locator(".keys-hint"),
         ];
+        await expect(size.touch ? page.locator(".keys-hint") : page.getByRole("group", { name: /^Number pad/ })).toBeHidden();
         for (const region of regions) {
           await expect(region).toBeVisible();
           const b = (await region.boundingBox())!;
           expect(b.x).toBeGreaterThanOrEqual(0);
           expect(b.x + b.width).toBeLessThanOrEqual(size.width + 0.5);
         }
-        if (size.width >= 1200) {
-          await expect(page.getByRole("complementary", { name: "Game info" })).toBeVisible();
-        }
+        // Everything fits without scrolling the app column either.
+        const column = await page.locator(".app").evaluate((e) => e.scrollHeight - e.clientHeight);
+        expect(column).toBeLessThanOrEqual(1);
 
         const results = await new AxeBuilder({ page }).analyze();
         const bad = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
@@ -58,7 +61,7 @@ for (const size of sizes) {
 }
 
 test.describe("keyboard-only flow", () => {
-  test("select, place, note, undo, and open and close dialogs without a pointer", async ({ page }) => {
+  test("select, place, note, undo, switch assistance, and open and close a dialog without a pointer", async ({ page }) => {
     await open(page, "light");
 
     // Tab until focus lands on the grid's roving-tabindex cell.
@@ -87,21 +90,21 @@ test.describe("keyboard-only flow", () => {
     await page.keyboard.press("Control+z");
     await expect(page.locator(cell(2))).toHaveText("");
 
-    // Dialogs: open with the keyboard on a focused opener, close with Escape, focus returns.
-    for (const name of ["Settings", "Shortcuts"]) {
-      // On phones the action lives in the "More" menu; focus returns to the More button.
-      const more = page.getByRole("button", { name: /^More/ });
-      const phone = await more.isVisible();
-      const opener = phone ? more : page.getByRole("button", { name, exact: true });
-      await opener.focus();
-      await page.keyboard.press("Enter");
-      if (phone) await page.locator("#more-menu").getByRole("button", { name, exact: true }).focus();
-      if (phone) await page.keyboard.press("Enter");
-      const dialog = page.getByRole("dialog", { name });
-      await expect(dialog).toBeVisible();
-      await page.keyboard.press("Escape");
-      await expect(dialog).toHaveCount(0);
-      await expect(opener).toBeFocused();
-    }
+    // The assistance switch is one tab stop; arrows change the level.
+    const hard = page.getByRole("radio", { name: "Hard" });
+    await page.getByRole("radio", { name: "Medium" }).focus();
+    await page.keyboard.press("ArrowRight");
+    await expect(hard).toBeChecked();
+    await expect(hard).toBeFocused();
+
+    // Dialog: open with the keyboard on a focused opener, close with Escape, focus returns.
+    const opener = page.getByRole("button", { name: "New game" });
+    await opener.focus();
+    await page.keyboard.press("Enter");
+    const dialog = page.getByRole("dialog", { name: "Choose a difficulty" });
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toHaveCount(0);
+    await expect(opener).toBeFocused();
   });
 });

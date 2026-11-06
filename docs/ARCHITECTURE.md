@@ -35,7 +35,7 @@ src/analysis/ when it is created (no ui, no react).
           ▼
   React (useSyncExternalStore) re-renders changed cells
 
- New game / hint / check / submit / watch ──> worker client ──> engine.worker.ts ──> engine/analysis
+ New game / hint / check / submit ──> worker client ──> engine.worker.ts ──> engine/analysis
 ```
 
 Selection and other UI-only state stay in the UI; the store holds only the record and its derived board.
@@ -80,8 +80,7 @@ interface Step {
 ```
 
 The driver tries techniques from the cheapest tier up and applies the first step found, until
-solved or stuck. `nextStep(state, maxTier)` is shared by the grader, hints, analysis, and the
-Display-mode watch puzzle.
+solved or stuck. `nextStep(state, maxTier)` is shared by the grader, hints and analysis.
 
 ### Technique tiers
 
@@ -209,8 +208,10 @@ version and shape; corrupt data is moved aside, never thrown.
 ### Settings
 
 `src/state/settings.ts` holds one flat `Settings` object: `theme` (light | dark | system),
-`entryMode` (digit-first | cell-first), `autoCandidates`, `checkHighlighting`, `wallClock`,
-`leftHanded`, `idleMinutes` (integer 0-240, 0 disables idle switching), and `showTimer`. Defaults
+`assist` (easy | medium | hard; what Play shows, see `src/ui/assist.ts`), the Spotify fields used
+by Display, `haptics`, and fields kept from the earlier, fuller Play screen (`entryMode`,
+`autoCandidates`, `checkHighlighting`, `wallClock`, `leftHanded`, `idleMinutes`, `showTimer`)
+that the minimal Play screen no longer reads. Defaults
 live in `DEFAULT_SETTINGS`. Storage is untrusted, so `normalizeSettings` validates each key on its
 own: unknown keys are dropped and an invalid value falls back to its default without discarding
 the rest. A pre-settings theme key is read once when no stored `theme` exists, so the choice
@@ -283,23 +284,28 @@ Choices the implementation makes (`src/analysis/solve.ts`):
 
 Tiered from `nextStep` at the current state: nudge (the unit or cell to look at), technique name,
 reveal (the full step with cells highlighted, and the option to apply it). If the board already
-contains a mistake, the nudge points to it first. Every tier is logged as an assist.
+contains a mistake, the nudge points to it first. Every tier is logged as an assist. Hint text is
+written for players: cells are spelled out ("row 5, column 3", never r5c3), the technique tier
+adds a one-sentence description of the technique (`TECHNIQUE_TIPS`), and a reveal is condensed
+until the plain version fits `MAX_HINT_TEXT`. The UI labels the button with the next tier (Hint,
+More help, Show answer), and selects the cell when a hint is about one cell.
 
 ## Display mode
 
 A separate top-level view sharing the store: a large clock and date, the current game rendered
-read-only (or the watch puzzle: a bank puzzle solved by `nextStep` one step every few seconds with
-the technique as a caption), and today's stats. Low CPU: no requestAnimationFrame loops; the clock
+read-only, and today's stats. Low CPU: no requestAnimationFrame loops; the clock
 ticks with an aligned timeout; drift is a CSS transform changed every few minutes with a slow
 transition; night dimming lowers brightness between 22:00 and 07:00 local time. Fullscreen and
-Screen Wake Lock toggles; idle play switches to Display mode after N minutes and pauses the game.
+Screen Wake Lock toggles, and a Settings dialog for the Spotify card. Play has no Display button;
+Display is reached with `?mode=display`, and idle play no longer switches to it.
 
 ## Layout
 
-Container queries on the app root decide the layout: phone portrait (grid on top, pad at the
-bottom in the thumb zone), phone landscape (grid plus side pad), tablet, desktop (grid plus a side
-panel with timer, wall clock, controls, and move history), and Display mode for landscape and
-portrait monitors. A left-handed setting mirrors the side pad and panel. The page never scrolls
+Play is one centered column (board, then the toolbar, then the pad) everywhere except short
+landscape phones, which put the controls beside the grid. Container queries on the app root size
+it; the pad shows only where the primary pointer is coarse (`(hover: none), (pointer: coarse)`),
+and a mouse-and-keyboard computer gets a one-line typing hint instead. Display mode has its own
+landscape and portrait layouts. The page never scrolls
 horizontally. Colors are CSS custom properties on `:root` with Light, Dark, and System themes.
 
 ## Testing hooks
@@ -307,7 +313,7 @@ horizontally. Colors are CSS custom properties on `:root` with Light, Dark, and 
 - `?puzzle=<81 chars>` starts that puzzle (also the share/import format).
 - `&level=<easy|medium|hard|expert|master>` sets the level label for the `?puzzle=` puzzle
   (default `easy`; an unknown value falls back to `easy`).
-- `?seed=<n>` makes generation and the watch puzzle deterministic.
+- `?seed=<n>` makes generation deterministic.
 - `?test=1` exposes `window.__sudoku` with a controllable clock (`advance(ms)`) for e2e; it is
   ignored unless the build is a test build or the flag is present. It also keeps the first launch on
   the hardcoded sample puzzle; without it a fresh profile starts on a random Easy bank puzzle.

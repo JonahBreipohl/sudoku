@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import fc from "fast-check";
-import { cellName, digitBit, parseGrid, type Digit, type Level } from "../engine";
+import { digitBit, techniqueInfo, parseGrid, type Digit, type Level } from "../engine";
 import { SAMPLE_EASY } from "../engine/samples";
 import type { GameRecord, HintTier } from "../state/events";
 import { append, type NewBoardEvent, type Tree } from "../state/tree";
-import { condenseExplanation, hint, MAX_REVEAL_TEXT } from "./hints";
+import { condenseExplanation, hint, MAX_HINT_TEXT, MAX_REVEAL_TEXT, plainReveal, TECHNIQUE_TIPS } from "./hints";
 
 const TIERS: readonly HintTier[] = ["nudge", "technique", "reveal"];
 const T0 = 1_700_000_000_000;
@@ -57,6 +57,14 @@ const MASTER = {
   solution: "283694175459317862617825349531749628976238451824561793342156987168972534795483216",
 };
 
+/** Hints spell cells out for players: "row 1, column 3". */
+const plain = (cell: number) => `row ${Math.floor(cell / 9) + 1}, column ${(cell % 9) + 1}`;
+const Plain = (cell: number) => `R${plain(cell).slice(1)}`;
+// Each tier's budget: one short line for the nudge; name, place and the one-line tip for the technique.
+const LONGEST_TIP = Math.max(...Object.values(TECHNIQUE_TIPS).map((t) => t.length));
+const MAX_NUDGE = 40;
+const MAX_TECHNIQUE = 48 + LONGEST_TIP;
+
 const emptyCells = (puzzle: string) => [...puzzle].flatMap((ch, i) => (ch === "." ? [i] : []));
 const truthAt = (solution: string, cell: number) => Number(solution[cell]) as Digit;
 /** A digit that is not the solution of `cell`. */
@@ -68,7 +76,7 @@ describe("hint on a correct board", () => {
   it("escalates from a place to the technique to the full step", () => {
     const [nudge, technique, reveal] = TIERS.map((t) => hint(fresh, t));
     expect(nudge!.kind).toBe("step");
-    expect(nudge!.text).toMatch(/^Look at (r\dc\d|row \d|column \d|box \d)\.$/);
+    expect(nudge!.text).toMatch(/^Look at (row \d, column \d|row \d|column \d|box \d)\.$/);
     expect(nudge!.technique).toBeNull();
     expect(nudge!.step).toBeNull();
     expect(nudge!.placement).toBeNull();
@@ -78,12 +86,15 @@ describe("hint on a correct board", () => {
     expect(technique!.step).toBeNull();
 
     const step = reveal!.step!;
-    expect(reveal!.text).toBe(`${condenseExplanation(step.explanation)}.`);
+    expect(reveal!.text).toBe(`${plainReveal(step.explanation)}.`);
+    expect(reveal!.text).not.toMatch(/\br\dc\d\b/);
     expect(reveal!.cells).toEqual(step.cells);
     expect(reveal!.placement).toEqual(step.placements[0]);
     expect(reveal!.logId).toBe(step.technique);
-    // The nudge's place is the technique tier's place too.
-    expect(technique!.text.endsWith(nudge!.text.slice("Look at ".length))).toBe(true);
+    // The nudge's place is the technique tier's place too, followed by what the technique means.
+    const place = nudge!.text.slice("Look at ".length, -1);
+    const name = techniqueInfo(step.technique).name;
+    expect(technique!.text).toBe(`${name} in ${place}. ${TECHNIQUE_TIPS[step.technique]}`);
   });
 
   it("returns the same hint at the same tier for the same state", () => {
@@ -118,9 +129,9 @@ describe("hint with a mistake on the board", () => {
       expect(h.technique).toBeNull();
       expect(h.logId).toBe("mistake");
     }
-    expect(nudge!.text).toBe(`Check ${cellName(a)}.`);
+    expect(nudge!.text).toBe(`Something is off in ${plain(a)}.`);
     expect(nudge!.placement).toBeNull();
-    expect(reveal!.text).toBe(`${cellName(a)} is ${truthAt(s, a)}, not ${wrongAt(s, a)}.`);
+    expect(reveal!.text).toBe(`${Plain(a)} is ${truthAt(s, a)}, not ${wrongAt(s, a)}.`);
     expect(reveal!.placement).toEqual({ cell: a, digit: truthAt(s, a) });
   });
 
@@ -131,7 +142,7 @@ describe("hint with a mistake on the board", () => {
     const cell = emptyCells(SAMPLE_EASY.puzzle).find((c) => c < 9)!;
     const digit = grid[rowGiven]!;
     const h = hint(record(SAMPLE_EASY, [{ type: "place", cell, digit }]), "technique");
-    expect(h.text).toBe(`The ${digit} in ${cellName(cell)} clashes with the ${digit} in ${cellName(rowGiven)}.`);
+    expect(h.text).toBe(`The ${digit} in ${plain(cell)} clashes with the ${digit} in ${plain(rowGiven)}.`);
     expect(h.cells).toEqual([cell, rowGiven]);
   });
 
@@ -154,7 +165,7 @@ describe("hint with a mistake on the board", () => {
     const r = record(SAMPLE_EASY, [{ type: "note", cell: a, digit: wrongAt(s, a), on: true }]);
     const nudge = hint(r, "nudge");
     expect(nudge.kind).toBe("mistake");
-    expect(nudge.text).toBe(`Check the notes in ${cellName(a)}.`);
+    expect(nudge.text).toBe(`Check the notes in ${plain(a)}.`);
     expect(hint(r, "reveal").placement).toEqual({ cell: a, digit: truthAt(s, a) });
   });
 });
@@ -198,6 +209,16 @@ describe("condenseExplanation", () => {
     expect(out.endsWith("so remove 1 from r2c2, r3c2")).toBe(true);
   });
 
+  it("spells out a long chain's cells in plain words and still fits the panel", () => {
+    const nodes = Array.from({ length: 20 }, (_, i) => `r${(i % 9) + 1}c${((i * 2) % 9) + 1}`);
+    const chain = nodes.map((n, i) => (i ? `${i % 2 ? "=" : "-"} ${n}` : n)).join(" ");
+    const cells = Array.from({ length: 30 }, (_, i) => `r${(i % 9) + 1}c${(i % 7) + 1}`).join(", ");
+    const out = plainReveal(`X-Chain on 1: ${chain}; one of ${nodes[0]} and ${nodes[19]} must be 1, so remove 1 from ${cells}`);
+    expect(out.length).toBeLessThan(MAX_HINT_TEXT);
+    expect(out).not.toMatch(/\br\dc\d\b/);
+    expect(out).toContain("row 1, column 1");
+  });
+
   it("cuts a long elimination list with a count", () => {
     const cells = Array.from({ length: 30 }, (_, i) => `r${(i % 9) + 1}c${(i % 7) + 1}`).join(", ");
     const out = condenseExplanation(`XY-Chain on 2: r1c1 (2=3) - r1c2 (3=2); one of r1c1 and r1c2 must be 2, so remove 2 from ${cells}`);
@@ -228,7 +249,9 @@ describe("hint properties", () => {
           expect(nudge!.cells.length + nudge!.units.length).toBe(1);
           for (const h of [nudge!, technique!, reveal!]) {
             expect(h.text.length).toBeGreaterThan(0);
-            expect(h.text.length).toBeLessThanOrEqual(nudge === h ? 24 : technique === h ? 48 : 160);
+            expect(h.text.length).toBeLessThanOrEqual(nudge === h ? MAX_NUDGE : technique === h ? MAX_TECHNIQUE : MAX_HINT_TEXT);
+            // Players read these: cells are spelled out, never the r1c3 shorthand.
+            expect(h.text).not.toMatch(/\br\dc\d\b/);
           }
         }),
         { numRuns: 40 },
@@ -252,9 +275,10 @@ describe("hint properties", () => {
           for (const p of step.placements) expect(p.digit).toBe(solution[p.cell]);
           for (const e of step.eliminations) expect(e.digit).not.toBe(solution[e.cell]);
           expect(technique!.technique).toBe(step.technique);
-          expect(nudge!.text.length).toBeLessThanOrEqual(24);
-          expect(technique!.text.length).toBeLessThanOrEqual(48);
-          expect(reveal!.text.length).toBeLessThanOrEqual(MAX_REVEAL_TEXT);
+          expect(nudge!.text.length).toBeLessThanOrEqual(MAX_NUDGE);
+          expect(technique!.text.length).toBeLessThanOrEqual(MAX_TECHNIQUE);
+          expect(reveal!.text.length).toBeLessThanOrEqual(MAX_HINT_TEXT);
+          for (const h of [nudge!, technique!, reveal!]) expect(h.text).not.toMatch(/\br\dc\d\b/);
           expect(reveal!.text).not.toMatch(/\n/);
         }),
         { numRuns: 15 },
@@ -266,7 +290,7 @@ describe("hint properties", () => {
     const r = record(MASTER, [], "easy");
     const h = hint(r, "reveal");
     expect(h.kind).toBe("step");
-    expect(h.text.length).toBeLessThanOrEqual(MAX_REVEAL_TEXT);
+    expect(h.text.length).toBeLessThanOrEqual(MAX_HINT_TEXT);
   });
 
   it("puts a wrong value ahead of every deduction", () => {

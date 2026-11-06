@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { SAMPLE_EASY } from "../src/engine/samples";
-import { expect, test, clickHeaderAction } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 const cell = (n: number) => `[data-cell="${n}"]`;
 
@@ -31,14 +31,27 @@ test("selects by click and moves with arrow keys", async ({ page }) => {
   await expect(page.locator(cell(12))).toHaveClass(/cell--selected/);
 });
 
-test("enters digits from the keyboard and the pad, and erases", async ({ page }) => {
+test("enters digits from the keyboard and erases", async ({ page }) => {
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
   await expect(page.locator(cell(2))).toHaveText("4");
   await page.keyboard.press("Backspace");
   await expect(page.locator(cell(2))).toHaveText("");
+});
 
-  await page.getByRole("group", { name: "Number pad" }).getByRole("button", { name: /^4\b/ }).click();
+test("the 1-9 pad shows on touch screens only; a computer gets the typing hint instead", async ({ page }, info) => {
+  const pad = page.getByRole("group", { name: "Number pad" });
+  const hint = page.locator(".keys-hint");
+  if (info.project.name !== "phone") {
+    await expect(pad).toBeHidden();
+    await expect(hint).toBeVisible();
+    await expect(hint).toContainText("Type 1–9");
+    return;
+  }
+  await expect(hint).toBeHidden();
+  await expect(pad.getByRole("button")).toHaveCount(10);
+  await page.locator(cell(2)).click();
+  await pad.getByRole("button", { name: /^4\b/ }).click();
   await expect(page.locator(cell(2))).toHaveText("4");
   await page.getByRole("button", { name: "Erase" }).click();
   await expect(page.locator(cell(2))).toHaveText("");
@@ -58,61 +71,35 @@ test("marks conflicts without relying on color", async ({ page }) => {
   await expect(page.locator(cell(2))).toHaveAttribute("aria-label", /conflict/);
 });
 
-test("settings dialog changes the theme by keyboard, persists, and System follows the OS live", async ({ page }) => {
-  const html = page.locator("html");
-  await clickHeaderAction(page, "Settings");
-  const dialog = page.getByRole("dialog", { name: "Settings" });
-  await expect(dialog).toBeVisible();
-  await dialog.getByRole("radio", { name: "Dark" }).focus();
-  await page.keyboard.press("Space");
-  await expect(html).toHaveAttribute("data-theme", "dark");
-  await dialog.getByRole("radio", { name: "Light" }).check();
-  await expect(html).toHaveAttribute("data-theme", "light");
+test("assistance switch: Medium marks a wrong digit at once, Hard marks nothing, Easy adds Hint", async ({ page }) => {
+  const level = (name: string) => page.getByRole("radiogroup", { name: "Assistance" }).getByRole("radio", { name });
+  await expect(level("Medium")).toBeChecked();
+  await expect(page.getByRole("button", { name: "Hint" })).toHaveCount(0);
+  // r1c4 is 6 in the solution; 2 breaks no rule there, so only the wrong-digit mark can flag it.
+  await page.locator(cell(3)).click();
+  await page.keyboard.press("2");
+  await expect(page.locator(cell(3))).toHaveClass(/cell--wrong/);
+  await expect(page.locator(cell(3))).not.toHaveClass(/cell--conflict/);
+  await expect(page.locator(cell(3))).toHaveAttribute("aria-label", /wrong/);
+
+  await level("Hard").check();
+  await expect(page.locator(".cell--wrong")).toHaveCount(0);
+  await page.locator(cell(2)).click();
+  await page.keyboard.press("5"); // repeats the given 5 in row 1
+  await expect(page.locator(".cell--conflict")).toHaveCount(0);
+  await expect(page.locator(cell(2))).not.toHaveAttribute("aria-label", /conflict|wrong/);
+
+  // Arrow keys move along the switch like any radio group, and the choice persists.
+  await level("Hard").focus();
+  await page.keyboard.press("ArrowLeft");
+  await expect(level("Medium")).toBeChecked();
+  await page.keyboard.press("ArrowLeft");
+  await expect(level("Easy")).toBeChecked();
+  await expect(page.getByRole("button", { name: "Hint" })).toBeVisible();
+  await expect(page.locator(cell(2))).toHaveClass(/cell--conflict/);
   await page.reload();
-  await expect(html).toHaveAttribute("data-theme", "light");
-
-  await clickHeaderAction(page, "Settings");
-  await page.getByRole("radio", { name: "System" }).check();
-  await expect(html).not.toHaveAttribute("data-theme", /.+/);
-  await page.emulateMedia({ colorScheme: "dark" });
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(21, 23, 27)");
-  await page.emulateMedia({ colorScheme: "light" });
-  await expect.poll(() => page.evaluate(() => getComputedStyle(document.body).backgroundColor)).toBe("rgb(247, 245, 240)");
-
-  await page.keyboard.press("Escape");
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: /^(Settings|More)/ })).toBeFocused();
+  await expect(level("Easy")).toBeChecked();
 });
-
-test("settings dialog toggles reach the app", async ({ page }) => {
-  await clickHeaderAction(page, "Settings");
-  const dialog = page.getByRole("dialog", { name: "Settings" });
-  await dialog.getByRole("radio", { name: "Digit first" }).check();
-  await dialog.getByRole("checkbox", { name: /Show timer/ }).uncheck();
-  await page.reload();
-  await clickHeaderAction(page, "Settings");
-  await expect(page.getByRole("radio", { name: "Digit first" })).toBeChecked();
-  await expect(page.getByRole("checkbox", { name: /Show timer/ })).not.toBeChecked();
-});
-
-for (const theme of ["light", "dark"] as const) {
-  test(`settings dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
-    await page.emulateMedia({ colorScheme: theme });
-    await clickHeaderAction(page, "Settings");
-    const dialog = page.getByRole("dialog", { name: "Settings" });
-    await expect(dialog).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-    expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
-    const viewport = page.viewportSize()!;
-    const box = (await dialog.boundingBox())!;
-    expect(box.x).toBeGreaterThanOrEqual(0);
-    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
-    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(overflow).toBeLessThanOrEqual(0);
-  });
-}
 
 test("has no horizontal scroll", async ({ page }) => {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -194,18 +181,19 @@ test("highlights peers and same digits with non-color cues", async ({ page }) =>
   expect(image).toContain("gradient");
 });
 
-test("pad shows remaining counts and marks finished digits", async ({ page }) => {
+test("pad keys name their remaining count and mark finished digits", async ({ page }, info) => {
+  test.skip(info.project.name !== "phone", "the pad shows on touch screens only");
   await page.goto("/?test=1");
   const pad = page.getByRole("group", { name: "Number pad" });
-  const key = pad.locator(".pad-key").filter({ hasText: /^1/ });
-  const before = Number(await key.locator(".pad-count [aria-hidden]").textContent());
+  const four = pad.locator(".pad-key").filter({ hasText: /^4/ });
+  await expect(four).toHaveAccessibleName(/^4\s*,\s*\d+ remaining$/);
+  // The count is spoken, not shown: only a finished digit gets a visible mark.
+  await expect(four.locator(".pad-count [aria-hidden]")).toHaveCount(0);
+  const remaining = async () => Number(/(\d+) remaining/.exec(await four.evaluate((e) => e.textContent ?? ""))?.[1]);
+  const before = await remaining();
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
-  const four = pad.locator(".pad-key").filter({ hasText: /^4/ });
-  const n4 = Number(await four.locator(".pad-count [aria-hidden]").textContent());
-  await page.keyboard.press("Backspace");
-  await expect(four.locator(".pad-count [aria-hidden]")).toHaveText(String(n4 + 1));
-  expect(before).toBeGreaterThan(0);
+  await expect.poll(remaining).toBe(before - 1);
   // Finish digit 4 through the store, then check dimming, strike-through and the label.
   await page.evaluate(() => {
     const s = (window as unknown as { __sudoku: { store: { getSnapshot(): { board: number[] }; dispatch(c: unknown): void } } }).__sudoku.store;
@@ -223,57 +211,24 @@ test("pad shows remaining counts and marks finished digits", async ({ page }) =>
   expect(box!.height).toBeGreaterThanOrEqual(44);
 });
 
-test("notes: toggle button, N key, Shift+digit, and peers cleared on place", async ({ page }) => {
-  const toggle = page.getByRole("button", { name: /^.?\s*Notes:/ });
-  await expect(toggle).toContainText("Notes: Off");
+test("notes: N key, Shift+digit, and peers cleared on place", async ({ page }, info) => {
+  test.skip(info.project.name === "phone", "notes are a keyboard feature; the touch layout has no notes control");
+  const indicator = page.locator(".keys-hint");
   await page.locator(cell(2)).click();
   await page.keyboard.press("Shift+4");
   await expect(page.locator(cell(2))).toHaveText("4");
   await expect(page.locator(cell(2))).not.toHaveClass(/cell--conflict/);
   await page.keyboard.press("n");
-  await expect(toggle).toContainText("Notes: On");
-  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  await expect(indicator).toHaveText(/Notes on/);
   await page.keyboard.press("6");
   await expect(page.locator(cell(2))).toContainText("6");
   await page.keyboard.press("n");
-  await expect(toggle).toContainText("Notes: Off");
+  await expect(indicator).not.toHaveText(/Notes on/);
   // Placing 4 in a peer cell removes it from cell 2's notes.
   await page.locator(cell(3)).click();
   await page.keyboard.press("4");
   await expect(page.locator(cell(2))).not.toContainText("4");
   await expect(page.locator(cell(2))).toContainText("6");
-});
-
-test("fill notes is an assist and undo removes it", async ({ page }) => {
-  await page.goto("/?test=1");
-  await page.getByRole("button", { name: "Fill notes" }).click();
-  await expect(page.locator(cell(2))).not.toHaveText("");
-  await page.evaluate(() => (window as unknown as { __sudoku: { store: { dispatch(c: unknown): void } } }).__sudoku.store.dispatch({ type: "undo" }));
-  await expect(page.locator(cell(2))).toHaveText("");
-});
-
-test("pause hides the board, resume restores it and focus", async ({ page }) => {
-  await page.locator(cell(2)).click();
-  await page.keyboard.press("4");
-  await page.getByRole("button", { name: /Pause/ }).click();
-  await expect(page.getByRole("region", { name: "Game paused" })).toBeVisible();
-  await expect(page.locator("[data-cell]")).toHaveCount(0);
-  await expect(page.getByRole("grid")).toHaveCount(0);
-  await expect(page.getByRole("button", { name: "Resume" })).toBeFocused();
-  // Digits are ignored while paused.
-  await page.keyboard.press("5");
-  await page.getByRole("button", { name: "Resume" }).click();
-  await expect(page.locator(cell(2))).toHaveText("4");
-  await expect(page.locator(cell(2))).toBeFocused();
-
-  await page.keyboard.press("p");
-  await expect(page.locator("[data-cell]")).toHaveCount(0);
-  await page.keyboard.press("p");
-  await expect(page.locator(cell(2))).toBeFocused();
-  await page.keyboard.press("p");
-  await page.keyboard.press("Enter");
-  await expect(page.locator(cell(2))).toBeFocused();
-
 });
 
 test("new game swaps in a different puzzle from the bank", async ({ page }) => {
@@ -408,27 +363,7 @@ for (const theme of ["light", "dark"] as const) {
   });
 }
 
-test("? opens the shortcuts dialog, keys are inert inside, Escape closes and restores focus", async ({ page }) => {
-  const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
-  await page.locator(cell(2)).click();
-  await page.keyboard.press("?");
-  await expect(dialog).toBeVisible();
-  await expect(dialog.getByRole("button", { name: "Close" })).toBeFocused();
-  await page.keyboard.press("4");
-  await page.keyboard.press("p");
-  // Focus trap: the page behind is inert, so tabbing never reaches the board or header.
-  for (const k of ["Tab", "Tab", "Shift+Tab"]) {
-    await page.keyboard.press(k);
-    await expect(page.locator("[data-cell]:focus, .app-header :focus")).toHaveCount(0);
-  }
-  await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
-  await expect(page.locator(cell(2))).toBeFocused();
-  await expect(page.locator(cell(2))).toHaveText("");
-  await expect(page.getByRole("grid")).toBeVisible();
-});
-
-test("undo and redo shortcuts, and P pauses", async ({ page }) => {
+test("undo and redo shortcuts", async ({ page }) => {
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
   await expect(page.locator(cell(2))).toHaveText("4");
@@ -439,47 +374,6 @@ test("undo and redo shortcuts, and P pauses", async ({ page }) => {
   await page.keyboard.press("Control+z");
   await page.keyboard.press("Control+y");
   await expect(page.locator(cell(2))).toHaveText("4");
-});
-
-for (const theme of ["light", "dark"] as const) {
-  test(`shortcuts dialog is accessible and fits in the ${theme} theme`, async ({ page }) => {
-    await page.emulateMedia({ colorScheme: theme });
-    await clickHeaderAction(page, "Shortcuts");
-    const dialog = page.getByRole("dialog", { name: "Keyboard shortcuts" });
-    await expect(dialog).toBeVisible();
-    const results = await new AxeBuilder({ page }).analyze();
-    const serious = results.violations.filter((v) => v.impact === "serious" || v.impact === "critical");
-    expect(serious.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
-    const viewport = page.viewportSize()!;
-    const box = (await dialog.boundingBox())!;
-    expect(box.x).toBeGreaterThanOrEqual(0);
-    expect(box.x + box.width).toBeLessThanOrEqual(viewport.width);
-    expect(box.y + box.height).toBeLessThanOrEqual(viewport.height);
-    const b = (await dialog.getByRole("button", { name: "Close" }).boundingBox())!;
-    expect(b.height).toBeGreaterThanOrEqual(44);
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
-    expect(overflow).toBeLessThanOrEqual(0);
-  });
-}
-
-test("digit-first mode locks a digit, places by tapping and erases on a second tap", async ({ page }) => {
-  await page.getByRole("button", { name: /Digit-first/ }).click();
-  await page.keyboard.press("4");
-  const pad = page.getByRole("group", { name: "Number pad" });
-  await expect(pad.getByRole("button", { name: /^4\b/ })).toHaveAttribute("aria-pressed", "true");
-  await page.locator(cell(2)).click();
-  await expect(page.locator(cell(2))).toHaveText("4");
-  const events = await page.evaluate(() => {
-    const w = window as unknown as { __sudoku?: { store: { getSnapshot(): { record: { nodes: { input?: string }[] } } } } };
-    return w.__sudoku?.store.getSnapshot().record.nodes.map((n) => n.input);
-  });
-  if (events) expect(events).toContain("digit-first");
-  await page.locator(cell(2)).click();
-  await expect(page.locator(cell(2))).toHaveText("");
-  await page.keyboard.press("Escape");
-  await expect(pad.getByRole("button", { name: /^4\b/ })).not.toHaveAttribute("aria-pressed", "true");
-  await page.locator(cell(2)).click();
-  await expect(page.locator(cell(2))).toHaveText("");
 });
 
 test("new game dialog lists the five levels and cancels without changing the game", async ({ page }) => {
@@ -503,45 +397,28 @@ test("new game dialog lists the five levels and cancels without changing the gam
   await expect(page.locator(cell(2))).toHaveText("4");
 });
 
-test("undo and redo buttons track availability", async ({ page }) => {
+test("the Undo button tracks availability", async ({ page }) => {
   const undo = page.getByRole("button", { name: "Undo" });
-  const redo = page.getByRole("button", { name: "Redo" });
   await expect(undo).toBeDisabled();
-  await expect(redo).toBeDisabled();
   await page.locator(cell(2)).click();
   await page.keyboard.press("4");
   await expect(undo).toBeEnabled();
   await undo.click();
   await expect(page.locator(cell(2))).toHaveText("");
   await expect(undo).toBeDisabled();
-  await expect(redo).toBeEnabled();
-  await redo.click();
-  await expect(page.locator(cell(2))).toHaveText("4");
-  await expect(redo).toBeDisabled();
 });
 
-test("reset asks to confirm and can be undone", async ({ page }) => {
-  const reset = page.getByRole("button", { name: "Reset" });
-  const dialog = page.getByRole("dialog", { name: "Reset this puzzle?" });
-  await expect(reset).toBeDisabled();
-  await page.locator(cell(2)).click();
-  await page.keyboard.press("4");
-  await reset.click();
-  await expect(dialog.getByRole("button", { name: "Keep playing" })).toBeFocused();
-  await page.keyboard.press("Escape");
-  await expect(dialog).toHaveCount(0);
-  await expect(reset).toBeFocused();
-  await expect(page.locator(cell(2))).toHaveText("4");
-
-  await reset.click();
-  await dialog.getByRole("button", { name: "Reset", exact: true }).click();
-  await expect(dialog).toHaveCount(0);
-  await expect(page.locator(cell(2))).toHaveText("");
-  await page.getByRole("button", { name: "Undo" }).click();
-  await expect(page.locator(cell(2))).toHaveText("4");
+test("the play screen offers only New game, theme, Undo, Check and the assistance switch", async ({ page }) => {
+  for (const name of ["Share", "Import", "Shortcuts", "Stats", "Settings", "Display", "Redo", "Reset", "Pause", "Fill notes", "Submit"])
+    await expect(page.getByRole("button", { name, exact: true })).toHaveCount(0);
+  for (const name of ["New game", "Undo", "Check"]) await expect(page.getByRole("button", { name })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Dark mode" })).toBeVisible();
+  await expect(page.getByRole("radiogroup", { name: "Assistance" }).getByRole("radio")).toHaveCount(3);
 });
 
 test("Check reports on track or a count without digits, and marks wrong cells with a cue", async ({ page }) => {
+  // Hard: nothing is marked until Check, so the marks below come from Check alone.
+  await page.getByRole("radio", { name: "Hard" }).check();
   const status = page.getByRole("status").filter({ hasText: /track|error/ });
   const check = page.getByRole("button", { name: "Check", exact: true });
   await page.locator(cell(2)).click();
@@ -551,12 +428,15 @@ test("Check reports on track or a count without digits, and marks wrong cells wi
   await page.locator(cell(3)).click();
   await page.keyboard.press("9"); // wrong
   await expect(page.getByText("On track")).toHaveCount(0);
+  await expect(page.locator(cell(3))).not.toHaveClass(/cell--wrong/);
   await check.click();
   await expect(status).toHaveText("1 error");
   await expect(page.locator(cell(3))).toHaveClass(/cell--wrong/);
   await expect(page.locator(cell(3))).toHaveAttribute("aria-label", /wrong/);
   await expect(page.locator(cell(2))).not.toHaveClass(/cell--wrong/);
-  expect(await page.locator(".controls").innerText()).not.toContain("6");
+  // The result never gives away the right digit (6) for the wrong cell.
+  await expect(page.locator(".check-status")).not.toContainText("6");
+  await expect(page.locator(".toolbar")).not.toContainText("6");
 
   for (const theme of ["light", "dark"] as const) {
     await page.emulateMedia({ colorScheme: theme });
@@ -569,13 +449,4 @@ test("Check reports on track or a count without digits, and marks wrong cells wi
   // Editing makes the result stale.
   await page.keyboard.press("6");
   await expect(page.locator(cell(3))).not.toHaveClass(/cell--wrong/);
-
-  // With the setting off, the count shows but no cell is marked.
-  await page.keyboard.press("9");
-  await clickHeaderAction(page, "Settings");
-  await page.getByRole("checkbox", { name: /Highlight wrong cells/ }).uncheck();
-  await page.getByRole("button", { name: "Close" }).click();
-  await check.click();
-  await expect(status).toHaveText("1 error");
-  await expect(page.locator(".cell--wrong")).toHaveCount(0);
 });

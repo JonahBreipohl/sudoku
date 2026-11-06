@@ -1,14 +1,16 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
 import { SAMPLE_EASY } from "../src/engine/samples";
-import { expect, test } from "./fixtures";
+import { expect, presetSettings, test } from "./fixtures";
 
 const puzzle = SAMPLE_EASY.puzzle.replace(/\./g, "0");
 const blanks = [...puzzle].flatMap((c, i) => (c === "0" ? [i] : []));
 const right = (cell: number) => Number(SAMPLE_EASY.solution[cell]);
 const wrongDigit = (cell: number) => (right(cell) % 9) + 1;
 
-async function open(page: Page) {
+/** Hard by default here, so every wrong mark below comes from Check alone. */
+async function open(page: Page, assist: "easy" | "medium" | "hard" = "hard") {
+  await presetSettings(page, { assist });
   await page.goto(`/?test=1&puzzle=${puzzle}&level=easy`);
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 }
@@ -92,4 +94,30 @@ test("completing a row sweeps it once and announces it", async ({ page }) => {
   await expect(page.locator('[aria-live="polite"]')).toContainText(`Row ${row + 1} complete`);
   // Gone again shortly after, so it never replays on its own.
   await expect(page.locator('[role="gridcell"][data-sweep]')).toHaveCount(0, { timeout: 3000 });
+});
+
+test("Medium marks a wrong digit as it is placed and clears the mark when it is fixed", async ({ page }) => {
+  await open(page, "medium");
+  const bad = blanks[6]!;
+  await enter(page, blanks[0]!, right(blanks[0]!));
+  await expect(page.locator(".cell--wrong")).toHaveCount(0);
+  await enter(page, bad, wrongDigit(bad));
+  await expect(page.locator(`[data-cell="${bad}"]`)).toHaveClass(/cell--wrong/);
+  await expect(page.locator(`[data-cell="${bad}"]`)).toHaveAttribute("aria-label", /, wrong/);
+  await expect(page.locator('[aria-live="polite"]')).toContainText("Not right.");
+  // No Check result line: the mark is live, not a Check.
+  await expect(page.locator(".check-status")).toHaveText("");
+  await enter(page, bad, right(bad));
+  await expect(page.locator(".cell--wrong")).toHaveCount(0);
+  await noAxeViolations(page);
+});
+
+test("Hard never marks or announces a wrong digit on its own", async ({ page }) => {
+  await open(page, "hard");
+  const bad = blanks[6]!;
+  await enter(page, bad, wrongDigit(bad));
+  await expect(page.locator(`[data-cell="${bad}"]`)).toHaveText(String(wrongDigit(bad)));
+  await expect(page.locator(".cell--wrong")).toHaveCount(0);
+  await expect(page.locator('[aria-live="polite"]')).not.toContainText("Not right");
+  await expect(page.getByRole("button", { name: "Hint" })).toHaveCount(0);
 });

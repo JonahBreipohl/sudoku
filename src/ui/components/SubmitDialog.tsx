@@ -3,11 +3,13 @@ import { common, newGame, submitDialog as t } from "../strings";
 
 interface SubmitDialogProps {
   result: "solved" | "incorrect";
+  /** Active solve time, already formatted. */
+  time: string;
+  /** Hint presses during the game, so a solve reports the help it had. */
+  hints: number;
   wrong: number;
   blank: number;
   onClose: () => void;
-  /** Absent until analysis is wired (M7-07); the button then shows as unavailable. */
-  onAnalyze?: () => void;
   /** Offered after a solve so the player can keep going; closes this dialog and opens the picker. */
   onNewGame?: () => void;
 }
@@ -21,7 +23,7 @@ export function submitSummary(wrong: number, blank: number): string {
 }
 
 /** Result screen shown after a submit. The record is already final; closing only reveals the board. */
-export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze, onNewGame }: SubmitDialogProps) {
+export function SubmitDialog({ result, time, hints, wrong, blank, onClose, onNewGame }: SubmitDialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -50,14 +52,9 @@ export function SubmitDialog({ result, wrong, blank, onClose, onAnalyze, onNewGa
         {solved ? t.solved : t.notSolved}
       </h2>
       <p id={messageId} className="dialog-message">
-        {solved ? t.solvedMessage : t.incorrectMessage(submitSummary(wrong, blank))}
+        {solved ? t.solvedMessage(time, hints) : t.incorrectMessage(submitSummary(wrong, blank))}
       </p>
       <div className="dialog-actions">
-        {!solved && (
-          <button type="button" className="ctl" disabled={!onAnalyze} onClick={onAnalyze}>
-            {t.analyze}
-          </button>
-        )}
         {solved && onNewGame && (
           <button type="button" className="ctl" onClick={onNewGame}>
             {newGame.button}

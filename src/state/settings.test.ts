@@ -21,6 +21,13 @@ describe("normalizeSettings", () => {
     expect(normalizeSettings({ spotifyClientId: id + "!" }).spotifyClientId).toBe("");
   });
 
+  it("keeps a valid assistance level and defaults an unknown one to medium", () => {
+    expect(normalizeSettings({ assist: "easy" }).assist).toBe("easy");
+    expect(normalizeSettings({ assist: "hard" }).assist).toBe("hard");
+    expect(normalizeSettings({ assist: "expert" }).assist).toBe("medium");
+    expect(normalizeSettings({ assist: 2 }).assist).toBe("medium");
+  });
+
   it("returns defaults for nothing or junk", () => {
     for (const raw of [null, undefined, 5, "x", [], {}]) {
       expect(normalizeSettings(raw)).toEqual(DEFAULT_SETTINGS);

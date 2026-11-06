@@ -6,9 +6,16 @@ import { createLocalStoragePersistence, type PersistenceAdapter } from "./persis
 
 export type ThemePref = "light" | "dark" | "system";
 export type EntryMode = "digit-first" | "cell-first";
+/**
+ * How much the game helps while playing. Easy: hints on request plus live wrong-entry marks.
+ * Medium: live wrong-entry and conflict marks, no hints. Hard: nothing unless the player presses Check.
+ */
+export type Assist = "easy" | "medium" | "hard";
+export const ASSISTS: readonly Assist[] = ["easy", "medium", "hard"];
 
 export interface Settings {
   theme: ThemePref;
+  assist: Assist;
   entryMode: EntryMode;
   autoCandidates: boolean;
   checkHighlighting: boolean;
@@ -27,6 +34,7 @@ export interface Settings {
 
 export const DEFAULT_SETTINGS: Readonly<Settings> = {
   theme: "system",
+  assist: "medium",
   entryMode: "cell-first",
   autoCandidates: false,
   checkHighlighting: true,
@@ -52,6 +60,7 @@ const isIdle = (v: unknown): v is number =>
 
 const VALIDATORS: { [K in keyof Settings]: (v: unknown) => v is Settings[K] } = {
   theme: oneOf<ThemePref>("light", "dark", "system"),
+  assist: oneOf<Assist>(...ASSISTS),
   entryMode: oneOf<EntryMode>("digit-first", "cell-first"),
   autoCandidates: isBool,
   checkHighlighting: isBool,

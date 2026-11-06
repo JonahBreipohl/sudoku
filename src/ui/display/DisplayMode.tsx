@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { display, spotify } from "../strings";
 import { useSettings } from "../useSettings";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { SettingsDialog } from "../components/SettingsDialog";
 import { NowPlayingCard } from "../spotify/NowPlayingCard";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
@@ -9,8 +10,6 @@ import { useDrift } from "./useDrift";
 import { DisplayControls } from "./DisplayControls";
 import { DisplayBoard } from "./DisplayBoard";
 import { TodayStats } from "./TodayStats";
-import { WatchPuzzle } from "./WatchPuzzle";
-import { watchParams } from "./watch";
 import "./display.css";
 
 function pageVisible(): boolean {
@@ -30,8 +29,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   const { dx, dy, night } = useDrift(now);
   const { settings, update } = useSettings();
 
-  const [params] = useState(() => watchParams(window.location.search));
-  const [watching, setWatching] = useState(params.enabled);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const exitRef = useRef(onExit);
   useEffect(() => {
@@ -39,6 +37,8 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Escape in the settings dialog closes the dialog, not Display.
+      if ((e.target as HTMLElement | null)?.closest?.("dialog")) return;
       if (e.key === "Escape" && !e.defaultPrevented) exitRef.current();
     };
     window.addEventListener("keydown", onKey);
@@ -57,20 +57,21 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
           <TodayStats now={now} />
           {settings.nowPlaying && <NowPlayingCard clientId={settings.spotifyClientId} now={now} active={visible} />}
         </div>
-        {watching ? <WatchPuzzle stepMs={params.stepMs} seed={params.seed} active={visible} /> : <DisplayBoard />}
+        <DisplayBoard />
       </main>
-      <button type="button" className="ctl display-watch-toggle" aria-pressed={watching} onClick={() => setWatching((w) => !w)}>
-        Watch puzzle
-      </button>
       <DisplayControls>
         <button type="button" className="ctl" aria-pressed={settings.nowPlaying} onClick={() => update({ nowPlaying: !settings.nowPlaying })}>
           {settings.nowPlaying ? spotify.toggleOn : spotify.toggleOff}
         </button>
         <ThemeToggle />
+        <button type="button" className="ctl" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}>
+          {display.settings}
+        </button>
       </DisplayControls>
       <button ref={buttonRef} type="button" className="ctl display-exit" onClick={onExit} aria-keyshortcuts="Escape">
         Exit Display
       </button>
+      {settingsOpen && <SettingsDialog settings={settings} onChange={update} onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

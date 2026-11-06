@@ -12,22 +12,20 @@ export const common = {
 export const controls = {
   group: "Game controls",
   undo: "Undo",
-  redo: "Redo",
-  reset: "Reset",
-  pause: "Pause",
-  notes: "Notes:",
-  shiftSuffix: " (Shift)",
-  digitFirst: "Digit-first:",
-  fillNotes: "Fill notes",
-  autoCandidates: "Auto-candidates:",
   check: "Check",
-  submit: "Submit",
-  viewResult: "View result",
-  submitTitle: "Submit this puzzle?",
-  submitMessage: "Submitting is final: the clock stops and the board is locked.",
-  resetTitle: "Reset this puzzle?",
-  resetMessage: "This clears every digit and note back to the givens. You can undo the reset afterwards.",
-  resetConfirm: "Reset",
+  notesOn: "Notes on",
+  keysHint: "Type 1–9 to fill a cell · Backspace erases · Shift+digit or N for notes · Ctrl+Z undoes",
+};
+
+export const assist = {
+  legend: "Assistance",
+  levels: { easy: "Easy", medium: "Medium", hard: "Hard" },
+  help: {
+    easy: "Hints when you ask, and wrong digits are marked.",
+    medium: "Wrong digits are marked as you place them.",
+    hard: "No help. Press Check when you want to know.",
+  },
+  wrong: "Not right.",
 };
 
 export const newGame = {
@@ -51,9 +49,12 @@ export const newGameDialog = {
 };
 
 export const hint = {
-  button: "Hint",
+  /** The button names what the next press gives. */
+  label: { nudge: "Hint", technique: "More help", reveal: "Show answer" },
   panel: "Hint",
-  apply: "Apply",
+  step: (n: number) => `Hint ${n} of 3`,
+  apply: "Fill it in",
+  close: "Close hint",
 };
 
 export const pause = {
@@ -65,32 +66,13 @@ export const pause = {
 export const submitDialog = {
   solved: "Solved",
   notSolved: "Not solved yet",
-  solvedMessage: "Every cell is correct. The clock has stopped.",
+  solvedMessage: (time: string, hints: number) =>
+    `Every cell is correct. Solved in ${time}${hints === 0 ? "" : hints === 1 ? " with 1 hint" : ` with ${hints} hints`}.`,
   incorrectMessage: (summary: string) => `Your submission has ${summary}.`,
-  analyze: "Analyze mistakes",
 };
 
 export const settings = {
   title: "Settings",
-  theme: "Theme",
-  themeLabels: { system: "System", light: "Light", dark: "Dark" },
-  entryMode: "Entry mode",
-  cellFirst: "Cell first",
-  digitFirst: "Digit first",
-  autoCandidates: { label: "Auto candidates", hint: "Fill pencil notes automatically." },
-  checkHighlighting: {
-    label: "Highlight wrong cells on Check",
-    hint: "Check marks each wrong entry with a cross and frame.",
-  },
-  showTimer: { label: "Show timer", hint: "Display the solve clock while playing." },
-  wallClock: { label: "Wall clock in Display mode", hint: "Show the time of day." },
-  leftHanded: {
-    label: "Left-handed layout",
-    hint: "Mirror the pad and side panel to the left in landscape and desktop layouts.",
-  },
-  haptics: { label: "Haptics", hint: "Light vibration on phones when you place digits, hit conflicts or finish." },
-  idleMinutes: "Idle minutes before Display mode",
-  idleOff: "0 turns it off.",
   nowPlaying: { label: "Spotify in Display mode", hint: "Show what's playing, with play, pause and skip." },
   spotify: "Spotify",
   clientId: "Client ID",
@@ -112,7 +94,7 @@ export const spotify = {
   label: "Now playing on Spotify",
   toggleOn: "Spotify: on",
   toggleOff: "Spotify: off",
-  needsClientId: "Add your Spotify client ID in Settings to show what's playing.",
+  needsClientId: "Add your Spotify client ID in Display's Settings to show what's playing.",
   connect: "Connect Spotify",
   loading: "Connecting to Spotify…",
   idle: "Nothing playing on Spotify.",
@@ -225,15 +207,8 @@ export const HOME_URL = "https://jonahbreipohl.com/";
 
 export const app = {
   title: "Sudoku",
-  homeLink: "← Jonah Breipohl",
-  homeMenuLabel: "Jonah Breipohl (home)",
-  more: "More",
-  moreMenuLabel: "More actions",
+  homeName: "Jonah Breipohl",
   hintFailed: "Hint could not be computed. Please try again.",
-  abandonImportTitle: "Abandon this game?",
-  abandonImportConfirm: "Abandon and import",
-  abandonImportMessage: (level: string) =>
-    `Starting the imported ${level} puzzle discards your progress on this puzzle. It is kept in your history as abandoned.`,
 };
 
 export const analysis = {
@@ -315,11 +290,8 @@ export const analysisCopy = {
 export const display = {
   heading: "Display mode",
   exit: "Exit",
+  settings: "Settings",
   boardLabel: "Current game, read only",
-  watchLabel: "Watch puzzle, solving itself",
-  newPuzzle: "New puzzle",
-  solved: "Solved",
-  noFurtherStep: "No further step",
   fullscreenOn: "Fullscreen: on",
   fullscreenOff: "Fullscreen: off",
   keepAwakeOn: "Keep awake: on",
