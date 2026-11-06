@@ -10,7 +10,7 @@ The app has two modes:
   solution and comes in five levels (Easy, Medium, Hard, Expert, Master), each defined by the
   hardest technique a human solver needs. Touch screens get a 1-9 pad; computers type.
 - **Display** is for a side monitor. It shows a large clock and date, a rendered puzzle (the
-  current game, or a slow self-solving "watch" puzzle with technique captions), and today's
+  current game, read only), and today's
   stats. It is calm and low-CPU: the clock ticks once a second and there are no constant
   animations.
 
@@ -29,8 +29,12 @@ Below the board:
 - **Check** reports "On track" or an error count and marks the wrong cells until your next edit.
   It never shows the right digit.
 - **Assistance** is a three-position switch, remembered between visits:
-  - **Easy**: a Hint button (press again to escalate from a nudge, to the technique, to the answer
-    with an Apply button), plus everything in Medium.
+  - **Easy**: a Hint button, plus everything in Medium. Each press goes one step further, and the
+    button says what comes next: **Hint** points at where to look, **More help** names the technique
+    and says in a sentence what it means, and **Show answer** gives the full step with a **Fill it
+    in** button. The panel counts the steps ("Hint 2 of 3"), a hint about one cell selects that cell
+    so you can type straight away, and ✕ or Esc closes it. The solved message says how many hints
+    you used.
   - **Medium** (default): a wrong digit is marked the moment you place it, and repeated digits in a
     row, column or box are flagged.
   - **Hard**: no help at all until you press Check.

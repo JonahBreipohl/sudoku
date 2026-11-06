@@ -49,9 +49,12 @@ export const newGameDialog = {
 };
 
 export const hint = {
-  button: "Hint",
+  /** The button names what the next press gives. */
+  label: { nudge: "Hint", technique: "More help", reveal: "Show answer" },
   panel: "Hint",
-  apply: "Apply",
+  step: (n: number) => `Hint ${n} of 3`,
+  apply: "Fill it in",
+  close: "Close hint",
 };
 
 export const pause = {
@@ -63,7 +66,8 @@ export const pause = {
 export const submitDialog = {
   solved: "Solved",
   notSolved: "Not solved yet",
-  solvedMessage: (time: string) => `Every cell is correct. Solved in ${time}.`,
+  solvedMessage: (time: string, hints: number) =>
+    `Every cell is correct. Solved in ${time}${hints === 0 ? "" : hints === 1 ? " with 1 hint" : ` with ${hints} hints`}.`,
   incorrectMessage: (summary: string) => `Your submission has ${summary}.`,
 };
 
@@ -288,10 +292,6 @@ export const display = {
   exit: "Exit",
   settings: "Settings",
   boardLabel: "Current game, read only",
-  watchLabel: "Watch puzzle, solving itself",
-  newPuzzle: "New puzzle",
-  solved: "Solved",
-  noFurtherStep: "No further step",
   fullscreenOn: "Fullscreen: on",
   fullscreenOff: "Fullscreen: off",
   keepAwakeOn: "Keep awake: on",

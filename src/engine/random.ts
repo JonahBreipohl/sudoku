@@ -1,5 +1,5 @@
-// Seeded PRNG. Engine code must never call Math.random: puzzles and the watch
-// puzzle have to be reproducible from a seed.
+// Seeded PRNG. Engine code must never call Math.random: generated puzzles have to be
+// reproducible from a seed.
 
 export interface Rng {
   /** Float in [0, 1). */

@@ -10,8 +10,6 @@ import { useDrift } from "./useDrift";
 import { DisplayControls } from "./DisplayControls";
 import { DisplayBoard } from "./DisplayBoard";
 import { TodayStats } from "./TodayStats";
-import { WatchPuzzle } from "./WatchPuzzle";
-import { watchParams } from "./watch";
 import "./display.css";
 
 function pageVisible(): boolean {
@@ -31,8 +29,6 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   const { dx, dy, night } = useDrift(now);
   const { settings, update } = useSettings();
 
-  const [params] = useState(() => watchParams(window.location.search));
-  const [watching, setWatching] = useState(params.enabled);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const exitRef = useRef(onExit);
@@ -61,11 +57,8 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
           <TodayStats now={now} />
           {settings.nowPlaying && <NowPlayingCard clientId={settings.spotifyClientId} now={now} active={visible} />}
         </div>
-        {watching ? <WatchPuzzle stepMs={params.stepMs} seed={params.seed} active={visible} /> : <DisplayBoard />}
+        <DisplayBoard />
       </main>
-      <button type="button" className="ctl display-watch-toggle" aria-pressed={watching} onClick={() => setWatching((w) => !w)}>
-        Watch puzzle
-      </button>
       <DisplayControls>
         <button type="button" className="ctl" aria-pressed={settings.nowPlaying} onClick={() => update({ nowPlaying: !settings.nowPlaying })}>
           {settings.nowPlaying ? spotify.toggleOn : spotify.toggleOff}

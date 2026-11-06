@@ -87,42 +87,19 @@ test("reduced motion removes the drift transition but keeps the offset", async (
   expect(await body.evaluate((el) => el.style.getPropertyValue("--drift-x"))).toMatch(/^-?\d+px$/);
 });
 
-test("watch puzzle self-solves with a technique caption", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto("/?mode=display&watch&seed=e2e&interval=1");
-  const board = page.getByRole("grid", { name: "Watch puzzle, solving itself" });
-  await expect(board).toBeVisible();
-  const caption = page.locator(".watch-caption strong");
-  await expect(caption).toBeVisible({ timeout: 6000 });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  await expect(page.getByRole("button", { name: "Watch puzzle" })).toHaveAttribute("aria-pressed", "true");
-  expect(errors).toEqual([]);
-});
-
 for (const scheme of ["light", "dark"] as const) {
   for (const [name, size] of [["landscape", { width: 1920, height: 1080 }], ["portrait", { width: 1080, height: 1920 }]] as const) {
-    for (const watch of [false, true]) {
-      test(`display ${name} ${watch ? "watch puzzle" : "board"} shows clock, puzzle, stats; axe clean (${scheme})`, async ({ page }) => {
-        // Reduced motion: the watch caption otherwise fades, and axe would sample mid-fade colors.
-        await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
-        await page.setViewportSize(size);
-        await page.goto(watch ? "/?mode=display&watch&seed=e2e&interval=1" : "/?mode=display");
-        await expect(page.locator(".display-time")).toBeVisible();
-        await expect(
-          page.getByRole("grid", { name: watch ? "Watch puzzle, solving itself" : "Current game, read only" }),
-        ).toBeVisible();
-        await expect(page.getByRole("region", { name: "Today's stats" })).toBeVisible();
-        const results = await new AxeBuilder({ page }).analyze();
-        expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
-      });
-    }
+    test(`display ${name} shows clock, puzzle, stats; axe clean (${scheme})`, async ({ page }) => {
+      await page.emulateMedia({ colorScheme: scheme, reducedMotion: "reduce" });
+      await page.setViewportSize(size);
+      await page.goto("/?mode=display");
+      await expect(page.locator(".display-time")).toBeVisible();
+      await expect(page.getByRole("grid", { name: "Current game, read only" })).toBeVisible();
+      await expect(page.getByRole("region", { name: "Today's stats" })).toBeVisible();
+      // The self-solving watch puzzle was removed; Display shows only the current game.
+      await expect(page.getByRole("button", { name: "Watch puzzle" })).toHaveCount(0);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations.filter((v) => v.impact === "serious" || v.impact === "critical")).toEqual([]);
+    });
   }
 }
-
-test("watch puzzle noted cells pass label-content-name-mismatch", async ({ page }) => {
-  await page.goto("/?mode=display&watch&seed=e2e&interval=1");
-  await expect(page.getByRole("grid", { name: "Watch puzzle, solving itself" })).toBeVisible();
-  const results = await new AxeBuilder({ page }).withRules(["label-content-name-mismatch"]).analyze();
-  expect(results.violations).toEqual([]);
-});

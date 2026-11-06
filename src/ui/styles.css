@@ -178,7 +178,9 @@ button {
    up. --chrome is the height the header and controls need; touch screens add the number pad. */
 .play {
   --chrome: 290px;
-  --size: min(100cqi, 640px, max(220px, calc(100cqb - var(--chrome))));
+  /* An open hint panel needs room too; the board gives it up rather than pushing the pad off. */
+  --hint-room: 0px;
+  --size: min(100cqi, 640px, max(220px, calc(100cqb - var(--chrome) - var(--hint-room))));
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -190,6 +192,13 @@ button {
   .play {
     --chrome: 320px;
   }
+}
+.play:has(.hint-panel) {
+  --hint-room: 110px;
+}
+/* While a hint shows, the level's one-line description is redundant and its line is needed. */
+.play-side:has(.hint-panel) .assist-help {
+  display: none;
 }
 
 /* Board */
@@ -368,19 +377,41 @@ button {
 }
 .hint-panel {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem;
-  min-height: 44px;
-  padding: 0.25rem 0.75rem;
+  gap: 8px;
+  padding: 8px 4px 8px 12px;
   border-left: 4px solid var(--hint);
   background: var(--hint-bg);
   border-radius: var(--radius);
 }
-.hint-panel__text {
-  flex: 1 1 12rem;
+.hint-panel__body {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* "Hint 2 of 3": says how far the help has gone, and that one more press shows the answer. */
+.hint-panel__step {
   margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--hint);
+}
+.hint-panel__text {
+  margin: 2px 0 0;
   font-weight: 600;
+  line-height: 1.35;
+}
+.hint-panel__apply {
+  flex: none;
+  font-weight: 700;
+}
+.hint-panel__close {
+  flex: none;
+  width: var(--touch);
+  padding: 0;
+  border-color: transparent;
+  background: transparent;
 }
 /* Check result line; it takes no room until there is a result. */
 .check-status {
@@ -403,8 +434,10 @@ button {
 }
 
 /* Everything under the board: the toolbar (actions and the assistance switch), a hint, the pad. */
+/* As wide as the board, but never narrower than the phone column: when the board shrinks to make
+   room (for a hint), the controls keep their width instead of wrapping onto more lines. */
 .play-side {
-  width: var(--size);
+  width: max(var(--size), min(100cqi, 420px));
   display: grid;
   gap: 10px;
 }
@@ -427,6 +460,7 @@ button {
 .ctl {
   min-height: var(--touch);
   padding: 0 12px;
+  white-space: nowrap;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: var(--surface);
@@ -599,6 +633,9 @@ button {
   .assist-option {
     padding: 0 10px 0 6px;
   }
+  .hint-panel__text {
+    font-size: 0.9375rem;
+  }
 }
 
 /* Very narrow phones (320px viewport, 288px column): the switch's label and help would each take a
@@ -617,6 +654,25 @@ button {
   }
   .pad-key {
     min-height: var(--touch);
+  }
+  .hint-panel__step {
+    display: none;
+  }
+  .hint-panel__text {
+    font-size: 0.875rem;
+  }
+  /* Undo, Check and the hint button share one row: drop their decorative icons and some padding. */
+  .controls .ctl {
+    padding: 0 10px;
+  }
+  .controls .ctl > [aria-hidden="true"] {
+    display: none;
+  }
+  .app-header h1 {
+    font-size: 1.05rem;
+  }
+  .play {
+    --size: min(100cqi, max(200px, calc(100cqb - var(--chrome) - var(--hint-room))));
   }
 }
 

@@ -286,6 +286,7 @@ function Game({
     dispatch({ type: "resume" });
   }, [dispatch]);
   const onHintRef = useRef<() => void>(noop);
+  const dismissHintRef = useRef<() => void>(noop);
   const act = useCallback(
     (
       action: NonNullable<ReturnType<typeof actionForKey>>,
@@ -308,9 +309,11 @@ function Game({
         case "toggle-notes":
           setNotesMode((on) => !on);
           return;
+        case "escape":
+          dismissHintRef.current();
+          return;
         case "pause":
         case "help":
-        case "escape":
           return;
       }
       if (selected === null) return;
@@ -521,13 +524,18 @@ function Game({
   useEffect(() => {
     hintKeyRef.current = checkKey;
   }, [checkKey]);
+  // Each press goes one tier further; once the answer shows there is nothing more to ask for.
+  const nextTier: HintTier | null = !currentHint
+    ? "nudge"
+    : currentHint.tier === "nudge"
+      ? "technique"
+      : currentHint.tier === "technique"
+        ? "reveal"
+        : null;
   const onHint = useCallback(() => {
     if (!view.hints || pending || hintBusy || submitted || pausedRef.current) return;
-    const tier: HintTier = !currentHint
-      ? "nudge"
-      : currentHint.tier === "nudge"
-        ? "technique"
-        : "reveal";
+    const tier = nextTier;
+    if (!tier) return;
     const key = checkKey;
     setHintBusy(true);
     getEngineClient()
@@ -538,6 +546,9 @@ function Game({
           dispatch({ type: "hint", tier, step: h.logId });
           setHintState({ key, hint: h });
           setAnnouncement(h.text);
+          // A hint about one cell selects it, so the player can type the fix straight away.
+          const focus = h.kind === "mistake" || (h.units.length === 0 && h.cells.length === 1) ? h.cells[0] : undefined;
+          if (focus !== undefined) setSelected(focus);
         },
         () => setAnnouncement(app.hintFailed),
       )
@@ -547,14 +558,16 @@ function Game({
     pending,
     hintBusy,
     submitted,
-    currentHint,
+    nextTier,
     checkKey,
     game.record,
     dispatch,
   ]);
+  const onDismissHint = useCallback(() => setHintState(null), []);
   useEffect(() => {
     onHintRef.current = onHint;
-  }, [onHint]);
+    dismissHintRef.current = onDismissHint;
+  }, [onHint, onDismissHint]);
   const onApplyHint = useCallback(() => {
     const p = currentHint?.placement;
     if (!currentHint || !p) return;
@@ -628,6 +641,7 @@ function Game({
                     <HintButton
                       busy={hintBusy}
                       disabled={submitted || pending}
+                      next={nextTier}
                       onHint={onHint}
                     />
                   ) : undefined
@@ -650,6 +664,7 @@ function Game({
                 hint={currentHint}
                 canApply={!submitted}
                 onApply={onApplyHint}
+                onClose={onDismissHint}
               />
             )}
             <Pad
@@ -678,6 +693,7 @@ function Game({
         <SubmitDialog
           result={submitResult.result}
           time={formatElapsed(activeMs(game.record, submitResult.at))}
+          hints={game.record.log.filter((e) => e.type === "hint").length}
           wrong={errors.wrong}
           blank={errors.blank}
           onClose={() => setResultDismissed(true)}

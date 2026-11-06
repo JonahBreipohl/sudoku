@@ -4,8 +4,8 @@
  * Arguments and results must be structured-cloneable. Add a convenience method to the client
  * in client.ts only if you want a nicer signature than `client.call("name", ...args)`.
  */
-import { countSolutions, generate, grade, nextStep, parsePuzzleInput, serializeGrid, solve } from "../engine";
-import type { CandidateState, CellValue, Grid, Level, PuzzleParseFailure, Step } from "../engine";
+import { countSolutions, generate, grade, parsePuzzleInput, serializeGrid, solve } from "../engine";
+import type { CellValue, Grid, Level, PuzzleParseFailure } from "../engine";
 import { analyzeMistakes, type MistakeReport } from "../analysis/report";
 import { hint, type Hint } from "../analysis/hints";
 import { analyzeSolve, type SolveReport } from "../analysis/solve";
@@ -37,8 +37,6 @@ export const handlers = {
     solve: analyzeSolve(record),
   }),
   hint: (record: GameRecord, tier: HintTier): Hint => hint(record, tier),
-  /** One logical step from a candidate state (the Display watch puzzle); null when stuck or solved. */
-  nextStep: (state: CandidateState, maxLevel: Level): Step | null => nextStep(state, maxLevel),
   /** Validates (codec), solves and grades pasted text or a ?puzzle= URL before it may start. */
   importPuzzle: (text: string): ImportResult => {
     const parsed = parsePuzzleInput(text);
