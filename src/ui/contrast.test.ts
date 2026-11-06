@@ -47,7 +47,7 @@ const PAIRS: [string, string, number][] = [
   ["entry", "surface", 3],
   ["entry", "related", 3],
   ["entry", "same", 3],
-  ["entry", "selected", 3],
+  ["entry", "selected", 4.5],
   ["conflict", "surface", 3],
   ["conflict", "related", 3],
   ["conflict", "same", 3],

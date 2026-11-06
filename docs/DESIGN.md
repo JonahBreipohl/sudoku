@@ -63,7 +63,7 @@ vanish on a dark sky; the cel shadow stays near-black, so a panel still has a ha
 | `--note` | `#d6cde0` | |
 | `--related` / `--tone` | `#211d3d` / `#4a416f` | |
 | `--same` | `#4b2f63` | Plum |
-| `--selected` | `#6b4a16` | Lantern amber |
+| `--selected` | `#7d4410` | Lantern amber |
 | `--conflict` / `--conflict-bg` | `#ff8a8a` / `#4a1c22` | |
 | `--btn` `-hover` `-press` | `#2b2653` `#3a3470` `#1d1a3c` | |
 | `--primary` `-hover` / `--on-primary` | `#ffd6e2` `#ffe6ee` / `#1f1a24` | |
