@@ -1,12 +1,14 @@
 import type { Page } from "@playwright/test";
 import { SAMPLE_EASY } from "../src/engine/samples";
-import { expect, test } from "./fixtures";
+import { expect, presetSettings, test } from "./fixtures";
 
 const puzzle = SAMPLE_EASY.puzzle.replace(/\./g, "0");
 const blanks = [...puzzle].flatMap((c, i) => (c === "0" ? [i] : []));
 const right = (cell: number) => Number(SAMPLE_EASY.solution[cell]);
 
+/** Hints are an Easy feature. */
 async function open(page: Page) {
+  await presetSettings(page, { assist: "easy" });
   await page.goto(`/?test=1&puzzle=${puzzle}&level=easy`);
   await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
 }
@@ -41,4 +43,17 @@ test("a planted mistake is hinted first and announced", async ({ page }) => {
   await expect(panel(page)).toHaveAttribute("data-tier", "nudge");
   await expect(page.locator(`[data-cell="${bad}"]`)).toHaveClass(/cell--mark-hint/);
   await expect(page.locator("[aria-live=polite]")).not.toHaveText("");
+});
+
+test("leaving Easy hides the Hint button and any hint on screen", async ({ page }) => {
+  await open(page);
+  await page.getByRole("button", { name: "Hint", exact: true }).click();
+  await expect(panel(page)).toBeVisible();
+  await page.getByRole("radio", { name: "Medium" }).check();
+  await expect(panel(page)).toHaveCount(0);
+  await expect(page.locator(".cell--mark-hint, .cell--mark-hint-unit")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Hint", exact: true })).toHaveCount(0);
+  // Shift+H does nothing outside Easy.
+  await page.keyboard.press("Shift+H");
+  await expect(panel(page)).toHaveCount(0);
 });

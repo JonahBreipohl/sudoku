@@ -18,13 +18,16 @@ export const test = base.extend<{ consoleErrors: string[] }>({
 
 export { expect };
 
-/** Clicks a header action, going through the "More" menu when the header is in its phone layout. */
-export async function clickHeaderAction(page: Page, name: string) {
-  const more = page.getByRole("button", { name: /^More/ });
-  if (await more.isVisible()) {
-    await more.click();
-    await page.locator("#more-menu").getByRole("button", { name, exact: true }).click();
-  } else {
-    await page.getByRole("button", { name, exact: true }).click();
-  }
+/** Seeds stored settings before the app loads, e.g. { assist: "hard" }. Later changes persist across reloads. */
+export async function presetSettings(page: Page, settings: Record<string, unknown>) {
+  await page.addInitScript((s) => {
+    if (localStorage.getItem("sudoku:v1:settings") === null) localStorage.setItem("sudoku:v1:settings", JSON.stringify(s));
+  }, settings);
+}
+
+/** The number pad shows on touch screens only; elsewhere digits are typed. */
+export async function enterDigit(page: Page, digit: number) {
+  const pad = page.getByRole("group", { name: /^Number pad/ });
+  if (await pad.isVisible()) await pad.getByRole("button", { name: new RegExp(`^${digit}\\b`) }).click();
+  else await page.keyboard.press(String(digit));
 }

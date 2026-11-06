@@ -5,11 +5,10 @@ no sync. Games and settings are saved in the browser, so a reload resumes where 
 
 The app has two modes:
 
-- **Play** is for solving. Every puzzle has exactly one solution and comes in five levels (Easy,
-  Medium, Hard, Expert, Master), each defined by the hardest technique a human solver needs.
-  Input is built for keyboard and touch. When something goes wrong, mistake analysis finds the
-  first move that diverged from the solution, explains what was available instead, and lets you
-  rewind to just before it and keep playing.
+- **Play** is for solving, and is deliberately minimal: the board, New game, a theme switch,
+  Undo, Check, and an Easy / Medium / Hard assistance switch. Every puzzle has exactly one
+  solution and comes in five levels (Easy, Medium, Hard, Expert, Master), each defined by the
+  hardest technique a human solver needs. Touch screens get a 1-9 pad; computers type.
 - **Display** is for a side monitor. It shows a large clock and date, a rendered puzzle (the
   current game, or a slow self-solving "watch" puzzle with technique captions), and today's
   stats. It is calm and low-CPU: the clock ticks once a second and there are no constant
@@ -20,67 +19,66 @@ analysis algorithm are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Playing
 
-Select a cell, then enter a digit. Two entry modes are available:
+Select a cell, then enter a digit: type it on a computer, or tap the 1-9 pad on a phone or tablet
+(the pad only appears on touch screens). The selected cell's row, column and box are highlighted
+and every cell with the same digit is marked. Highlights never rely on color alone.
 
-- **Cell-first**: select a cell, then press a digit.
-- **Digit-first**: lock a digit, then tap or click cells to place it. The number pad shows how
-  many of each digit remain and dims finished digits.
+Below the board:
 
-Notes toggle with the Notes button, the N key, or Shift+digit. Placing a digit removes it from
-the notes of peers in the same row, column and box. The selected cell's row, column and box are
-highlighted, every cell with the same digit is marked, and conflicts are flagged. Highlights
-never rely on color alone.
+- **Undo** steps back one move (no limit; Ctrl/Cmd+Shift+Z or Ctrl+Y redo).
+- **Check** reports "On track" or an error count and marks the wrong cells until your next edit.
+  It never shows the right digit.
+- **Assistance** is a three-position switch, remembered between visits:
+  - **Easy**: a Hint button (press again to escalate from a nudge, to the technique, to the answer
+    with an Apply button), plus everything in Medium.
+  - **Medium** (default): a wrong digit is marked the moment you place it, and repeated digits in a
+    row, column or box are flagged.
+  - **Hard**: no help at all until you press Check.
 
-Check gives a non-final "on track?" with an error count. Submit is final and reports the grade
-and the mistake analysis. A correct full grid is submitted automatically.
+A correct full grid finishes the game by itself and shows your solve time.
 
-### Keyboard shortcuts
-
-Press `?` in the app for the same list in a dialog.
+### Keyboard
 
 | Keys | Action |
 |---|---|
 | Arrows, W A S D, H J K L | Move the selection |
-| 1-9 | Place a digit (toggles a note in notes mode; locks the digit in digit-first mode) |
+| 1-9 | Place a digit (toggles a note in notes mode) |
 | Shift+1-9 | Toggle a note |
-| 0, Backspace, Delete | Erase the cell |
 | N | Toggle notes mode |
-| Esc | Unlock the digit in digit-first mode, or close a dialog |
+| 0, Backspace, Delete | Erase the cell |
 | Ctrl/Cmd+Z | Undo |
 | Ctrl/Cmd+Shift+Z, Ctrl+Y | Redo |
-| Shift+H | Hint (capital H; plain h moves left) |
-| P | Pause or resume |
-| ? | Show the shortcuts list |
+| Shift+H | Hint, on Easy (capital H; plain h moves left) |
 
-Undo and redo have no limit. Reset restarts the puzzle after a confirmation, and it can itself be
-undone.
+Notes are a keyboard feature; the touch layout keeps to the 1-9 pad.
 
 ### Display mode
 
-Display is meant for a second screen or a wall display. It shows the clock, the puzzle and
-today's stats, drifts slowly to avoid burn-in, and dims at night. Fullscreen and keep-screen-awake
+Display is meant for a second screen or a wall display. Open it at `?mode=display` (Play has no
+button for it). It shows the clock, the puzzle and today's stats, drifts slowly to avoid burn-in,
+and dims at night. Fullscreen and keep-screen-awake
 toggles are part of the Display spec in docs/PLAN.md.
 
 ### Light and dark
 
 The sun/moon button in the header (and in Display mode) switches between light and dark in one
-tap. Settings > Theme also offers System, which follows the device.
+tap. Until you use it, the app follows the device.
 
 ### Spotify now playing (optional)
 
 Display mode can show what's playing on your Spotify account (on any device): cover, title,
 artist, album, a progress bar, and previous / play-pause / next. Reading works on any account;
 the playback buttons need Spotify Premium and are disabled, with a note, on free accounts.
-Turn it on or off with **Spotify: on/off** in Display mode or in Settings.
+Turn it on or off with **Spotify: on/off** in Display mode.
 
 One-time setup:
 
 1. At [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard), create an app
    (any name; tick "Web API").
-2. Open Settings here. Under Spotify, the hint shows this page's address: add exactly that as a
+2. Open Display mode and press **Settings**. Under Spotify, the hint shows this page's address: add exactly that as a
    Redirect URI in the Spotify app. Spotify doesn't accept `localhost`; when running locally, open
    the app at `http://127.0.0.1:<port>/` and register that.
-3. Paste the app's Client ID into Settings, then press **Connect Spotify** and approve.
+3. Paste the app's Client ID into those Settings, then press **Connect Spotify** and approve.
 
 Sign-in uses Authorization Code with PKCE, so there is no secret and no server: tokens stay in
 this browser and are sent only to Spotify. While Spotify is in development mode, only accounts

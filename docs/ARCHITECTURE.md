@@ -209,8 +209,10 @@ version and shape; corrupt data is moved aside, never thrown.
 ### Settings
 
 `src/state/settings.ts` holds one flat `Settings` object: `theme` (light | dark | system),
-`entryMode` (digit-first | cell-first), `autoCandidates`, `checkHighlighting`, `wallClock`,
-`leftHanded`, `idleMinutes` (integer 0-240, 0 disables idle switching), and `showTimer`. Defaults
+`assist` (easy | medium | hard; what Play shows, see `src/ui/assist.ts`), the Spotify fields used
+by Display, `haptics`, and fields kept from the earlier, fuller Play screen (`entryMode`,
+`autoCandidates`, `checkHighlighting`, `wallClock`, `leftHanded`, `idleMinutes`, `showTimer`)
+that the minimal Play screen no longer reads. Defaults
 live in `DEFAULT_SETTINGS`. Storage is untrusted, so `normalizeSettings` validates each key on its
 own: unknown keys are dropped and an invalid value falls back to its default without discarding
 the rest. A pre-settings theme key is read once when no stored `theme` exists, so the choice
@@ -292,14 +294,16 @@ read-only (or the watch puzzle: a bank puzzle solved by `nextStep` one step ever
 the technique as a caption), and today's stats. Low CPU: no requestAnimationFrame loops; the clock
 ticks with an aligned timeout; drift is a CSS transform changed every few minutes with a slow
 transition; night dimming lowers brightness between 22:00 and 07:00 local time. Fullscreen and
-Screen Wake Lock toggles; idle play switches to Display mode after N minutes and pauses the game.
+Screen Wake Lock toggles, and a Settings dialog for the Spotify card. Play has no Display button;
+Display is reached with `?mode=display`, and idle play no longer switches to it.
 
 ## Layout
 
-Container queries on the app root decide the layout: phone portrait (grid on top, pad at the
-bottom in the thumb zone), phone landscape (grid plus side pad), tablet, desktop (grid plus a side
-panel with timer, wall clock, controls, and move history), and Display mode for landscape and
-portrait monitors. A left-handed setting mirrors the side pad and panel. The page never scrolls
+Play is one centered column (board, then the toolbar, then the pad) everywhere except short
+landscape phones, which put the controls beside the grid. Container queries on the app root size
+it; the pad shows only where the primary pointer is coarse (`(hover: none), (pointer: coarse)`),
+and a mouse-and-keyboard computer gets a one-line typing hint instead. Display mode has its own
+landscape and portrait layouts. The page never scrolls
 horizontally. Colors are CSS custom properties on `:root` with Light, Dark, and System themes.
 
 ## Testing hooks

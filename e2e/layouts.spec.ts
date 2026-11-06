@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test, clickHeaderAction } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 async function open(page: Page, scheme: "light" | "dark") {
   await page.emulateMedia({ colorScheme: scheme });
@@ -78,56 +78,6 @@ test.describe("narrow 320px", () => {
   }
 });
 
-async function enableLeftHanded(page: Page) {
-  await clickHeaderAction(page, "Settings");
-  const dialog = page.getByRole("dialog", { name: "Settings" });
-  await dialog.getByRole("checkbox", { name: /Left-handed layout/ }).check();
-  await dialog.getByRole("button", { name: "Close" }).click();
-  await expect(page.getByRole("dialog")).toHaveCount(0);
-}
-
-const sizes = [
-  { name: "phone landscape", width: 844, height: 390 },
-  { name: "desktop", width: 1440, height: 900 },
-] as const;
-
-for (const size of sizes) {
-  test.describe(`left-handed ${size.name} ${size.width}x${size.height}`, () => {
-    test.use({ viewport: { width: size.width, height: size.height } });
-
-    for (const scheme of ["light", "dark"] as const) {
-      test(`pad and panel mirror to the left and persist (${scheme})`, async ({ page }) => {
-        await open(page, scheme);
-        let board = await box(page, ".board");
-        let pad = await box(page, ".pad");
-        expect(pad.x).toBeGreaterThanOrEqual(board.x + board.width);
-        await enableLeftHanded(page);
-        board = await box(page, ".board");
-        pad = await box(page, ".pad");
-        expect(pad.x + pad.width).toBeLessThanOrEqual(board.x);
-        expect(await noHScroll(page)).toBe(true);
-        const results = await new AxeBuilder({ page }).analyze();
-        expect(results.violations).toEqual([]);
-        await page.reload();
-        await expect(page.getByRole("grid", { name: "Sudoku board" })).toBeVisible();
-        expect((await box(page, ".pad")).x).toBeLessThan((await box(page, ".board")).x);
-      });
-    }
-  });
-}
-
-test.describe("left-handed portrait 390x844", () => {
-  test.use({ viewport: { width: 390, height: 844 }, hasTouch: true });
-
-  test("layout is unchanged", async ({ page }) => {
-    await open(page, "light");
-    const before = [await box(page, ".board"), await box(page, ".pad"), await box(page, ".controls")];
-    await enableLeftHanded(page);
-    const after = [await box(page, ".board"), await box(page, ".pad"), await box(page, ".controls")];
-    expect(after).toEqual(before);
-  });
-});
-
 for (const [w, h] of [
   [375, 667],
   [360, 740],
@@ -136,7 +86,7 @@ for (const [w, h] of [
     test.use({ viewport: { width: w, height: h }, hasTouch: true });
 
     for (const scheme of ["light", "dark"] as const) {
-      test(`fits without scrolling, More menu works (${scheme})`, async ({ page }) => {
+      test(`fits without scrolling, with a one-row header and a home link (${scheme})`, async ({ page }) => {
         await open(page, scheme);
         const fits = await page.evaluate(() => {
           const el = document.querySelector(".app")!;
@@ -158,31 +108,13 @@ for (const [w, h] of [
         expect(rows).toBeLessThanOrEqual(2);
         expect((await box(page, ".app-header")).height).toBeLessThanOrEqual(64);
 
-        const more = page.getByRole("button", { name: /^More/ });
-        await expect(more).toHaveAttribute("aria-expanded", "false");
-        await more.click();
-        await expect(more).toHaveAttribute("aria-expanded", "true");
-        const home = page.locator("#more-menu").getByRole("link", { name: "Jonah Breipohl (home)" });
+        const home = page.locator(".app-header").getByRole("link", { name: "Jonah Breipohl" });
         await expect(home).toHaveAttribute("href", "https://jonahbreipohl.com/");
-        expect((await home.boundingBox())!.height).toBeGreaterThanOrEqual(44);
-        expect(await page.locator("#more-menu a, #more-menu button").first().textContent()).toBe("Jonah Breipohl (home)");
-        for (const name of ["Share", "Import", "Shortcuts", "Stats", "Settings"]) {
-          const b = await page.getByRole("menu").or(page.locator("#more-menu")).getByRole("button", { name }).boundingBox();
-          expect(b!.height).toBeGreaterThanOrEqual(44);
-        }
+        const target = (await home.boundingBox())!;
+        expect(target.height).toBeGreaterThanOrEqual(44);
+        expect(target.width).toBeGreaterThanOrEqual(44);
         const results = await new AxeBuilder({ page }).analyze();
         expect(results.violations).toEqual([]);
-        await page.keyboard.press("Escape");
-        await expect(more).toHaveAttribute("aria-expanded", "false");
-        await expect(more).toBeFocused();
-
-        await more.click();
-        await page.mouse.click(w / 2, h - 5);
-        await expect(more).toHaveAttribute("aria-expanded", "false");
-
-        await more.click();
-        await page.locator("#more-menu").getByRole("button", { name: "Settings" }).click();
-        await expect(page.getByRole("dialog")).toBeVisible();
       });
     }
   });
@@ -195,8 +127,9 @@ for (const [w, h] of [
   test(`home link in header at ${w}x${h}`, async ({ page }) => {
     await page.setViewportSize({ width: w, height: h });
     await open(page, "light");
-    const link = page.locator(".app-header").getByRole("link", { name: "← Jonah Breipohl" });
+    const link = page.locator(".app-header").getByRole("link", { name: "Jonah Breipohl" });
     await expect(link).toBeVisible();
+    await expect(link).toContainText("Jonah Breipohl");
     await expect(link).toHaveAttribute("href", "https://jonahbreipohl.com/");
     expect((await link.boundingBox())!.height).toBeGreaterThanOrEqual(44);
     await link.focus();

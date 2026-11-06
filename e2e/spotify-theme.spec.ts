@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import type { Page } from "@playwright/test";
-import { expect, test, clickHeaderAction } from "./fixtures";
+import { expect, test } from "./fixtures";
 
 const CLIENT_ID = "0123456789abcdef0123456789abcdef";
 // 1x1 transparent PNG for the album cover.
@@ -119,10 +119,10 @@ test("Spotify toggle in Display hides and shows the card", async ({ page }) => {
   await expect(card.getByText("Test Song")).toBeVisible();
 });
 
-test("Settings take a client ID and show the redirect URI to register", async ({ page }) => {
-  await page.goto("/");
-  await clickHeaderAction(page, "Settings");
-  const dialog = page.getByRole("dialog");
+test("Display's Settings take a client ID and show the redirect URI to register", async ({ page }) => {
+  await page.goto("/?mode=display");
+  await page.getByRole("button", { name: "Settings" }).click();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
   const connect = dialog.getByRole("button", { name: "Connect Spotify" });
   await expect(connect).toBeDisabled();
   const field = dialog.getByRole("textbox", { name: "Client ID" });
@@ -134,8 +134,11 @@ test("Settings take a client ID and show the redirect URI to register", async ({
   await expect(dialog.locator(".settings-code")).toHaveText(new URL("/", page.url()).href);
   await dialog.getByRole("checkbox", { name: /Spotify in Display mode/ }).check();
   expect((await new AxeBuilder({ page }).include("dialog").analyze()).violations).toEqual([]);
-  await dialog.getByRole("button", { name: "Close" }).click();
-  await page.getByRole("button", { name: "Display", exact: true }).click();
+  // Escape closes the dialog only; Display stays, and its focus returns to the Settings button.
+  await page.keyboard.press("Escape");
+  await expect(dialog).toHaveCount(0);
+  await expect(page.locator(".display-time")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Settings" })).toBeFocused();
   await expect(page.getByRole("button", { name: "Connect Spotify" })).toBeVisible();
 });
 

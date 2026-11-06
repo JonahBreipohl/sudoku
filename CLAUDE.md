@@ -1,7 +1,7 @@
 # Browser Sudoku
 
-A browser Sudoku app with two modes: **Play** (focused solving with excellent input and honest
-feedback, including mistake analysis) and **Display** (a calm side-monitor view with a clock, a
+A browser Sudoku app with two modes: **Play** (minimal: board, New game, theme, Undo, Check, an
+Easy / Medium / Hard assistance switch, and a 1-9 pad on touch screens only) and **Display** (a calm side-monitor view with a clock, a
 rendered or self-solving puzzle, and today's stats). Static site, no backend.
 
 - Product spec and milestones: docs/PLAN.md

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { display, spotify } from "../strings";
 import { useSettings } from "../useSettings";
 import { ThemeToggle } from "../components/ThemeToggle";
+import { SettingsDialog } from "../components/SettingsDialog";
 import { NowPlayingCard } from "../spotify/NowPlayingCard";
 import { formatClockSeconds, formatLongDate } from "../clock";
 import { useSecondTick } from "../useSecondTick";
@@ -32,6 +33,7 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
 
   const [params] = useState(() => watchParams(window.location.search));
   const [watching, setWatching] = useState(params.enabled);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const exitRef = useRef(onExit);
   useEffect(() => {
@@ -39,6 +41,8 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
   });
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      // Escape in the settings dialog closes the dialog, not Display.
+      if ((e.target as HTMLElement | null)?.closest?.("dialog")) return;
       if (e.key === "Escape" && !e.defaultPrevented) exitRef.current();
     };
     window.addEventListener("keydown", onKey);
@@ -67,10 +71,14 @@ export function DisplayMode({ onExit }: { onExit: () => void }) {
           {settings.nowPlaying ? spotify.toggleOn : spotify.toggleOff}
         </button>
         <ThemeToggle />
+        <button type="button" className="ctl" aria-haspopup="dialog" onClick={() => setSettingsOpen(true)}>
+          {display.settings}
+        </button>
       </DisplayControls>
       <button ref={buttonRef} type="button" className="ctl display-exit" onClick={onExit} aria-keyshortcuts="Escape">
         Exit Display
       </button>
+      {settingsOpen && <SettingsDialog settings={settings} onChange={update} onClose={() => setSettingsOpen(false)} />}
     </div>
   );
 }

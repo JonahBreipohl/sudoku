@@ -154,15 +154,12 @@ button {
   gap: 8px;
 }
 
-/* Two groups: title and game actions on the left, the rest pushed right by this auto margin. */
-.app-header .header-split {
-  margin-left: auto;
-}
-
 /* Quiet way back to the owner's homepage; the 44px target comes from the flex row's min-height. */
 .home-link {
   display: inline-flex;
   align-items: center;
+  /* Flex drops the space between the arrow and the name, so the gap stands in for it. */
+  gap: 0.3em;
   min-height: var(--touch);
   color: var(--text-muted);
   font-size: 0.875rem;
@@ -171,30 +168,32 @@ button {
 .home-link:hover {
   text-decoration: underline;
 }
-.more-link {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
-  color: inherit;
-}
 
 .app-header h1 {
   font-size: 1.4rem;
   margin: 12px 0;
 }
 
+/* One size drives the board, the pause card and the controls under them, so their edges line
+   up. --chrome is the height the header and controls need; touch screens add the number pad. */
 .play {
+  --chrome: 290px;
+  --size: min(100cqi, 640px, max(220px, calc(100cqb - var(--chrome))));
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: var(--gutter);
+  gap: 12px;
   align-items: center;
   min-width: 0;
+}
+@media (hover: none), (pointer: coarse) {
+  .play {
+    --chrome: 320px;
+  }
 }
 
 /* Board */
 .board {
-  --size: min(100cqi, 560px);
   width: var(--size);
   aspect-ratio: 1;
   display: grid;
@@ -383,67 +382,45 @@ button {
   margin: 0;
   font-weight: 600;
 }
+/* Check result line; it takes no room until there is a result. */
 .check-status {
-  min-height: 44px;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  padding-inline: 0.75rem;
   font-weight: 700;
 }
-.check-status:empty { padding-inline: 0; }
+.check-status:empty {
+  display: none;
+}
 .check-status--bad::before { content: "\2715\00a0"; }
 .check-status--ok::before { content: "\2713\00a0"; }
 
-/* Number pad */
-.pad {
-  width: min(100cqi, 560px);
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+/* Portrait and desktop are one centered column as wide as the largest board, so the header lines
+   up with it. Short landscape screens keep the full width for their side-by-side layout. */
+@media (min-height: 521px) {
+  .app {
+    max-width: calc(640px + 2 * var(--gutter));
+  }
 }
 
-.pad-key {
-  min-height: calc(var(--touch) + 8px);
-  min-width: var(--touch);
-  display: grid;
-  place-items: center;
-  padding: 4px 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--pad-bg);
-  cursor: pointer;
-}
-
-.pad-digit {
-  font-size: 1.4rem;
-  font-weight: 600;
-}
-
-.pad-count {
-  font-size: 0.75rem;
-  color: var(--text-muted);
-}
-
-/* Finished digits: dimmed and struck through, not only grayed. */
-.pad-key--done {
-  color: var(--pad-done);
-}
-.pad-key--done .pad-digit {
-  text-decoration: line-through;
-}
-
+/* Everything under the board: the toolbar (actions and the assistance switch), a hint, the pad. */
 .play-side {
+  width: var(--size);
   display: grid;
-  gap: 8px;
-  justify-items: center;
-  /* Portrait phones: controls and pad hug the bottom edge, in the thumb zone. */
-  margin-top: auto;
+  gap: 10px;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px 12px;
 }
 
 .controls {
-  width: min(100cqi, 560px);
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 8px;
 }
 
@@ -457,321 +434,217 @@ button {
   cursor: pointer;
 }
 
-/* On state: heavier border and weight, plus the text and icon in the label. */
-.ctl--on {
-  border: 3px solid var(--line-strong);
+/* Assistance switch: a pill track with a raised thumb. The chosen level is also bold and dotted,
+   so it never reads by the fill alone. The radios cover each option for native focus and keys. */
+.assist {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.assist-legend {
+  float: left;
+  margin-right: 8px;
+  padding: 0;
+  line-height: calc(var(--touch) + 6px);
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+.assist-track {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--related);
+}
+.assist-option {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  min-height: var(--touch);
+  padding: 0 12px 0 8px;
+  border-radius: 999px;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.assist-option input {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.assist-option--on {
+  background: var(--surface);
+  color: var(--text);
   font-weight: 700;
+  box-shadow: 0 0 0 1px var(--line-strong);
+}
+.assist-option:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 2px;
+}
+.assist-dot {
+  display: inline-block;
+  width: 1em;
+  font-size: 0.625rem;
+  text-align: center;
+}
+.assist-help {
+  clear: both;
+  margin: 4px 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
 }
 
-/* Locked digit: heavy border and an underline, not only a fill. */
-.pad-key--locked {
-  border: 3px solid var(--line-strong);
-  background: var(--same);
+/* Number pad: touch screens only. A mouse-and-keyboard computer types digits instead, so it gets
+   the key hint line; exactly one of the two shows. display:none also drops the pad from tab order. */
+.pad {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
 }
-.pad-key--locked .pad-digit {
-  text-decoration: underline;
-  text-underline-offset: 4px;
+@container (min-width: 600px) {
+  .pad {
+    grid-template-columns: repeat(10, 1fr);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .pad {
+    display: none;
+  }
+}
+@media (hover: none), (pointer: coarse) {
+  .keys-hint {
+    display: none;
+  }
+}
+
+.pad-key {
+  position: relative;
+  min-height: calc(var(--touch) + 8px);
+  min-width: var(--touch);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--pad-bg);
+  cursor: pointer;
+}
+
+.pad-digit {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* Only a finished digit shows a mark: a small check in the corner. */
+.pad-count {
+  position: absolute;
+  top: 2px;
+  right: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Finished digits: dimmed and struck through, not only grayed. */
+.pad-key--done {
+  color: var(--pad-done);
+}
+.pad-key--done .pad-digit {
+  text-decoration: line-through;
 }
 
 .pad--notes .pad-key {
   border-style: dashed;
 }
 
-/* Side panel: hidden below tablet width (display:none also drops it from the tab order). */
-.side-panel {
-  display: none;
-}
-
-/* Tablet and desktop: grid left; clocks, controls, pad and move history in one right column.
-   Phone landscape (short containers) keeps its own layout below. */
-@container (min-width: 700px) and (min-height: 521px) {
-  .play {
-    display: grid;
-    grid-template-columns: auto minmax(260px, 300px);
-    grid-template-rows: minmax(0, 1fr);
-    align-items: start;
-    justify-content: center;
-    min-height: 0;
-  }
-  .board {
-    --size: min(calc(100cqi - 320px), 640px, calc(100cqb - 100px));
-  }
-  .play-side {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-self: stretch;
-    min-height: 0;
-    /* The phone thumb-zone auto margin would push the panel below the board's top edge. */
-    margin-top: 0;
-  }
-  .controls,
-  .pad {
-    width: 100%;
-  }
-  .pad {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  /* The panel's parts join the column's flow so DOM (tab) order stays controls, pad, history
-     while the clocks read first. */
-  .side-panel {
-    display: contents;
-  }
-  .panel-clocks {
-    order: -1;
-  }
-  .history {
-    flex: 1 1 8rem;
-  }
-  /* Left-handed: mirror by grid placement only, so DOM and tab order are unchanged. */
-  .app[data-left-handed] .play {
-    grid-template-columns: minmax(260px, 300px) auto;
-  }
-  .app[data-left-handed] .play > .board,
-  .app[data-left-handed] .play > .pause-overlay {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .app[data-left-handed] .play-side {
-    grid-column: 1;
-    grid-row: 1;
-  }
-}
-
-.panel-clocks {
-  display: flex;
-  gap: var(--gutter);
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-.panel-clock {
-  display: grid;
+.keys-hint {
   margin: 0;
-}
-.panel-label {
-  color: var(--text-muted);
+  text-align: center;
   font-size: 0.8125rem;
-}
-.panel-time {
-  font-size: 1.6rem;
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-}
-.history {
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-}
-.panel-title {
-  margin: 0;
-  padding: 8px 12px 4px;
-  font-size: 1rem;
-}
-.history-scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: 0 12px 8px;
-}
-.history-empty {
-  margin: 0;
   color: var(--text-muted);
 }
-.history-list {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.history-item {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0 8px;
-  padding: 4px 0;
-  border-top: 1px solid var(--line);
-  font-variant-numeric: tabular-nums;
-}
-.history-step {
-  min-width: 2.5ch;
-  color: var(--text-muted);
-}
-.history-item--current .history-text {
-  font-weight: 700;
-}
-/* Undone: dashed rule, struck-through text and an "undone" tag, not only a muted color. */
-.history-item--undone {
-  border-top-style: dashed;
-}
-.history-item--undone .history-text {
-  text-decoration: line-through;
-}
-.history-tag {
-  margin-left: auto;
-  padding: 0 6px;
-  border: 1px solid var(--line-strong);
-  border-radius: 4px;
-  font-size: 0.75rem;
-}
-.history-item--undone .history-tag {
-  border-style: dashed;
-}
 
-/* Header "More" menu: only under 600px, where the full action row would wrap to extra lines. */
-.more {
-  display: none;
-  position: relative;
-}
-.more-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 20;
-  margin: 4px 0 0;
-  padding: 4px;
-  list-style: none;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 160px;
-  background: var(--surface);
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-}
-.more-item {
-  width: 100%;
-  text-align: left;
-  padding: 0 12px;
-  font-size: 0.9375rem;
-}
-
-/* Tablet widths: tighter header spacing so it stays one row, and wrap rather than scroll sideways
-   if it still doesn't fit. */
-@container (min-width: 600px) and (max-width: 899px) and (min-height: 521px) {
-  .app-header {
-    flex-wrap: wrap;
-    gap: 0 8px;
-  }
-}
-
-/* Phone portrait: compact controls so they and the pad fit the thumb zone (bottom third);
-   targets stay at least 44px tall. */
+/* Phone portrait: the controls and pad hug the bottom edge, in the thumb zone. */
 @container (max-width: 599px) {
-  .app-header {
-    flex-wrap: nowrap;
-    justify-content: flex-start;
-    gap: 0 8px;
-  }
-  .header-extra,
   .home-link {
-    display: none;
-  }
-  .more {
-    display: block;
-  }
-  .app-header [data-display-toggle] {
-    margin-left: auto;
-  }
-  .app-header .header-split {
-    margin-left: 0;
-  }
-  .app-header {
-    gap: 0 4px;
-  }
-  .app-header h1 {
-    margin: 4px 0;
+    min-width: var(--touch);
+    justify-content: center;
     font-size: 1.1rem;
   }
-  /* Short phones (375x667): shrink the board so header, controls and pad fit without scrolling.
-     352px is the header, gaps and the controls plus pad stack at these widths. */
-  .board,
-  .pause-overlay {
-    --size: min(100cqi, 560px, max(200px, calc(100cqb - 352px)));
+  .home-name {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .app-header h1 {
+    margin: 8px 0;
+    font-size: 1.2rem;
   }
   .play {
     gap: 8px;
   }
-  .play-side,
-  .controls,
-  .pad {
-    gap: 4px;
+  .play-side {
+    margin-top: auto;
+    gap: 8px;
   }
   .ctl {
-    padding: 0 8px;
-    font-size: 0.8125rem;
+    padding: 0 12px;
   }
-  .check-status {
-    padding-inline: 0.25rem;
+  .assist-option {
+    padding: 0 10px 0 6px;
+  }
+}
+
+/* Very narrow phones (320px viewport, 288px column): the switch's label and help would each take a
+   line the board needs. The legend stays for screen readers; the selected level still shows. */
+@container (max-width: 340px) {
+  .assist-legend {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .assist-help {
+    display: none;
   }
   .pad-key {
     min-height: var(--touch);
-    padding: 0;
-  }
-  .pad-digit {
-    font-size: 1.25rem;
-    line-height: 1.1;
-  }
-}
-
-/* Very narrow: five header items cannot share one row, so wrap instead of scrolling sideways. */
-@container (max-width: 319px) {
-  .app-header {
-    flex-wrap: wrap;
   }
 }
 
 /* Phone landscape: grid left, controls and pad right; everything fits the short viewport. */
 @container (min-width: 560px) and (max-height: 520px) {
-  /* One row is all the height allows, so tighten the spacing instead of wrapping. */
-  .app-header {
-    gap: 6px;
-  }
   .app-header h1 {
     margin: 0;
     font-size: 1.1rem;
   }
   .play {
+    --size: min(calc(100cqb - 56px), 50cqi);
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
-    justify-content: stretch;
     gap: var(--gutter);
   }
-  .board,
-  .pause-overlay {
-    --size: min(calc(100cqb - 56px), 50cqi);
-  }
   .play-side {
-    margin-top: 0;
     width: 100%;
     max-width: 480px;
     justify-self: center;
   }
-  .controls,
   .pad {
-    width: 100%;
-  }
-  .app[data-left-handed] .play {
-    grid-template-columns: minmax(0, 1fr) auto;
-  }
-  .app[data-left-handed] .play > .board,
-  .app[data-left-handed] .play > .pause-overlay {
-    grid-column: 2;
-    grid-row: 1;
-  }
-  .app[data-left-handed] .play-side {
-    grid-column: 1;
-    grid-row: 1;
+    grid-template-columns: repeat(5, 1fr);
   }
 }
 
 /* Pause: same footprint as the board so the layout does not jump. */
 .pause-overlay {
-  --size: min(100cqi, 560px);
   width: var(--size);
   aspect-ratio: 1;
   display: grid;
@@ -792,20 +665,16 @@ button {
   min-width: 140px;
   font-weight: 700;
 }
-@container (min-width: 700px) and (min-height: 521px) {
-  .pause-overlay {
-    --size: min(calc(100cqi - 320px), 640px, calc(100cqb - 100px));
-  }
-}
-
+/* Pushes New game and the theme toggle to the right; the title stays left. */
 .new-game {
+  margin-left: auto;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px;
 }
 
-.new-game-status {
+.new-game-status:not(:empty) {
   min-width: 8ch;
 }
 
@@ -887,37 +756,6 @@ button {
   max-height: calc(100dvh - 2 * var(--gutter));
   overflow-y: auto;
 }
-.shortcuts-heading {
-  margin: 12px 0 4px;
-  font-size: 1rem;
-}
-.shortcuts-list {
-  margin: 0;
-}
-.shortcuts-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-  padding: 4px 0;
-  border-top: 1px solid var(--line);
-}
-.shortcuts-row dt {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  min-width: 11rem;
-}
-.shortcuts-row dd {
-  margin: 0;
-  flex: 1 1 10rem;
-}
-.shortcuts-row kbd {
-  padding: 1px 6px;
-  border: 2px solid var(--line-strong);
-  border-radius: 4px;
-  font: inherit;
-  font-weight: 700;
-}
 
 .level-list {
   display: grid;
@@ -966,11 +804,6 @@ button {
   margin-bottom: 4px;
   font-weight: 700;
 }
-.settings-radios {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
 .settings-radio,
 .settings-row {
   display: flex;
@@ -978,15 +811,6 @@ button {
   gap: 10px;
   min-height: var(--touch);
   cursor: pointer;
-}
-.settings-radio {
-  padding: 0 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-}
-.settings-radio:has(input:checked) {
-  border: 3px solid var(--line-strong);
-  font-weight: 700;
 }
 .settings-radio input,
 .settings-row input[type="checkbox"] {
@@ -1036,17 +860,6 @@ button {
   min-width: var(--touch);
   font-size: 1.15rem;
   line-height: 1;
-}
-.settings-number {
-  width: 4.5rem;
-  min-height: var(--touch);
-  flex: none;
-  padding: 0 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  font: inherit;
 }
 
 /* Press and hover feedback. Only colors and transform animate, so nothing reflows.
@@ -1177,118 +990,6 @@ button {
   .pad-count[data-fade] { animation: pad-check-in 150ms ease-out; }
 }
 
-/* Analysis report */
-.analysis {
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  overflow-wrap: anywhere;
-}
-.analysis:focus-visible,
-.analysis-title:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-.analysis-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-.analysis-title {
-  margin: 0;
-  font-size: 1.1rem;
-}
-.analysis-lead {
-  font-weight: 700;
-  margin: 8px 0 4px;
-}
-.analysis p {
-  margin: 4px 0;
-}
-.analysis-sub {
-  margin: 12px 0 2px;
-  font-size: 0.95rem;
-}
-.analysis-note {
-  color: var(--text-muted);
-}
-.analysis-list {
-  margin: 4px 0;
-  padding-left: 1.4rem;
-}
-.analysis-list li {
-  margin: 4px 0;
-}
-.analysis-facts {
-  display: grid;
-  gap: 4px;
-  margin: 8px 0;
-}
-.analysis-facts div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px 12px;
-}
-.analysis-facts dt {
-  color: var(--text-muted);
-  min-width: 8rem;
-}
-.analysis-facts dd {
-  margin: 0;
-  font-weight: 600;
-}
-.key-swatch {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.12em;
-}
-.key-swatch--root {
-  background: var(--mark-root-bg);
-  box-shadow: inset 0 0 0 3px var(--mark-root);
-}
-.key-swatch--support {
-  background: var(--mark-support-bg);
-  outline: 2px dashed var(--mark-support);
-  outline-offset: -3px;
-}
-
-/* Analysis timeline */
-.timeline {
-  display: grid;
-  gap: 8px;
-}
-.timeline-label {
-  margin: 0;
-  font-weight: 600;
-}
-.timeline-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.timeline-slider {
-  width: 100%;
-  min-height: 44px;
-  accent-color: var(--accent, currentColor);
-}
-.timeline-slider:focus-visible {
-  outline: 3px solid var(--focus);
-  outline-offset: 2px;
-}
-.board[data-preview] {
-  outline: 2px dashed var(--line);
-  outline-offset: 3px;
-}
-
-.stats-label {
-  min-width: 11rem;
-  font-weight: 600;
-}
-
 .daily-start {
   width: 100%;
   margin-bottom: var(--gutter);
@@ -1303,50 +1004,4 @@ button {
   border: 2px solid var(--line-strong);
   border-radius: var(--radius);
   font-weight: 700;
-}
-
-/* Share and import dialogs. */
-.share-row {
-  margin-bottom: var(--gutter);
-}
-.share-label {
-  display: block;
-  margin-bottom: 4px;
-  font-weight: 600;
-}
-.share-field {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.share-input {
-  flex: 1 1 12rem;
-  min-width: 0;
-  min-height: var(--touch);
-  padding: 0 8px;
-  border: 1px solid var(--line-strong);
-  border-radius: var(--radius);
-  background: var(--surface);
-  color: var(--text);
-  font-family: ui-monospace, monospace;
-}
-.import-input {
-  display: block;
-  box-sizing: border-box;
-  width: 100%;
-  padding: 8px;
-  resize: vertical;
-  overflow-wrap: anywhere;
-}
-.import-input[aria-invalid="true"] {
-  border-width: 3px;
-}
-.import-error {
-  min-height: 1.5em;
-  margin: 8px 0;
-  font-weight: 600;
-}
-.share-status {
-  min-height: 1.5em;
-  margin: 0 0 var(--gutter);
 }
