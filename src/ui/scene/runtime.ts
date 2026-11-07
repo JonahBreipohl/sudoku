@@ -28,6 +28,7 @@ import { burstMs, MAX_PETALS, petalPose, planGust, planStorm, type Petal } from 
 import { sceneBus, sceneStats, type SceneRequest } from "./bus";
 import type { Rect } from "./geom";
 import { readPalette, type ScenePalette } from "./tokens";
+import type { SceneContext } from "./gl";
 import * as glsl from "./shaders";
 
 // Flat cel colors must come out exactly as the CSS tokens say (and match the CSS fallback under the
@@ -48,11 +49,8 @@ type U = Record<string, IUniform>;
 const col = () => ({ value: new Color() });
 
 /** Starts the scene in `host`; calls `onReady(true)` once a frame is on the canvas. Returns teardown. */
-export function startScene(host: HTMLElement, onReady: (ready: boolean) => void): () => void {
-  const canvas = document.createElement("canvas");
-  // Our own context check: three reports a failed context creation as a console error.
-  const gl = canvas.getContext("webgl2", { antialias: false, alpha: false, depth: true, stencil: false, powerPreference: "low-power" });
-  if (!gl) return () => {};
+export function startScene(host: HTMLElement, { canvas, gl }: SceneContext, onReady: (ready: boolean) => void): () => void {
+  // The context comes ready-made (gl.ts): three would report a failed creation as a console error.
   host.appendChild(canvas);
 
   let failed = false;
@@ -432,10 +430,29 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     if (resize()) refresh({ recompose: true });
   });
   ro.observe(host);
+  // The board can be replaced without a window resize: New game remounts the keyed game, pausing
+  // swaps the board for the pause card, Display mounts its own, and the scene may start before
+  // any of them. Child-list observers on the few containers that change (never the subtree) keep
+  // the ResizeObserver on whichever board is current, and let go of the old one.
+  const appRoot = document.getElementById("root") ?? document.body;
   let boardEl: Element | null = null;
+  let shells: (Element | null)[] = [];
   const boardRo = new ResizeObserver(() => refresh({ recompose: true }));
+  const rootMo = new MutationObserver(() => watchBoard());
+  const shellMo = new MutationObserver(() => watchBoard());
+  rootMo.observe(appRoot, { childList: true });
   function watchBoard() {
-    const el = document.querySelector(sceneBus.get().mode === "display" ? ".dboard" : ".board");
+    const display = sceneBus.get().mode === "display";
+    const el = document.querySelector(display ? ".dboard" : ".board, .pause-overlay");
+    // Play's keyed game sits in a wrapper (New game replaces its child); the board and the pause
+    // card swap inside .play. Display's board never swaps, and its root is a child of appRoot.
+    const play = display ? null : document.querySelector(".play");
+    const next = [play?.closest(".app")?.parentElement ?? null, play];
+    if (next.some((n, i) => n !== shells[i])) {
+      shellMo.disconnect();
+      for (const n of next) if (n) shellMo.observe(n, { childList: true });
+      shells = next;
+    }
     if (el === boardEl) return;
     if (boardEl) boardRo.unobserve(boardEl);
     boardEl = el;
@@ -500,6 +517,8 @@ export function startScene(host: HTMLElement, onReady: (ready: boolean) => void)
     stopLoop();
     ro.disconnect();
     boardRo.disconnect();
+    rootMo.disconnect();
+    shellMo.disconnect();
     themeMo.disconnect();
     darkScheme().removeEventListener("change", onScheme);
     reducedMotion().removeEventListener("change", onMotion);
