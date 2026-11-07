@@ -96,6 +96,42 @@ test("reduced motion keeps the still frame: no gust after completing a unit", as
   await expectIdle(page);
 });
 
+test("follows a replaced board: pausing swaps it, and the new board's resize re-composes", async ({ page }) => {
+  await page.goto("/?test=1&scene=webgl");
+  await sceneReady(page);
+  await expectIdle(page);
+  type Store = { dispatch(c: { type: string }): void };
+  const dispatch = (type: string) =>
+    page.evaluate((t) => (window as unknown as { __sudoku: { store: Store } }).__sudoku.store.dispatch({ type: t }), type);
+  // Pause swaps the board for the pause card; resume mounts a brand-new board element.
+  await dispatch("pause");
+  await expect(page.locator(".pause-overlay")).toBeVisible();
+  await page.getByRole("button", { name: /resume/i }).click();
+  await expect(page.locator(".board")).toBeVisible();
+  await expectIdle(page);
+  const before = (await scene(page)).frames;
+  // Resize only the new board (no window resize): the scene must notice and re-compose.
+  await page.evaluate(() => {
+    const b = document.querySelector<HTMLElement>(".board")!;
+    b.style.width = `${Math.round(b.getBoundingClientRect().width * 0.7)}px`;
+  });
+  await expect.poll(async () => (await scene(page)).frames).toBeGreaterThan(before);
+  await expectIdle(page);
+});
+
+test("starting the scene leaves no WebGL warning in the console", async ({ page }) => {
+  const warnings: string[] = [];
+  page.on("console", (m) => {
+    if (m.type() === "warning" && /WebGL|WEBGL_debug_renderer_info|CONTEXT_LOST/i.test(m.text()) && !/ReadPixels/.test(m.text())) warnings.push(m.text());
+  });
+  await page.goto("/?test=1");
+  await expect(page.getByRole("gridcell").first()).toBeVisible();
+  await page.waitForTimeout(2500);
+  await page.goto("/?test=1&scene=webgl");
+  await sceneReady(page);
+  expect(warnings).toEqual([]);
+});
+
 test("a theme change re-renders one frame and stays idle", async ({ page }) => {
   await page.goto("/?test=1&scene=webgl");
   await sceneReady(page);

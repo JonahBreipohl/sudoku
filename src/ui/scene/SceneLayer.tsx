@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { sceneBus } from "./bus";
+import { createSceneContext } from "./gl";
 import { along, rng, type Pt } from "./geom";
 import "./scene.css";
 
@@ -80,21 +81,6 @@ function canTry(): boolean {
 }
 
 /**
- * WebGL2 on a real GPU. A software rasterizer (SwiftShader, llvmpipe) draws the full-screen sky on
- * the CPU and stalls the page for a second or more, so those keep the CSS still instead.
- * `?scene=webgl` forces the scene anyway (docs/ARCHITECTURE.md, "Testing hooks").
- */
-function hardwareGl(): boolean {
-  if (new URLSearchParams(window.location.search).get("scene") === "webgl") return true;
-  const gl = document.createElement("canvas").getContext("webgl2");
-  if (!gl) return false;
-  const info = gl.getExtension("WEBGL_debug_renderer_info");
-  const name = info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
-  gl.getExtension("WEBGL_lose_context")?.loseContext();
-  return !/swiftshader|llvmpipe|softpipe|software|basic render/i.test(name);
-}
-
-/**
  * The Hanami world behind the app: a CSS sky and SVG branch paint first; the three.js scene loads
  * once the board is interactive and crossfades in over it. Decorative only, never focusable.
  */
@@ -121,12 +107,17 @@ export function SceneLayer() {
     let cancelled = false;
     const cancelIdle = canTry()
       ? whenIdle(() => {
-          if (cancelled || !hardwareGl()) return;
+          if (cancelled) return;
+          // A software rasterizer (SwiftShader, llvmpipe) draws the full-screen sky on the CPU
+          // and stalls the page for a second or more, so it keeps the CSS still instead.
+          // ?scene=webgl forces the scene anyway (docs/ARCHITECTURE.md, "Testing hooks").
+          const ctx = createSceneContext(new URLSearchParams(window.location.search).get("scene") === "webgl");
+          if (!ctx) return;
           import("./runtime").then(
             (m) => {
               if (cancelled || !host.current) return;
               try {
-                stop = m.startScene(host.current, setReady);
+                stop = m.startScene(host.current, ctx, setReady);
               } catch {
                 setReady(false); // no WebGL after all: the fallback stays
               }
