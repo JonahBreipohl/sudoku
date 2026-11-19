@@ -15,6 +15,14 @@
     <link rel="preload" href="./fonts/m-plus-rounded-1c-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="./fonts/dela-gothic-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin />
     <title>Sudoku</title>
+    <!-- The theme shared by every *.jonahbreipohl.com site, before first paint so a choice made on
+         another of them never flashes the wrong one. src/ui/theme.ts takes over from here. -->
+    <script>
+      try {
+        var c = document.cookie.match(/(?:^|; )jb-theme=(light|dark)(?:;|$)/);
+        if (c) document.documentElement.dataset.theme = c[1];
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

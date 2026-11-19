@@ -51,6 +51,8 @@ director/        Director config, backlog, ledger, logs. Task agents don't edit 
   Never signal by color alone (add a shape, weight, underline, or text cue).
 - Layout with container queries; never scroll horizontally; touch targets at least 44px.
 - No new runtime dependency without a reason in the task report.
+- The theme is shared with jonahbreipohl.com and its other projects through the `jb-theme` cookie
+  (src/ui/sharedTheme.ts; see JonahSite's CLAUDE.md). It wins over the stored setting on load.
 - Comments explain why, not what. Match the surrounding style.
 
 ## Definition of done

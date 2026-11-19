@@ -67,6 +67,21 @@ test("theme switch flips light and dark, persists, and works in Display", async 
   await expect(displayToggle).toHaveAttribute("aria-pressed", "false");
 });
 
+test("theme is shared with the other jonahbreipohl.com sites through one cookie", async ({ page, context, baseURL }) => {
+  await page.emulateMedia({ colorScheme: "light" });
+  // A choice made on another site arrives as the cookie and wins over the stored setting.
+  await context.addCookies([{ name: "jb-theme", value: "dark", url: baseURL! }]);
+  await page.goto("/");
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  const toggle = page.getByRole("button", { name: "Dark mode" });
+  await expect(toggle).toHaveAttribute("aria-pressed", "true");
+  // A choice made here is written back for the other sites.
+  await toggle.click();
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
+  const shared = (await context.cookies()).find((c) => c.name === "jb-theme");
+  expect(shared?.value).toBe("light");
+});
+
 for (const scheme of ["light", "dark"] as const) {
   test(`Spotify card shows the track and controls playback (${scheme})`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: scheme });

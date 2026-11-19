@@ -1,4 +1,5 @@
 import { getSettingsStore, type ThemePref } from "../state/settings";
+import { readSharedTheme, sharedThemeCookie } from "./sharedTheme";
 
 export type { ThemePref };
 export const THEME_ORDER: readonly ThemePref[] = ["system", "light", "dark"];
@@ -20,9 +21,32 @@ export function applyTheme(pref: ThemePref): void {
   else root.dataset.theme = pref;
 }
 
-/** Applies the stored theme synchronously (called before first render) and follows changes. */
+/**
+ * Applies the theme synchronously (called before first render) and follows changes. The cookie
+ * shared with jonahbreipohl.com and its other projects wins over the stored setting, and every
+ * change here is written back to it, so the choice carries between the sites.
+ */
 export function initTheme(): void {
   const store = getSettingsStore();
+  const adopt = () => {
+    const shared = readSharedTheme(document.cookie);
+    if (shared && shared !== store.getSnapshot().theme) store.update({ theme: shared });
+  };
+  adopt();
   applyTheme(store.getSnapshot().theme);
-  store.subscribe(() => applyTheme(store.getSnapshot().theme));
+  store.subscribe(() => {
+    const pref = store.getSnapshot().theme;
+    applyTheme(pref);
+    if (readSharedTheme(document.cookie) !== pref) {
+      document.cookie = sharedThemeCookie(pref, location.hostname, location.protocol);
+    }
+  });
+  // Back from another site restores this page from the back/forward cache, and another tab may
+  // have switched: pick up whatever was chosen meanwhile.
+  window.addEventListener("pageshow", (e) => {
+    if (e.persisted) adopt();
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden) adopt();
+  });
 }
