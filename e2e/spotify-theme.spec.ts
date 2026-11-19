@@ -166,6 +166,12 @@ test("returning from Spotify sign-in exchanges the code and restores the page", 
     expect(body.get("client_id")).toBe(CLIENT_ID);
     await r.fulfill({ json: { access_token: "new-at", refresh_token: "new-rt", expires_in: 3600 } });
   });
+  // Display starts polling as soon as the sign-in lands. Unstubbed, that reached the real Spotify,
+  // whose 401 for the fake token set off a refresh the handler above rejects: a race with the
+  // assertions below that failed this test now and then.
+  await page.route("https://i.scdn.co/**", (r) => r.fulfill({ contentType: "image/png", body: PNG }));
+  await page.route("https://api.spotify.com/v1/me", (r) => r.fulfill({ json: { product: "premium" } }));
+  await page.route("https://api.spotify.com/v1/me/player**", (r) => r.fulfill({ json: playback(true) }));
   await page.goto("/");
   await page.evaluate((clientId) => {
     localStorage.setItem("sudoku:v1:settings", JSON.stringify({ nowPlaying: true, spotifyClientId: clientId }));
