@@ -6,5 +6,8 @@
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./dist"
-  }
+  },
+  // Branch builds run `wrangler preview`, which refuses to start without this block. Empty means
+  // previews use the settings above as they are; production deploys ignore it.
+  "previews": {}
 }
